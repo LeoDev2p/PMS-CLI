@@ -9,6 +9,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 DATABASE = os.getenv("DATABASE")
-DB_PATH = BASE_DIR / DATABASE
+DB_PATH = BASE_DIR / "data" / DATABASE
 
 # settings argon2

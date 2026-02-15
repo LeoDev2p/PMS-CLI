@@ -9,11 +9,19 @@ class BaseModels:
     """
     Base class for database management.
     """
-    def __init__(self, db_path = DB_PATH):
+
+    def __init__(self, db_path=DB_PATH):
         self.db_path = db_path
         self.log_error = get_logger("error", self.__class__.__name__)
 
-    def _execute_query(self, query, params=(), select=True):
+        # noqa: E402
+        from .create_tables import CreateTables
+
+        if not isinstance(self, CreateTables):
+            self.create_tables = CreateTables()
+            self.create_tables.create_all_tables()
+
+    def _execute_query(self, query, params=(), select=True, fetch=0):
         """
         Execute a query.
 
@@ -32,7 +40,7 @@ class BaseModels:
                 cursor = con.cursor()
                 cursor.execute(query, params)
                 if select:
-                    return cursor.fetchall()
+                    return cursor.fetchall() if fetch != 1 else cursor.fetchone()
 
             con.commit()
             return True

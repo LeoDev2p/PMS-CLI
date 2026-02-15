@@ -2,16 +2,21 @@ import re
 from functools import wraps
 
 from src.core.exceptions import EmailError, PasswordError
+from src.core.logging import get_logger
 
+log = get_logger("security", "Validators")
 
 def validation_email(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        email = args[0] if args else kwargs.get("email")
+        data = args[1] if len(args) > 1 else args[0]
+
+        email = data[0]
         patron = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 
-        if not email or not re.match(patron, str(email)):
-            raise EmailError(f"Email invalido: {email}")
+        if not email or not re.match(patron, email):
+            log.warning("Invalid email")
+            raise EmailError(f"invalid email: {email}")
 
         return func(*args, **kwargs)
     return wrapper
@@ -19,11 +24,13 @@ def validation_email(func):
 def validation_password(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        password = args[0] if args else kwargs.get("password")
-        patron = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+        data = args[1] if len(args) > 1 else args[0]
+        password = data[1]
+        patron = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
 
-        if not password or not re.match(patron, str(password)):
-            raise PasswordError(f"Password invalido: {password}")
+        if not password or re.match(patron, password) is None:
+            log.warning("Invalid password")
+            raise PasswordError(f"invalid password: {password}")
 
         return func(*args, **kwargs)
     return wrapper

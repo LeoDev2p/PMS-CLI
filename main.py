@@ -1,7 +1,9 @@
 from src.controllers.auth_controller import AuthController
+from src.controllers.bundle import ControllerBundle
 from src.models.user_models import UsersModels
 from src.services.auth_services import AuthService
-from src.ui.app import View
+from src.services.bundle import ServicesBundle
+from src.ui.cli.app import View
 
 
 class Main:
@@ -13,9 +15,18 @@ class Main:
 
 
 if __name__ == "__main__":
-    model = UsersModels()
-    service = AuthService(model)
-    controller = AuthController(service)
+    # models
+    user_model = UsersModels()
+
+    # services
+    service = ServicesBundle(auth=AuthService(user_model), project=None, task=None)
+
+    # controllers
+    controller = ControllerBundle(
+        auth=AuthController(service.auth), project=None, task=None
+    )
+
+    # view
     view = View(controller)
     main = Main(view)
     main.run()

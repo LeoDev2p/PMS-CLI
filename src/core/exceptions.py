@@ -1,8 +1,9 @@
 # Excepcion base del proyecto
-class ProjectsError (Exception):
+class ProjectsError(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
+
 
 # Excepccion de manejo de errores de base de datos
 class ModelsError(ProjectsError):
@@ -10,26 +11,31 @@ class ModelsError(ProjectsError):
         self.message = message
         super().__init__(self.message)
 
+
 # IntegrityError
 class UniqueError(ModelsError):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
 
+
 class NotnullError(ModelsError):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
+
 
 class ForeingKeyError(ModelsError):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
 
+
 class CheckError(ModelsError):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
+
 
 # OperationalError
 class DatabaseLockedError(ModelsError):
@@ -37,35 +43,40 @@ class DatabaseLockedError(ModelsError):
         self.message = message
         super().__init__(self.message)
 
+
 def handle_sqlite_error(e, log_error, sqlite3):
     msg = str(e).lower()
 
     # --- ERRORES DE INTEGRIDAD (El usuario puede corregirlos) ---
     if isinstance(e, sqlite3.IntegrityError):
         if "unique" in msg:
-            raise UniqueError("Este registro ya existe.")
+            raise UniqueError("This record already exists.")
         if "not null" in msg:
-            raise NotnullError("Hay campos obligatorios vacíos.")
+            raise NotnullError("There are required fields that are empty.")
         if "foreign key" in msg:
-            raise ForeingKeyError("El recurso relacionado no existe.")
+            raise ForeingKeyError("The related resource does not exist.")
         if "check" in msg:
-            raise CheckError("Los datos no cumplen con las reglas de validación.")
+            raise CheckError("The data does not comply with the validation rules.")
 
-        raise ModelsError(f"Error de integridad: {msg}")
+        raise ModelsError(f"integrity error: {msg}")
 
     # --- ERRORES OPERATIVOS Y DE PROGRAMACIÓN (Bugs del desarrollador) ---
-    if isinstance(e, (sqlite3.OperationalError, sqlite3.ProgrammingError, sqlite3.DatabaseError)):
+    if isinstance(
+        e, (sqlite3.OperationalError, sqlite3.ProgrammingError, sqlite3.DatabaseError)
+    ):
         log_error.critical(f"Database Technical Error: {msg}")
 
         if "database is locked" in msg:
-            raise DatabaseLockedError("El archivo está ocupado, reintenta en un momento.")
+            raise DatabaseLockedError(
+                "The file is busy, try again in a moment."
+            )
 
         # Para todo lo demás (tablas, columnas, sintaxis, bindings)
-        raise ModelsError("Error técnico en el servidor de datos. Contacte a soporte.")
+        raise ModelsError("Technical error in the data server. Contact support.")
 
     # --- ERROR DESCONOCIDO ---
     log_error.error(f"Unknown DB Error: {msg}")
-    raise ProjectsError("Ha ocurrido un error inesperado.")
+    raise ProjectsError("An unexpected error has occurred.")
 
 
 # Excepcion de manejo de errores de logica de negocio
@@ -74,17 +85,31 @@ class BussinesError(ProjectsError):
         self.message = message
         super().__init__(self.message)
 
+
 class AuthError(BussinesError):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
+
 
 class EmailError(AuthError):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
 
+
 class PasswordError(AuthError):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+# excepcion de seguridad
+class HashError(AuthError):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+class HashVerificationError(AuthError):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)

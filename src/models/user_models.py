@@ -2,36 +2,41 @@ from src.models.sqlite import BaseModels
 
 
 class UsersModels(BaseModels):
-    @staticmethod
-    def select():
+    def select(self):
         query = "SELECT * FROM users"
 
-        return BaseModels._execute_query(query)
+        return self._execute_query(query, select=True)
 
-    @staticmethod
-    def insert(params):
+    def insert(self, params) -> bool:
         query = """
-            INSERT INTO users (username, password_hash, role)
-            VALUES (?, ?, ?)
+            INSERT INTO users (username, email, password_hash, role)
+            VALUES (?, ?, ?, ?)
             """
 
-        BaseModels._execute_query(query, params)
+        return self._execute_query(query, params)
 
-    @staticmethod
-    def update(params):
+    def update(self, params):
         query = """
             UPDATE users (username, password_hash, role)
             SET (?, ?, ?)
             WHERE id = ?
         """
 
-        BaseModels._execute_query(query, params)
+        self._execute_query(query, params)
 
-    @staticmethod
-    def delete(params):
+    def delete(self, params):
         query = """
             DELETE FROM users
             WHERE id = ?
         """
 
-        BaseModels._execute_query(query, params)
+        self._execute_query(query, params)
+    
+    # filters
+    def select_by_email(self, email):
+        query = """
+            SELECT * FROM users
+            WHERE email = ?
+        """
+
+        return self._execute_query(query, (email,), select=True, fetch=1)

@@ -7,6 +7,7 @@ LOGS_PATH.mkdir(exist_ok=True)
 
 
 def get_logger(tipo: str, modulo: str) -> object:
+    # error, security, audit
     nombre_completo = f"{tipo}.{modulo}"
     logger = logging.getLogger(nombre_completo)
 
