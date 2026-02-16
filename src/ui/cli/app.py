@@ -1,12 +1,15 @@
 from time import sleep
 
 from src.core.exceptions import (
+    AuthenticactionError,
     EmailError,
-    HashError,
+    HashCreatingError,
+    HashInvalidError,
     ModelsError,
     PasswordError,
     ProjectsError,
 )
+from src.models.sessions import Session
 from utils.helpers import clear_screen, progress_bar
 
 from .admin_views import AdminViews
@@ -17,10 +20,9 @@ from .user_views import UserViews
 class View:
     def __init__(self, controller):
         self.controller = controller
-        self.session = {"role": None, "status": False, "user": None}  # admin / user
 
         self.admin_view = AdminViews(controller)
-        self.user_view = UserViews(controller)
+        self.user_view = UserViews(controller, Session)
 
     def run(self):
         while True:
@@ -37,15 +39,13 @@ class View:
                         result = self.controller.auth.login(data)
                         if result:
                             progress_bar()
-                            self.session["role"] = result
-                            self.session["status"] = True
-                            self.session["user"] = data[0]
+                            Session.start(result[0], result[1], data[0])
                             Forms.show_message("Login successful")
                             sleep(2)
 
                             if (
-                                self.session["role"] == "Admin"
-                                and self.session["status"] is True
+                                Session.get_role() == "Admin"
+                                and Session.get_state() is True
                             ):
                                 self.admin_view.run()
                             else:
@@ -53,35 +53,37 @@ class View:
                     except (
                         EmailError,
                         PasswordError,
-                        HashError,
+                        HashInvalidError,
+                        AuthenticactionError,
                         ModelsError,
-                        ProjectsError
+                        ProjectsError,
                     ) as e:
                         Forms.show_message(str(e))
 
-                    if Forms.ask_forms() == "S":
-                        continue
-                    else:
-                        break
+                        if Forms.ask_forms() == "S":
+                            continue
+                        else:
+                            break
 
                 case 2:
                     data = Forms.register_forms()
                     try:
                         if self.controller.auth.register(data):
+                            progress_bar()
                             Forms.show_message("User created successfully")
                             sleep(2)
                     except (
                         EmailError,
-                        HashError,
+                        HashCreatingError,
                         ModelsError,
-                        ProjectsError
+                        ProjectsError,
                     ) as e:
                         Forms.show_message(str(e))
 
-                    if Forms.ask_forms() == "S":
-                        continue
-                    else:
-                        break
+                        if Forms.ask_forms() == "S":
+                            continue
+                        else:
+                            break
                 case 3:
                     break
                 case _:

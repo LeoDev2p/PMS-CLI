@@ -52,3 +52,26 @@ class Forms:
             print(f"Error: {e}")
             return None
         return ask
+    
+class FormsTask:
+    @staticmethod
+    def edit_taskstatus_forms():
+        try:
+            task_name = input("[task_status_name]: ").strip()
+            task_title = input("[task_title]: ").strip()
+            project_title = input("[project_title]: ").strip()
+            return task_name, task_title, project_title
+        except Exception as e:
+            print(f"Error: {e}")
+            return None
+
+class FormsUser:
+    @staticmethod
+    def edit_profile_forms():
+        try:
+            username = input("[username]: ").strip()
+            password = input("[password]: ").strip()
+            return username, password
+        except Exception as e:
+            print(f"Error: {e}")
+            return None

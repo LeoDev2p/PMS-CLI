@@ -16,12 +16,13 @@ class BaseModels:
 
         # noqa: E402
         from .create_tables import CreateTables
-
+        print (f"[DEBUG]: basemodel {self}")
+        print (f"[DEBUG]: {isinstance(self, CreateTables)}")
         if not isinstance(self, CreateTables):
             self.create_tables = CreateTables()
             self.create_tables.create_all_tables()
 
-    def _execute_query(self, query, params=(), select=True, fetch=0):
+    def _execute_query(self, query, params=(), select=False, fetch=0):
         """
         Execute a query.
 

@@ -5,7 +5,7 @@ class ProjectsError(Exception):
         super().__init__(self.message)
 
 
-# Excepccion de manejo de errores de base de datos
+# Excepccion superior de manejo de errores de base de datos
 class ModelsError(ProjectsError):
     def __init__(self, message):
         self.message = message
@@ -48,6 +48,7 @@ def handle_sqlite_error(e, log_error, sqlite3):
     msg = str(e).lower()
 
     # --- ERRORES DE INTEGRIDAD (El usuario puede corregirlos) ---
+    # -- insert
     if isinstance(e, sqlite3.IntegrityError):
         if "unique" in msg:
             raise UniqueError("This record already exists.")
@@ -61,15 +62,14 @@ def handle_sqlite_error(e, log_error, sqlite3):
         raise ModelsError(f"integrity error: {msg}")
 
     # --- ERRORES OPERATIVOS Y DE PROGRAMACIÓN (Bugs del desarrollador) ---
+    # -- select, delete, update
     if isinstance(
         e, (sqlite3.OperationalError, sqlite3.ProgrammingError, sqlite3.DatabaseError)
     ):
         log_error.critical(f"Database Technical Error: {msg}")
 
         if "database is locked" in msg:
-            raise DatabaseLockedError(
-                "The file is busy, try again in a moment."
-            )
+            raise DatabaseLockedError("The file is busy, try again in a moment.")
 
         # Para todo lo demás (tablas, columnas, sintaxis, bindings)
         raise ModelsError("Technical error in the data server. Contact support.")
@@ -79,37 +79,54 @@ def handle_sqlite_error(e, log_error, sqlite3):
     raise ProjectsError("An unexpected error has occurred.")
 
 
-# Excepcion de manejo de errores de logica de negocio
+# Excepcion superior de manejo de errores de logica de negocio
+# -- conotrollers, views, services
 class BussinesError(ProjectsError):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
 
-
-class AuthError(BussinesError):
+# excepcion de autenticacion
+class AuthenticactionError(BussinesError):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
 
 
-class EmailError(AuthError):
+class EmailError(AuthenticactionError):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
 
 
-class PasswordError(AuthError):
+class PasswordError(AuthenticactionError):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
 
 # excepcion de seguridad
-class HashError(AuthError):
+class HashCreatingError(AuthenticactionError):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
 
-class HashVerificationError(AuthError):
+class HashInvalidError(AuthenticactionError):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+# excepcion de tareas
+class NotFoundTaskError(BussinesError):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+class NotFoundTaskStatusError(BussinesError):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+class NotFoundProjectError(BussinesError):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)

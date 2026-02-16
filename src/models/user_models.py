@@ -15,10 +15,10 @@ class UsersModels(BaseModels):
 
         return self._execute_query(query, params)
 
-    def update(self, params):
+    def update_profile(self, params):
         query = """
-            UPDATE users (username, password_hash, role)
-            SET (?, ?, ?)
+            UPDATE users
+            SET username = ?, password_hash = ?
             WHERE id = ?
         """
 
@@ -31,7 +31,7 @@ class UsersModels(BaseModels):
         """
 
         self._execute_query(query, params)
-    
+
     # filters
     def select_by_email(self, email):
         query = """
@@ -40,3 +40,11 @@ class UsersModels(BaseModels):
         """
 
         return self._execute_query(query, (email,), select=True, fetch=1)
+
+    def select_by_users(self, id):
+        query = """
+            SELECT username, email, password_hash FROM users
+            WHERE id = ?
+        """
+
+        return self._execute_query(query, (id,), select=True, fetch=1)

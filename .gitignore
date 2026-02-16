@@ -3,6 +3,7 @@
 __pycache__
 *.pyc
 *.db
+*.sql
 *.log
 .vscode
 prueba.py

@@ -27,8 +27,9 @@ class AdminViews:
 
     def menu(self):
         print("""
+                      ADMIN\n
         [1] Gestion de usuario (CRUD)
         [2] Gestion de proyecctos (crear/asignar)
         [3] Panel de Estadísticas (Ver carga de trabajo)
-        [4] Salir
+        [4] Exit
         """)
