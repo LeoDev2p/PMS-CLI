@@ -104,6 +104,11 @@ class PasswordError(AuthenticactionError):
         self.message = message
         super().__init__(self.message)
 
+class PasswordMatchError(AuthenticactionError):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self, message)
+
 # excepcion de seguridad
 class HashCreatingError(AuthenticactionError):
     def __init__(self, message):
@@ -115,18 +120,29 @@ class HashInvalidError(AuthenticactionError):
         self.message = message
         super().__init__(self.message)
 
-# excepcion de tareas
-class NotFoundTaskError(BussinesError):
+# excepcion de datos no encontradas
+class DataNotFoundError (BussinesError):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
 
-class NotFoundTaskStatusError(BussinesError):
+class NotFoundTaskError(DataNotFoundError):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
 
-class NotFoundProjectError(BussinesError):
+class NotFoundTaskStatusError(DataNotFoundError):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+class NotFoundProjectError(DataNotFoundError):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+# excepcion de datos vacios
+class DataEmptyError(BussinesError):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)

@@ -1,13 +1,14 @@
 from src.core.exceptions import (
+    DataEmptyError,
     HashCreatingError,
     NotFoundProjectError,
     NotFoundTaskError,
     NotFoundTaskStatusError,
 )
 from src.models.sessions import Session
-from utils.helpers import clear_screen
+from utils.helpers import ViewHelper
 
-from .forms import Forms, FormsTask, FormsUser
+from .forms import UI, Forms, FormsTask, FormsUser
 
 
 class UserViews:
@@ -17,21 +18,21 @@ class UserViews:
 
     def run(self):
         while True:
-            clear_screen()
-            Forms.banner()
+            ViewHelper.clear_screen()
+            UI.banner()
             self.menu()
             option = Forms.option_forms()
+            print()
             match option:
                 case 1:
                     try:
                         data = self.controller.task.get_all_tasks_of_user(
                             Session.get_id()
                         )
-                        # momento
-                        for k in data:
-                            print(k)
+                        # t.title, t.description, ts.name, p.title
+                        UI.show_table_tasks(data)
                     except NotFoundTaskError as e:
-                        Forms.show_message(str(e))
+                        UI.show_message(str(e))
 
                     if Forms.ask_forms() == "S":
                         continue
@@ -39,29 +40,40 @@ class UserViews:
                     # params = id, task_name, task_title, project_title
                     inputs = FormsTask.edit_taskstatus_forms()
                     try:
-                        # falta mostrar antes de actualizar
-                        self.controller.task.edit_task_status(inputs[0], inputs[1], inputs[2])
+                        data = self.controller.task.get_task_by_project_task(inputs[1:])
+                        UI.show_table_tasks(data, message="TASK")
+
+                        self.controller.task.edit_task_status(
+                            inputs[0], inputs[1], inputs[2]
+                        )
                     except (
                         NotFoundTaskError,
                         NotFoundTaskStatusError,
                         NotFoundProjectError,
+                        DataEmptyError,
                     ) as e:
-                        Forms.show_message(str(e))
+                        UI.show_message(str(e))
 
                     if Forms.ask_forms() == "S":
                         continue
                 case 3:
-                    inputs = FormsUser.edit_profile_forms()
-                    data = self.controller.user.get_profile()
-                    print(data)
+                    UI.show_message("Enter your new details\n")
                     try:
-                        self.controller.user.edit_profile(inputs)
-                    except HashCreatingError as e:
-                        Forms.show_message(str(e))
+                        data = self.controller.user.get_profile()
+                        UI.show_table_profile(data)
+
+                        inputs = FormsUser.edit_profile_forms()
+
+                        if Forms.ask_forms(question="Want to update profile?") == "S":
+                            self.controller.user.edit_profile(inputs)
+                            UI.show_message("Profile updated successfully")
+                    except (HashCreatingError, DataEmptyError) as e:
+                        UI.show_message(str(e))
 
                     if Forms.ask_forms() == "S":
                         continue
                 case 4:
+                    Session.stop()
                     break
                 case _:
                     Forms.show_message("Invalid option")
@@ -72,7 +84,7 @@ class UserViews:
         [1] My tasks
         [2] Update task status
         [3] My profile
-        [4] Exit
+        [4] Logout
         """)
 
     def my_task(self):

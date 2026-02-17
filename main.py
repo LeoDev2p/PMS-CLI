@@ -3,7 +3,6 @@ from src.controllers.bundle import ControllerBundle
 from src.controllers.project_controller import ProjectController
 from src.controllers.task_controller import TaskController
 from src.controllers.user_controller import UserController
-from src.services.user_services import UserServices
 from src.models.project_models import ProjectModels
 from src.models.task_models import TaskModels
 from src.models.user_models import UsersModels
@@ -11,6 +10,7 @@ from src.services.auth_services import AuthService
 from src.services.bundle import ServicesBundle
 from src.services.project_services import ProjectServices
 from src.services.task_services import TaskServices
+from src.services.user_services import UserServices
 from src.ui.cli.app import View
 
 
@@ -46,5 +46,8 @@ if __name__ == "__main__":
 
     # view
     view = View(controller)
-    main = Main(view)
-    main.run()
+    try:
+        main = Main(view)
+        main.run()
+    except KeyboardInterrupt as k:
+        print ("\nBye!")

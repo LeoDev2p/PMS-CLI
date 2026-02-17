@@ -3,6 +3,7 @@ from src.core.exceptions import (
     NotFoundTaskError,
     NotFoundTaskStatusError,
 )
+from utils.helpers import TextHelper
 
 
 class TaskServices:
@@ -17,18 +18,28 @@ class TaskServices:
 
         return result
 
-    def modify_id_taskstatus(self, tasK_name, task_title, project_title):
-        print (f"[DEBUG] task service {tasK_name}")
-        id_taskstatus = self.task_model.select_by_task_status(tasK_name)
-        print(f"[DEBUG] task service {id_taskstatus}")
+    def fetch_task_by_project_task(self, params):
+        normalized = TextHelper.normalize(params)
+        result = self.task_model.select_task_by_project_task(normalized)
+        if not result:
+            raise NotFoundTaskError("No tasks found for this user.")
+
+        return result
+
+    def modify_id_taskstatus(self, state_name, task_title, project_title) -> bool:
+
+        normalized = TextHelper.normalize ((state_name, task_title, project_title))
+
+        id_taskstatus = self.task_model.select_by_task_status(normalized[0])
+
         if not id_taskstatus:
             raise NotFoundTaskStatusError("The task status could not be found.")
 
-        id_projects = self.project_model.select_by_projects(project_title)
+        id_projects = self.project_model.select_by_projects(normalized[2])
         if not id_projects:
             raise NotFoundProjectError("Project not found.")
 
-        params = (id_taskstatus[0], task_title, id_projects[0])
+        params = (id_taskstatus[0], normalized[1], id_projects[0])
         result = self.task_model.update_by_status_task(params)
         if not result:
             raise NotFoundTaskError("Task not found.")

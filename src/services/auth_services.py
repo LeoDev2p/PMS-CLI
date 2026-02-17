@@ -1,5 +1,6 @@
 from src.core.exceptions import AuthenticactionError, EmailError
 from src.core.logging import get_logger
+from utils.helpers import TextHelper
 from utils.security import Hasher
 
 
@@ -10,7 +11,9 @@ class AuthService:
         self.log = get_logger("security", "AuthService")
 
     def login_user(self, params: tuple) -> str:
-        user = self.model.select_by_email(params[0])
+        # email , password
+        normalized = TextHelper.normalize(params[0])
+        user = self.model.select_by_email(normalized)
         if not user:
             self.log.warning("Email not found")
             raise AuthenticactionError("Email not found")
@@ -23,13 +26,17 @@ class AuthService:
         return user[0], user[4]  # id, role
 
     def create_user(self, params: tuple) -> bool:
-        user = self.model.select_by_email(params[1])
-        role = "User" if self.model.select() else "Admin"
+        #  email, password, username
+        normalized = TextHelper.normalize((params[2], params[0]))
+        user = self.model.select_by_email(normalized[1])
+        role = "user" if self.model.select() else "admin"
 
         if user:
             self.log.warning("Email already exists")
             raise EmailError("Email already exists")
 
-        params = (params[2], params[0], Hasher.hash_password(params[1]), role)
+        # por solucionar orden
+
+        params = (normalized[0], normalized[1], Hasher.hash_password(params[1]), role)
 
         return self.model.insert(params)

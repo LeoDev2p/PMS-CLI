@@ -13,8 +13,11 @@ def validation_email(func):
 
         email = data[0]
         patron = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+        if not email:
+            log.warning("Email is required")
+            raise EmailError("Email is required")
 
-        if not email or not re.match(patron, email):
+        if not re.match(patron, email):
             log.warning("Invalid email")
             raise EmailError(f"invalid email: {email}")
 
@@ -27,10 +30,18 @@ def validation_password(func):
         data = args[1] if len(args) > 1 else args[0]
         password = data[1]
         patron = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
+        if not password:
+            log.warning("Password is required")
+            raise PasswordError("Password is required")
 
-        if not password or re.match(patron, password) is None:
+        if not re.match(patron, password):
             log.warning("Invalid password")
             raise PasswordError(f"invalid password: {password}")
 
         return func(*args, **kwargs)
     return wrapper
+
+def validation_data_empty(data) -> bool:
+    if isinstance(data, (list, tuple)):
+        return all(x != "" and not str(x).isspace() for x in data)
+    return True if isinstance(data, str) and data != "" and not str(data).isspace() else False

@@ -24,6 +24,38 @@ class UsersModels(BaseModels):
 
         self._execute_query(query, params)
 
+    def update_username(self, params):
+        query = """UPDATE users
+            SET username = ?
+            WHERE id = ?
+        """
+
+        self._execute_query(query, params)
+
+    def update_email(self, params):
+        query = """UPDATE users
+            SET email = ?
+            WHERE id = ?
+        """
+
+        self._execute_query(query, params)
+    
+    def update_password(self, params):
+        query = """UPDATE users
+            SET password = ?
+            WHERE id = ?
+        """
+
+        self._execute_query(query, params)
+    
+    def update_role(self, params):
+        query = """UPDATE users
+            SET role = ?
+            WHERE id = ?
+        """
+
+        self._execute_query(query, params)
+
     def delete(self, params):
         query = """
             DELETE FROM users

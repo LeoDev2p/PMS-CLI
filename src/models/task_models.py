@@ -9,8 +9,18 @@ class TaskModels(BaseModels):
         """
 
         return self._execute_query(query)
-
+    
     # user
+    def select_task_by_project_task(self, params):
+        query = """
+            SELECT t.title, t.description, ts.name, p.title FROM task t
+            JOIN task_status ts ON t.id_status = ts.id
+            JOIN projects p ON t.id_projects = p.id
+            WHERE p.title = ? AND t.title = ?
+        """
+
+        return self._execute_query(query, params, select=True, fetch=1)
+
     def select_all_tasks_of_user(self, id):
         query = """
             SELECT t.title, t.description, ts.name, p.title FROM task t

@@ -9,7 +9,7 @@ class CreateTables(BaseModels):
             username TEXT NOT NULL,
             email TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
-            role TEXT NOT NULL CHECK (role IN ('Admin', 'User')),
+            role TEXT NOT NULL CHECK (role IN ('admin', 'user')),
             create_by TEXT DEFAULT (CURRENT_DATE)
             )
         """
