@@ -2,8 +2,8 @@ from src.models.sqlite import BaseModels
 
 
 class UsersModels(BaseModels):
-    def select(self):
-        query = "SELECT * FROM users"
+    def select_all(self):
+        query = "SELECT id, username, email, role, create_by FROM users"
 
         return self._execute_query(query, select=True)
 
@@ -25,7 +25,8 @@ class UsersModels(BaseModels):
         self._execute_query(query, params)
 
     def update_username(self, params):
-        query = """UPDATE users
+        query = """
+            UPDATE users
             SET username = ?
             WHERE id = ?
         """
@@ -33,7 +34,8 @@ class UsersModels(BaseModels):
         self._execute_query(query, params)
 
     def update_email(self, params):
-        query = """UPDATE users
+        query = """
+            UPDATE users
             SET email = ?
             WHERE id = ?
         """
@@ -41,7 +43,8 @@ class UsersModels(BaseModels):
         self._execute_query(query, params)
     
     def update_password(self, params):
-        query = """UPDATE users
+        query = """
+            UPDATE users
             SET password = ?
             WHERE id = ?
         """
@@ -49,7 +52,8 @@ class UsersModels(BaseModels):
         self._execute_query(query, params)
     
     def update_role(self, params):
-        query = """UPDATE users
+        query = """
+            UPDATE users
             SET role = ?
             WHERE id = ?
         """
@@ -71,7 +75,7 @@ class UsersModels(BaseModels):
             WHERE email = ?
         """
 
-        return self._execute_query(query, (email,), select=True, fetch=1)
+        return self._execute_query(query, (email,), select=True, single=True)
 
     def select_by_users(self, id):
         query = """
@@ -79,4 +83,20 @@ class UsersModels(BaseModels):
             WHERE id = ?
         """
 
-        return self._execute_query(query, (id,), select=True, fetch=1)
+        return self._execute_query(query, (id,), select=True, single=True)
+    
+    def like_by_username(self, username):
+        query = """
+            SELECT id, username, email FROM users
+            WHERE username LIKE ?
+        """
+
+        return self._execute_query(query, (f"%{username}%",), select=True)
+    
+    def like_by_email(self, email):
+        query = """
+            SELECT id, username, email FROM users
+            WHERE email LIKE ?
+        """
+
+        return self._execute_query(query, (f"%{email}%",), select=True)

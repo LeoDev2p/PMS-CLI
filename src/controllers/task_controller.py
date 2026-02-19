@@ -21,9 +21,10 @@ class TaskController:
         validate = validation_data_empty(params)
         if not validate:
             raise DataEmptyError("All fields are required")
+
         return self.service.fetch_task_by_project_task(params)
 
-    def edit_task_status(self, state_name, task_title, project_title):
+    def edit_task_state(self, state_name, task_title, project_title):
         validate = validation_data_empty((state_name, task_title, project_title))
         if not validate:
             raise DataEmptyError("All fields are required")
@@ -31,9 +32,6 @@ class TaskController:
         try:
             result = self.service.modify_id_taskstatus(
                 state_name, task_title, project_title
-            )
-            self.log.info(
-                f"User {Session.get_id()} updated state task of the {task_title}"
             )
 
             return result

@@ -33,7 +33,7 @@ class CreateTables(BaseModels):
             title TEXT NOT NULL UNIQUE,
             description TEXT,
             id_admin INTEGER NOT NULL,
-            id_status INTEGER NOT NULL,
+            id_status INTEGER NOT NULL DEFAULT (1),
             create_at TEXT DEFAULT (CURRENT_DATE),
 
             FOREIGN KEY (id_admin) REFERENCES users(id),

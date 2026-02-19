@@ -141,6 +141,27 @@ class NotFoundProjectError(DataNotFoundError):
         self.message = message
         super().__init__(self.message)
 
+class NotFoundStatusProjectError(DataNotFoundError):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(message)
+
+class NotFoundUserError(DataNotFoundError):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+#* excepcion de datos existentes
+class DataExistsError(BussinesError):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(message)
+
+class ProjectsExistsError(DataExistsError):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(message)
+
 # excepcion de datos vacios
 class DataEmptyError(BussinesError):
     def __init__(self, message):

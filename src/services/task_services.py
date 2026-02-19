@@ -3,6 +3,8 @@ from src.core.exceptions import (
     NotFoundTaskError,
     NotFoundTaskStatusError,
 )
+from src.core.logging import get_logger
+from src.models.sessions import Session
 from utils.helpers import TextHelper
 
 
@@ -10,6 +12,7 @@ class TaskServices:
     def __init__(self, task_model, project_model):
         self.task_model = task_model
         self.project_model = project_model
+        self.log = get_logger("audit", self.__class__.__name__)
 
     def fetch_tasks_of_user(self, id) -> list[tuple]:
         result = self.task_model.select_all_tasks_of_user(id)
@@ -22,13 +25,12 @@ class TaskServices:
         normalized = TextHelper.normalize(params)
         result = self.task_model.select_task_by_project_task(normalized)
         if not result:
-            raise NotFoundTaskError("No tasks found for this user.")
+            raise NotFoundTaskError("No tasks found for this projects.")
 
         return result
 
     def modify_id_taskstatus(self, state_name, task_title, project_title) -> bool:
-
-        normalized = TextHelper.normalize ((state_name, task_title, project_title))
+        normalized = TextHelper.normalize((state_name, task_title, project_title))
 
         id_taskstatus = self.task_model.select_by_task_status(normalized[0])
 
@@ -43,5 +45,7 @@ class TaskServices:
         result = self.task_model.update_by_status_task(params)
         if not result:
             raise NotFoundTaskError("Task not found.")
+
+        self.log.info(f"User {Session.get_id()} updated state task of the {task_title}")
 
         return result

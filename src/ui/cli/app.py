@@ -23,7 +23,7 @@ class View:
         self.controller = controller
 
         self.admin_view = AdminViews(controller)
-        self.user_view = UserViews(controller, Session)
+        self.user_view = UserViews(controller)
 
     def run(self):
         while True:
@@ -40,6 +40,7 @@ class View:
 
                     try:
                         result = self.controller.auth.login(data)
+                        #biews (1, 'admin')
                         if result:
                             ViewHelper.progress_bar()
                             Session.start(result[0], result[1], data[0])
@@ -47,7 +48,7 @@ class View:
                             sleep(2)
 
                             if (
-                                Session.get_role() == "Admin"
+                                Session.get_role() == "admin"
                                 and Session.get_state() is True
                             ):
                                 self.admin_view.run()
@@ -79,8 +80,8 @@ class View:
                     except (
                         EmailError,
                         HashCreatingError,
-                        ModelsError,
                         DataEmptyError,
+                        ModelsError,
                         ProjectsError,
                     ) as e:
                         UI.show_message(str(e))
@@ -94,9 +95,6 @@ class View:
                     break
                 case _:
                     UI.show_message("Invalid option")
-
-    def show_auth(self):
-        pass
 
     def menu(self):
         print("\t    [1] Login     [2] Register     [3] Exit")

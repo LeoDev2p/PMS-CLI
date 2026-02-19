@@ -8,35 +8,35 @@ class AuthService:
     def __init__(self, model):
         # model = UsersModels()
         self.model = model
-        self.log = get_logger("security", "AuthService")
 
     def login_user(self, params: tuple) -> str:
+        log = get_logger("security", self.__class__.__name__)
         # email , password
         normalized = TextHelper.normalize(params[0])
         user = self.model.select_by_email(normalized)
         if not user:
-            self.log.warning("Email not found")
             raise AuthenticactionError("Email not found")
 
         if not Hasher.verify_password(user[3], params[1]):
-            self.log.warning("Password not found")
             raise AuthenticactionError("Password not found")
 
-        self.log.info("Successful login")
+        log.info("Successful login")
         return user[0], user[4]  # id, role
 
     def create_user(self, params: tuple) -> bool:
+        log = get_logger("audit", self.__class__.__name__)
         #  email, password, username
         normalized = TextHelper.normalize((params[2], params[0]))
         user = self.model.select_by_email(normalized[1])
-        role = "user" if self.model.select() else "admin"
+        role = "user" if self.model.select_all() else "admin"
 
         if user:
-            self.log.warning("Email already exists")
             raise EmailError("Email already exists")
 
         # por solucionar orden
 
         params = (normalized[0], normalized[1], Hasher.hash_password(params[1]), role)
 
-        return self.model.insert(params)
+        result = self.model.insert(params)
+        log.info("User register successfully")
+        return result

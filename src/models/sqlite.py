@@ -22,7 +22,7 @@ class BaseModels:
             self.create_tables = CreateTables()
             self.create_tables.create_all_tables()
 
-    def _execute_query(self, query, params=(), select=False, fetch=0):
+    def _execute_query(self, query, params=(), select=False, single=False, is_many=False):
         """
         Execute a query.
 
@@ -39,11 +39,16 @@ class BaseModels:
                 con.execute("PRAGMA foreign_keys = ON;")
 
                 cursor = con.cursor()
-                cursor.execute(query, params)
-                if select:
-                    return cursor.fetchall() if fetch != 1 else cursor.fetchone()
 
-            con.commit()
+                if is_many:
+                    cursor.executemany(query, params)
+                else:
+                    cursor.execute(query, params)
+
+                if select:
+                    return cursor.fetchone() if single else cursor.fetchall()
+
+                con.commit()
             return True
 
         except sqlite3.Error as e:

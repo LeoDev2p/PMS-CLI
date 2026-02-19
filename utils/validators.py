@@ -42,6 +42,12 @@ def validation_password(func):
     return wrapper
 
 def validation_data_empty(data) -> bool:
+    if isinstance(data, (int, float)):
+        return True
     if isinstance(data, (list, tuple)):
         return all(x != "" and not str(x).isspace() for x in data)
+
     return True if isinstance(data, str) and data != "" and not str(data).isspace() else False
+
+def textvalidator(data):
+    return True if re.search(r"@[a-zA-Z0-9]+\.[a-zA-Z]+|@{1}", data) else False

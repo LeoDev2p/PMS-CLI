@@ -1,13 +1,16 @@
 from src.core.exceptions import DataEmptyError, HashCreatingError, PasswordMatchError
 from src.core.logging import get_logger
-from utils.validators import validation_data_empty, validation_password, validation_email
-
+from utils.validators import (
+    validation_data_empty,
+    validation_email,
+    validation_password,
+)
 
 
 class UserController:
     def __init__(self, service):
         self.service = service
-        self.log = get_logger("audit", self.__class__.__name__)
+        self.log = get_logger("security", self.__class__.__name__)
 
     def get_profile(self) -> tuple:
         return self.service.fetch_profile()
@@ -28,8 +31,6 @@ class UserController:
             self.log.warning(str(e))
             raise e
 
-        self.log.info("profile updated successfully")
-
     # gestion admin
 
     # el id todavia no se sabe imlmentar fucniond ebusqueda por like
@@ -47,7 +48,7 @@ class UserController:
         # observar OJO
         if not validation_data_empty(email):
             raise DataEmptyError("Fields email are requiered")
-        
+
         self.service.modify_email(email, id)
 
     @validation_password
@@ -56,15 +57,29 @@ class UserController:
         # observar OJO
         if not validation_data_empty(password):
             raise DataEmptyError("Fields password  are requiered")
-        
-        self.service.modify_password(password, id)
+
+        try:
+            self.service.modify_password(password, id)
+        except HashCreatingError as e:
+            self.log.warning(str(e))
+            raise e
 
     def change_role(self, params):
         role, id = params
         # observar OJO
         if not validation_data_empty(role):
             raise DataEmptyError("Fields role are requiered")
-        
+
         self.service.modify_role(role, id)
+    
+    def delete_user(self, id):
+        self.service.remove_user(id)
+    
+    def get_all_users(self) -> list[tuple]:
+        return self.service.fetch_all_users()
+    
+    def search_user_or_email(self, user_or_email):
+        if not validation_data_empty(user_or_email):
+            raise DataEmptyError("Email o username requerido")
 
-
+        return self.service.fetch_user_or_email(user_or_email)

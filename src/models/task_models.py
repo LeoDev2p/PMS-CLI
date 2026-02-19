@@ -19,7 +19,7 @@ class TaskModels(BaseModels):
             WHERE p.title = ? AND t.title = ?
         """
 
-        return self._execute_query(query, params, select=True, fetch=1)
+        return self._execute_query(query, params, select=True, single=True)
 
     def select_all_tasks_of_user(self, id):
         query = """
@@ -34,7 +34,7 @@ class TaskModels(BaseModels):
     def select_by_task_status(self, name):
         query = "SELECT id FROM task_status WHERE name = ?"
 
-        return self._execute_query(query, (name,), select=True, fetch=1)
+        return self._execute_query(query, (name,), select=True, single=True)
     
     def update_by_status_task(self, params):
         query = """
