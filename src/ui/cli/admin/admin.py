@@ -2,24 +2,25 @@ from src.core.logging import get_logger
 from src.models.sessions import Session
 from utils.helpers import ViewHelper
 
-from .admin_projects_views import AdminProjectsViews
-from .admin_user_views import AdminUserViews
-from .forms import UI, Forms
+from ..forms import UI, Forms, UIAdmin
+from .projects import ProjectsViews
+from .users_management import UserManagementViews
 
 
 class AdminViews:
     def __init__(self, controller):
         self.controller = controller
         self.session = Session.get_id()
-        self.user_views = AdminUserViews(controller)
-        self.projects_views = AdminProjectsViews(controller)
+        self.user_views = UserManagementViews(controller)
+        self.projects_views = ProjectsViews(controller)
+
         self.log = get_logger("audit", self.__class__.__name__)
 
     def run(self):
         while True:
             ViewHelper.clear_screen()
             UI.banner()
-            UI.menu_admin()
+            UIAdmin.menu_admin()
 
             option = Forms.option_forms()
             match option:

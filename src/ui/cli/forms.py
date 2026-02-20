@@ -1,25 +1,6 @@
 from utils.helpers import ViewHelper
 
-
-class UI:
-    @staticmethod
-    def show_message(message):
-        print(message)
-
-    @staticmethod
-    def show_error(message):
-        print(message)
-
-    @staticmethod
-    def menu_user():
-        print("""
-              USER\n
-        [1] My tasks
-        [2] Update task status
-        [3] My profile
-        [4] Logout
-        """)
-
+class UIAdmin:
     @staticmethod
     def menu_admin():
         print("""
@@ -32,7 +13,7 @@ class UI:
 
     # GESTION DE USUARIOS
     @staticmethod
-    def menu_admin_user_management():
+    def menu_users():
         print("""
                       USER MANAGEMENT\n
         [1] Create user
@@ -43,7 +24,7 @@ class UI:
         """)
 
     @staticmethod
-    def menu_admin_edit_user_management():
+    def menu_edit_users():
         print("""
                       USER MANAGEMENT\n
         [1] cambiar username
@@ -55,12 +36,12 @@ class UI:
 
     # GESTION DE PROYECTOS
     @staticmethod
-    def menu_admin_project():
+    def menu_project():
         print("""
                       ADMIN MANAGEMENT\n
         [1] projects
         [2] system setting
-        [3] asignar usuario-proyecto
+        [3] Gestion operativa
         [4] Back
         """)
 
@@ -83,6 +64,59 @@ class UI:
         [2] gestionar estados de tareas
         [3] Back
         """)
+    
+    @staticmethod
+    def menu_status_projects():
+        print("""
+                      STATUS PROJECTS
+        [1] crear estado
+        [2] listar estados
+        [3] editar estado
+        [4] eliminar estado
+        [5] Back
+        """)
+
+    @staticmethod
+    def menu_status_tasks():
+        print("""
+                      STATUS TASKS
+        [1] crear estado
+        [2] listar estados
+        [3] editar estado
+        [4] eliminar estado
+        [5] Back
+        """)
+    
+    @staticmethod
+    def menu_operational():
+        print("""
+                      OPERATIONAL
+        [1] nueva asignacion / crear tarea
+        [2] control de equipos  monitoreo
+        [3] mentenimiento de personal
+        [4] Back
+        """)
+
+class UI:
+    @staticmethod
+    def show_message(message):
+        print(message)
+
+    @staticmethod
+    def show_error(message):
+        print(message)
+
+    @staticmethod
+    def menu_user():
+        print("""
+              USER\n
+        [1] My tasks
+        [2] Update task status
+        [3] My profile
+        [4] Logout
+        """)
+
+    
 
     @staticmethod
     def banner():
@@ -96,7 +130,8 @@ class UI:
         ░▒ ░     ░  ░      ░░ ░▒  ░ ░  ░  ▒   ░ ░ ▒  ░ ▒ ░
         ░░       ░      ░   ░  ░  ░  ░          ░ ░    ▒ ░
                 ░         ░  ░ ░          ░  ░ ░
-                             ░                  By LeoDev2p
+                             ░                  V1.0.0
+                                                By LeoDev2p
         """)
 
     @staticmethod

@@ -6,6 +6,7 @@ from src.core.logging import get_logger
 
 log = get_logger("security", "Validators")
 
+
 def validation_email(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -22,14 +23,18 @@ def validation_email(func):
             raise EmailError(f"invalid email: {email}")
 
         return func(*args, **kwargs)
+
     return wrapper
+
 
 def validation_password(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         data = args[1] if len(args) > 1 else args[0]
         password = data[1]
-        patron = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
+        patron = (
+            r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
+        )
         if not password:
             log.warning("Password is required")
             raise PasswordError("Password is required")
@@ -39,7 +44,9 @@ def validation_password(func):
             raise PasswordError(f"invalid password: {password}")
 
         return func(*args, **kwargs)
+
     return wrapper
+
 
 def validation_data_empty(data) -> bool:
     if isinstance(data, (int, float)):
@@ -47,7 +54,12 @@ def validation_data_empty(data) -> bool:
     if isinstance(data, (list, tuple)):
         return all(x != "" and not str(x).isspace() for x in data)
 
-    return True if isinstance(data, str) and data != "" and not str(data).isspace() else False
+    return (
+        True
+        if isinstance(data, str) and data != "" and not str(data).isspace()
+        else False
+    )
+
 
 def textvalidator(data):
     return True if re.search(r"@[a-zA-Z0-9]+\.[a-zA-Z]+|@{1}", data) else False

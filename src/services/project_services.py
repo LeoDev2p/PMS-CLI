@@ -1,4 +1,6 @@
 from src.core.exceptions import (
+    DatabaseLockedError,
+    ModelsError,
     NotFoundProjectError,
     NotFoundStatusProjectError,
     ProjectsExistsError,
@@ -38,7 +40,7 @@ class ProjectServices:
         result = self.project_model.select_all_status()
         if not result:
             raise NotFoundStatusProjectError("No hay estados definidos")
-    
+
     def fetch_by_project(self, title) -> tuple:
         normalized = TextHelper.normalize(title)
         result = self.project_model.select_by_project(normalized)
@@ -50,13 +52,22 @@ class ProjectServices:
     def modify_project(self, params):
         title, id = params
         normalized = TextHelper.normalize(title)
-        self.project_model.update_project((normalized, id))
-
-        self.log.info(f"Admin {Session.get_id()}: Proyecto {title} actualizado con exito")
+        try:
+            self.project_model.update_project((normalized, id))
+            self.log.info(
+                f"Admin {Session.get_id()}: Proyecto {title} actualizado con exito"
+            )
+        except (DatabaseLockedError, ModelsError) as e:
+            self.log_error.critical(f"Error: {e}")
+            raise e
 
     def remove_project(self, id):
-        self.project_model.delete_project(id)
-        self.log.info(f"Admin {Session.get_id()}: elimino proyecto {id}")
+        try:
+            self.project_model.delete_project(id)
+            self.log.info(f"Admin {Session.get_id()}: elimino proyecto {id}")
+        except (DatabaseLockedError, ModelsError) as e:
+            self.log_error.critical(f"Error: {e}")
+            raise e
 
 
 class StatusProjectsService:

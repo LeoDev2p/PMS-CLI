@@ -8,10 +8,10 @@ from src.core.exceptions import (
 )
 from utils.helpers import ViewHelper
 
-from .forms import UI, Forms, FormsUser
+from ..forms import UI, Forms, FormsUser, UIAdmin
 
 
-class AdminUserViews:
+class UserManagementViews:
     def __init__(self, controller):
         self.controller = controller
 
@@ -19,7 +19,7 @@ class AdminUserViews:
         while True:
             ViewHelper.clear_screen()
             UI.banner()
-            UI.menu_admin_user_management()
+            UIAdmin.menu_users()
 
             option = Forms.option_forms()
             match option:
@@ -47,14 +47,14 @@ class AdminUserViews:
                 case 3:
                     user_email = FormsUser.search_forms()
                     result = self.controller.user.search_user_or_email(user_email)[0]
-                    print (result)
+                    print(result)
 
                     id = FormsUser.id_forms()
                     try:
                         self.controller.user.delete_user(id)
                     except (NotFoundUserError, ModelsError) as e:
                         UI.show_message(str(e))
-                    
+
                     if Forms.ask_forms() == "S":
                         continue
                     else:
@@ -62,7 +62,7 @@ class AdminUserViews:
 
                 case 4:
                     result = self.controller.user.get_all_users()
-                    print (result)
+                    print(result)
 
                     if Forms.ask_forms() == "S":
                         continue
@@ -78,15 +78,17 @@ class AdminUserViews:
         while True:
             ViewHelper.clear_screen()
             UI.banner()
-            UI.menu_admin_edit_user_management()
+            UIAdmin.menu_edit_users()
 
             option = Forms.option_forms()
             match option:
                 case 1:
                     try:
                         user_email = FormsUser.search_forms()
-                        result = self.controller.user.search_user_or_email(user_email)[0]
-                        print (result)
+                        result = self.controller.user.search_user_or_email(user_email)[
+                            0
+                        ]
+                        print(result)
 
                         data = FormsUser.edit_username_forms()
                         self.controller.user.edit_username((data, result[0]))
@@ -100,7 +102,7 @@ class AdminUserViews:
                 case 2:
                     user_email = FormsUser.search_forms()
                     result = self.controller.user.search_user_or_email(user_email)[0]
-                    print (result)
+                    print(result)
 
                     data = FormsUser.edit_email_forms()
                     try:
@@ -114,7 +116,7 @@ class AdminUserViews:
                 case 3:
                     user_email = FormsUser.search_forms()
                     result = self.controller.user.search_user_or_email(user_email)[0]
-                    print (result)
+                    print(result)
 
                     data = FormsUser.edit_password_forms()
                     try:
@@ -127,7 +129,7 @@ class AdminUserViews:
                 case 4:
                     user_email = FormsUser.search_forms()
                     result = self.controller.user.search_user_or_email(user_email)[0]
-                    print (result)
+                    print(result)
 
                     data = FormsUser.edit_role_forms()
                     try:

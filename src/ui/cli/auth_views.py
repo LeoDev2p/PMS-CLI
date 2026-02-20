@@ -13,17 +13,17 @@ from src.core.exceptions import (
 from src.models.sessions import Session
 from utils.helpers import ViewHelper
 
-from .admin_views import AdminViews
+from .admin.admin import AdminViews
 from .forms import UI, Forms
-from .user_views import UserViews
+from .user.profile import ProfileViews
 
 
 class View:
     def __init__(self, controller):
         self.controller = controller
 
-        self.admin_view = AdminViews(controller)
-        self.user_view = UserViews(controller)
+        self.admin = AdminViews(controller)
+        self.profile = ProfileViews(controller)
 
     def run(self):
         while True:
@@ -51,9 +51,9 @@ class View:
                                 Session.get_role() == "admin"
                                 and Session.get_state() is True
                             ):
-                                self.admin_view.run()
+                                self.admin.run()
                             else:
-                                self.user_view.run()
+                                self.profile.run()
                     except (
                         EmailError,
                         PasswordError,

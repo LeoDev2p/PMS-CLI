@@ -52,4 +52,4 @@ class BaseModels:
             return True
 
         except sqlite3.Error as e:
-            handle_sqlite_error(e, self.log_error, sqlite3)
+            handle_sqlite_error(e, sqlite3)

@@ -8,7 +8,7 @@ class ProjectModels(BaseModels):
             SELECT p.title, ps.name FROM projects p
             JOIN projects_status ps ON p.id_status = ps.id
         """
-    
+
         return self._execute_query(query, select=True)
 
     def select_by_project(self, title: str) -> tuple:
@@ -16,12 +16,11 @@ class ProjectModels(BaseModels):
 
         return self._execute_query(query, (title,), select=True, single=True)
 
-    
     def select_all_status(self) -> list[tuple]:
         query = "SELECT * FROM projects_status"
 
         return self._execute_query(query, select=True)
-    
+
     # insert
     def insert_projects_status(self, params: list[tuple]):
         query = """
@@ -38,7 +37,7 @@ class ProjectModels(BaseModels):
         """
 
         self._execute_query(query, params)
-    
+
     def insert_project_user(self, params):
         query = """
             INSERT INTO project_user (id_project, id_user)
@@ -46,17 +45,18 @@ class ProjectModels(BaseModels):
         """
 
         self._execute_query(query, params, is_many=True)
-    
+
     # update
-    def update_project(self, params):
+    def update_project(self, params): # observar aqui
         query = """
             UPDATE projects
             SET title = ?, id_status = ?
+            WHERE id = ?
         """
 
         self._execute_query(query, params)
-    
-    # delete 
+
+    # delete
     def delete_project(self, id):
         query = """
             DELETE FROM projects
@@ -64,4 +64,3 @@ class ProjectModels(BaseModels):
         """
 
         self._execute_query(query, (id,))
-

@@ -1,10 +1,10 @@
-from src.core.exceptions import PasswordMatchError
 from src.core.exceptions import (
     DataEmptyError,
     HashCreatingError,
     NotFoundProjectError,
     NotFoundTaskError,
     NotFoundTaskStatusError,
+    PasswordMatchError,
 )
 from src.core.logging import get_logger
 from src.models.sessions import Session
@@ -13,7 +13,7 @@ from utils.helpers import ViewHelper
 from .forms import UI, Forms, FormsTask, FormsUser
 
 
-class UserViews:
+class ProfileViews:
     def __init__(self, controller):
         self.controller = controller
         self.log = get_logger("audit", self.__class__.__name__)
@@ -29,9 +29,7 @@ class UserViews:
             match option:
                 case 1:
                     try:
-                        data = self.controller.task.get_all_tasks_of_user(
-                            self.session
-                        )
+                        data = self.controller.task.get_all_tasks_of_user(self.session)
                         # t.title, t.description, ts.name, p.title
                         UI.show_table_tasks(data)
                     except NotFoundTaskError as e:
@@ -56,7 +54,9 @@ class UserViews:
                     ) as e:
                         UI.show_message(str(e))
                     except DataEmptyError as e:
-                        self.log.warning(f"User {self.session} tried to update task status but failed: {e}")
+                        self.log.warning(
+                            f"User {self.session} tried to update task status but failed: {e}"
+                        )
                         UI.show_message(str(e))
 
                     if Forms.ask_forms() == "S":
@@ -74,12 +74,16 @@ class UserViews:
                             UI.show_message("Profile updated successfully")
 
                     except DataEmptyError as e:
-                        self.log.warning(f"User {self.session} attempted to update the profile with incomplete data: {e}")
+                        self.log.warning(
+                            f"User {self.session} attempted to update the profile with incomplete data: {e}"
+                        )
                         UI.show_message(str(e))
                     except PasswordMatchError as e:
                         UI.show_message(str(e))
                     except HashCreatingError as e:
-                        self.log.warning(f"User {self.session} tried to update profile but failed: {e}")
+                        self.log.warning(
+                            f"User {self.session} tried to update profile but failed: {e}"
+                        )
                         UI.show_message(str(e))
 
                     if Forms.ask_forms() == "S":

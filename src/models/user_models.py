@@ -41,7 +41,7 @@ class UsersModels(BaseModels):
         """
 
         self._execute_query(query, params)
-    
+
     def update_password(self, params):
         query = """
             UPDATE users
@@ -50,7 +50,7 @@ class UsersModels(BaseModels):
         """
 
         self._execute_query(query, params)
-    
+
     def update_role(self, params):
         query = """
             UPDATE users
@@ -84,7 +84,7 @@ class UsersModels(BaseModels):
         """
 
         return self._execute_query(query, (id,), select=True, single=True)
-    
+
     def like_by_username(self, username):
         query = """
             SELECT id, username, email FROM users
@@ -92,7 +92,7 @@ class UsersModels(BaseModels):
         """
 
         return self._execute_query(query, (f"%{username}%",), select=True)
-    
+
     def like_by_email(self, email):
         query = """
             SELECT id, username, email FROM users

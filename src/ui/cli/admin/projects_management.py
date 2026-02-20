@@ -5,35 +5,10 @@ from src.core.exceptions import (
     ProjectsExistsError,
 )
 
-from .forms import UI, Forms, ViewHelper
+from ..forms import UI, Forms, UIAdmin, ViewHelper
 
 
-class AdminProjectsViews:
-    def __init__(self, controller):
-        self.controller = controller
-        self.project = ManagementProject(controller)
-
-    def project_management(self):
-        while True:
-            ViewHelper.clear_screen()
-            UI.banner()
-            UI.menu_admin_project()
-
-            option = Forms.option_forms()
-            match option:
-                case 1:
-                    self.project.run()
-                case 2:
-                    pass
-                case 3:
-                    pass
-                case 4:
-                    break
-                case _:
-                    UI.show_message("Invalid option")
-
-
-class ManagementProject:
+class ManagementProjectViews:
     def __init__(self, controller):
         self.controller = controller
 
@@ -41,7 +16,7 @@ class ManagementProject:
         while True:
             ViewHelper.clear_screen()
             UI.banner()
-            UI.menu_management_project()
+            UIAdmin.menu_management_project()
 
             option = Forms.option_forms()
             match option:
@@ -68,9 +43,10 @@ class ManagementProject:
 
                 case 3:
                     try:
+                        # title projects, state projects
                         result = self.controller.project.get_all_project()
                         print(result)
-                        data = ("geoai", 2)
+                        data = ("geoai", 2)  # forms
                         self.controller.project.edit_project(data)
                     except (DataEmptyError, ModelsError) as e:
                         UI.show_error(str(e))
@@ -79,7 +55,7 @@ class ManagementProject:
                         continue
 
                 case 4:
-                    data = 'GeoAi'
+                    data = "GeoAi"  # Forms
                     try:
                         result = self.controller.project.get_by_project(data)
                         print(result)

@@ -1,54 +1,61 @@
 # Excepcion base del proyecto
 class ProjectsError(Exception):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase base para todas las excepciones del proyecto.
+    """
+    pass
 
 
 # Excepccion superior de manejo de errores de base de datos
 class ModelsError(ProjectsError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase base para todas las excepciones relacionadas con la base de datos.
+    """
+    pass
 
 
 # IntegrityError
 class UniqueError(ModelsError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase para errores de unicidad.
+    """
+    pass
 
 
 class NotnullError(ModelsError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase para errores de no nulidad.
+    """
+    pass
 
 
 class ForeingKeyError(ModelsError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase para errores de clave foránea.
+    """
+    pass
 
 
 class CheckError(ModelsError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase para errores de verificación.
+    """
+    pass
 
 
 # OperationalError
 class DatabaseLockedError(ModelsError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase para errores de bloqueo de base de datos.
+    """
+    pass
 
 
-def handle_sqlite_error(e, log_error, sqlite3):
+def handle_sqlite_error(e, sqlite3):
     msg = str(e).lower()
 
     # --- ERRORES DE INTEGRIDAD (El usuario puede corregirlos) ---
-    # -- insert
+    # -- insert, update
     if isinstance(e, sqlite3.IntegrityError):
         if "unique" in msg:
             raise UniqueError("This record already exists.")
@@ -62,11 +69,10 @@ def handle_sqlite_error(e, log_error, sqlite3):
         raise ModelsError(f"integrity error: {msg}")
 
     # --- ERRORES OPERATIVOS Y DE PROGRAMACIÓN (Bugs del desarrollador) ---
-    # -- select, delete, update
+    # -- insert select, delete, update
     if isinstance(
         e, (sqlite3.OperationalError, sqlite3.ProgrammingError, sqlite3.DatabaseError)
     ):
-        log_error.critical(f"Database Technical Error: {msg}")
 
         if "database is locked" in msg:
             raise DatabaseLockedError("The file is busy, try again in a moment.")
@@ -75,95 +81,116 @@ def handle_sqlite_error(e, log_error, sqlite3):
         raise ModelsError("Technical error in the data server. Contact support.")
 
     # --- ERROR DESCONOCIDO ---
-    log_error.error(f"Unknown DB Error: {msg}")
     raise ProjectsError("An unexpected error has occurred.")
 
 
 # Excepcion superior de manejo de errores de logica de negocio
 # -- conotrollers, views, services
 class BussinesError(ProjectsError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase base para todas las excepciones relacionadas con la lógica de negocio.
+    """
+    pass
 
 # excepcion de autenticacion
 class AuthenticactionError(BussinesError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase base para todas las excepciones relacionadas con la autenticación.
+    """
+    pass
 
 
 class EmailError(AuthenticactionError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase para errores de correo electrónico.
+    """
+    pass
 
 
 class PasswordError(AuthenticactionError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase para errores de contraseña.
+    """
+    pass    
 
 class PasswordMatchError(AuthenticactionError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self, message)
+    """
+    Clase para errores de coincidencia de contraseña.
+    """
+    pass
 
 # excepcion de seguridad
 class HashCreatingError(AuthenticactionError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase para errores de creación de hash.
+    """
+    pass
 
 class HashInvalidError(AuthenticactionError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase para errores de hash inválido.
+    """
+    pass
 
 # excepcion de datos no encontradas
 class DataNotFoundError (BussinesError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase base para todas las excepciones relacionadas con datos no encontrados.
+    """
+    pass    
 
 class NotFoundTaskError(DataNotFoundError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase para errores de tareas no encontradas.
+    """
+    pass
 
 class NotFoundTaskStatusError(DataNotFoundError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase para errores de estados de tareas no encontrados.
+    """
+    pass
 
 class NotFoundProjectError(DataNotFoundError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase para errores de proyectos no encontrados.
+    """
+    pass
 
 class NotFoundStatusProjectError(DataNotFoundError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(message)
+    """
+    Clase para errores de estados de proyectos no encontrados.
+    """
+    pass
 
 class NotFoundUserError(DataNotFoundError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase para errores de usuarios no encontrados.
+    """
+    pass
 
 #* excepcion de datos existentes
 class DataExistsError(BussinesError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(message)
+    """
+    Clase base para todas las excepciones relacionadas con datos existentes.
+    """
+    pass
 
 class ProjectsExistsError(DataExistsError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(message)
+    """
+    Clase para errores de proyectos existentes.
+    """
+    pass
 
 # excepcion de datos vacios
 class DataEmptyError(BussinesError):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    """
+    Clase base para todas las excepciones relacionadas con datos vacíos.
+    """
+    pass
+
+class EmptyFieldsError(DataEmptyError):
+    """
+    Clase para errores de campos vacíos.
+    """
+    pass

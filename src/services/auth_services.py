@@ -1,4 +1,8 @@
-from src.core.exceptions import AuthenticactionError, EmailError
+from src.core.exceptions import (
+    AuthenticactionError,
+    EmailError,
+    ModelsError,
+)
 from src.core.logging import get_logger
 from utils.helpers import TextHelper
 from utils.security import Hasher
@@ -9,8 +13,11 @@ class AuthService:
         # model = UsersModels()
         self.model = model
 
+        self.log_audit = get_logger("audit", self.__class__.__name__)
+        self.log_error = get_logger("error", self.__class__.__name__)
+        self.log_security = get_logger("security", self.__class__.__name__)
+
     def login_user(self, params: tuple) -> str:
-        log = get_logger("security", self.__class__.__name__)
         # email , password
         normalized = TextHelper.normalize(params[0])
         user = self.model.select_by_email(normalized)
@@ -20,11 +27,10 @@ class AuthService:
         if not Hasher.verify_password(user[3], params[1]):
             raise AuthenticactionError("Password not found")
 
-        log.info("Successful login")
+        self.log_security.info("Successful login")
         return user[0], user[4]  # id, role
 
     def create_user(self, params: tuple) -> bool:
-        log = get_logger("audit", self.__class__.__name__)
         #  email, password, username
         normalized = TextHelper.normalize((params[2], params[0]))
         user = self.model.select_by_email(normalized[1])
@@ -37,6 +43,10 @@ class AuthService:
 
         params = (normalized[0], normalized[1], Hasher.hash_password(params[1]), role)
 
-        result = self.model.insert(params)
-        log.info("User register successfully")
-        return result
+        try:
+            result = self.model.insert(params)
+            self.log_audit.info("User register successfully")
+            return result
+        except ModelsError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise e

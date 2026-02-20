@@ -9,7 +9,7 @@ class TaskModels(BaseModels):
         """
 
         return self._execute_query(query)
-    
+
     # user
     def select_task_by_project_task(self, params):
         query = """
@@ -35,7 +35,7 @@ class TaskModels(BaseModels):
         query = "SELECT id FROM task_status WHERE name = ?"
 
         return self._execute_query(query, (name,), select=True, single=True)
-    
+
     def update_by_status_task(self, params):
         query = """
             UPDATE task
@@ -44,4 +44,3 @@ class TaskModels(BaseModels):
         """
 
         return self._execute_query(query, params)
-

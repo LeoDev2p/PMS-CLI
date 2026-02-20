@@ -13,12 +13,11 @@ class DateHelper:
 
 class TextHelper:
     @staticmethod
-    def normalize(data: tuple | str) -> tuple | str :
+    def normalize(data: tuple | str) -> tuple | str:
         if isinstance(data, (tuple, list)):
             return type(data)(map(lambda x: str(x).strip().lower(), data))
 
         return data.strip().lower() if isinstance(data, str) else data
-
 
 
 class ViewHelper:
@@ -41,14 +40,14 @@ class ViewHelper:
         print("\n")
 
     @staticmethod
-    def length_text_collection (data) -> list | int:
+    def length_text_collection(data) -> list | int:
         # [(), ()]
         if isinstance(data, (list, tuple)):
             if isinstance(data[0], (list, tuple)):
                 lenght = []
                 for index in range(len(data)):
                     lenght.append(max(list(map(lambda x: len(str(x[index])), data))))
-                
+
                 return lenght
 
             for _ in range(len(data)):

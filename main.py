@@ -11,7 +11,7 @@ from src.services.bundle import ServicesBundle
 from src.services.project_services import ProjectServices
 from src.services.task_services import TaskServices
 from src.services.user_services import UserServices
-from src.ui.cli.app import View
+from src.ui.cli.auth_views import View
 
 
 class Main:
