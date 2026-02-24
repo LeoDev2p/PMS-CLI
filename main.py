@@ -3,6 +3,7 @@ from src.controllers.bundle import ControllerBundle
 from src.controllers.project_controller import ProjectController
 from src.controllers.task_controller import TaskController
 from src.controllers.user_controller import UserController
+from src.core.exceptions import ProjectsError
 from src.models.project_models import ProjectModels
 from src.models.task_models import TaskModels
 from src.models.user_models import UsersModels
@@ -49,5 +50,7 @@ if __name__ == "__main__":
     try:
         main = Main(view)
         main.run()
-    except KeyboardInterrupt as k:
-        print ("\nBye!")
+    except ProjectsError as e:
+        print(str(e))
+    except KeyboardInterrupt:
+        print("\nBye!")

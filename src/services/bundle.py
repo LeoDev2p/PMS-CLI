@@ -1,4 +1,7 @@
 class ServicesBundle:
+    """
+    Class to manage services bundle.
+    """
     def __init__(self, user, auth, project, task):
         self.user = user
         self.auth = auth

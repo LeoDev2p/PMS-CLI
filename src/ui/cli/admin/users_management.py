@@ -12,10 +12,15 @@ from ..forms import UI, Forms, FormsUser, UIAdmin
 
 
 class UserManagementViews:
+    """
+    Handles user management.
+    """
+
     def __init__(self, controller):
         self.controller = controller
 
-    def user_management(self):
+    def run(self):
+        """Runs the user management panel."""
         while True:
             ViewHelper.clear_screen()
             UI.banner()
@@ -75,6 +80,7 @@ class UserManagementViews:
                     UI.show_message("Invalid option")
 
     def edit_user(self):
+        """Edits a user."""
         while True:
             ViewHelper.clear_screen()
             UI.banner()

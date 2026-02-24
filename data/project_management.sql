@@ -4,13 +4,15 @@ CREATE TABLE IF NOT EXISTS users (
     username TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
-    role TEXT NOT NULL CHECK (role IN ('Admin', 'User')),
+    role TEXT NOT NULL CHECK (role IN ('dmin', 'user')),
      create_by TEXT DEFAULT (CURRENT_DATE)
 );
 
 CREATE TABLE IF NOT EXISTS projects_status (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	name TEXT NOT NULL
+	name TEXT NOT NULL,
+	system_key TEXT NOT NULL,
+	is_active INTEGER NOT NULL
 	-- 'Activo', 'Pausado', 'Finalizado'
 );
 
@@ -40,6 +42,8 @@ CREATE TABLE IF NOT EXISTS users_projects (
 CREATE TABLE IF NOT EXISTS task_status (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	name TEXT NOT NULL
+	system_key TEXT NOT NULL,
+	is_active INTEGER NOT NULL
 	-- Culimnado, En proceso, Pausado
 );
 
@@ -50,9 +54,9 @@ CREATE TABLE IF NOT EXISTS task (
 	description TEXT,
 	id_status INTEGER NOT NULL,
 	id_projects INTEGER NOT NULL,
-	id_assigned_to INTEGER NOT NULL,
+	id_assigned_to INTEGER,
 	
 	FOREIGN key (id_status) REFERENCES task_status(id),
 	FOREIGN KEY (id_projects) REFERENCES projects(id) ON DELETE CASCADE,
-	FOREIGN KEY (id_assigned_to) REFERENCES users(id)
+	FOREIGN KEY (id_assigned_to) REFERENCES users(id) ON DELETE SET NULL
 );

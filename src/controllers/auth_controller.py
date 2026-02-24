@@ -8,6 +8,10 @@ from utils.validators import (
 
 
 class AuthController:
+    """
+    Handles user authentication.
+    """
+
     def __init__(self, service):
         # service = AuthService (user_model)
         self.service = service
@@ -15,6 +19,15 @@ class AuthController:
     @validation_email
     @validation_password
     def login(self, params: tuple) -> tuple:
+        """Function that validates the user's credentials for session start.
+
+        Args:
+            params (tuple): user credentials (email and password)
+
+        Returns:
+            result (tuple): returns (id, role) of the logged in user
+        """
+
         self.log = get_logger("security", self.__class__.__name__)
         # email password
         try:
@@ -27,10 +40,21 @@ class AuthController:
     @validation_email
     @validation_password
     def register(self, params: tuple) -> bool:
+        """Validation of the existence of complete user data for registration.
+
+        Args:
+            params (tuple): user data (email, password, username)
+
+        Returns:
+            result (bool): if the registration was successful, it returns True
+
+        Raises:
+            DataEmptyError: if there is empty data
+        """
+
         self.log = get_logger("audit", self.__class__.__name__)
         #  email, password, username
         if not validation_data_empty(params):
-            # Todos los campos son obligatorios
             raise DataEmptyError("All fields are required")
 
         try:

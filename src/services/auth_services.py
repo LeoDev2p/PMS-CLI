@@ -9,6 +9,8 @@ from utils.security import Hasher
 
 
 class AuthService:
+    """Handles the comparison and entry of user credentials."""
+
     def __init__(self, model):
         # model = UsersModels()
         self.model = model
@@ -18,6 +20,19 @@ class AuthService:
         self.log_security = get_logger("security", self.__class__.__name__)
 
     def login_user(self, params: tuple) -> str:
+        """Function that formats the credentials and validates the existence in the database.
+
+        Args:
+            params (tuple): user credentials (email and password).
+
+        Returns:
+            (tuple): returns (id, role) of the logged in user
+
+        Raises:
+            AuthenticationError: If email or password are invalid
+
+        """
+
         # email , password
         normalized = TextHelper.normalize(params[0])
         user = self.model.select_by_email(normalized)
@@ -28,9 +43,21 @@ class AuthService:
             raise AuthenticactionError("Password not found")
 
         self.log_security.info("Successful login")
-        return user[0], user[4]  # id, role
+        return user[0], user[4]
 
     def create_user(self, params: tuple) -> bool:
+        """register user data in the database.
+
+        Args:
+            params (tuple): user data (email, password, username).
+
+        Returns:
+            (bool): returns True if the registration was successful
+
+        Raises:
+            EmailError: if the email is already registered, it throws an email error
+        """
+
         #  email, password, username
         normalized = TextHelper.normalize((params[2], params[0]))
         user = self.model.select_by_email(normalized[1])
@@ -40,7 +67,6 @@ class AuthService:
             raise EmailError("Email already exists")
 
         # por solucionar orden
-
         params = (normalized[0], normalized[1], Hasher.hash_password(params[1]), role)
 
         try:

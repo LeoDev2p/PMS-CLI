@@ -10,16 +10,28 @@ from src.core.logging import get_logger
 from src.models.sessions import Session
 from utils.helpers import ViewHelper
 
-from .forms import UI, Forms, FormsTask, FormsUser
+from ..forms import UI, Forms, FormsTask, FormsUser
 
 
 class ProfileViews:
+    """
+    Class to manage profile views.
+    """
     def __init__(self, controller):
+        """
+        Initializes the profile views.
+
+        Args:
+            controller (object): Controller object.
+        """
         self.controller = controller
         self.log = get_logger("audit", self.__class__.__name__)
         self.session = Session.get_id()
 
     def run(self):
+        """
+        Runs the profile views.
+        """
         while True:
             ViewHelper.clear_screen()
             UI.banner()
@@ -35,7 +47,7 @@ class ProfileViews:
                     except NotFoundTaskError as e:
                         UI.show_message(str(e))
 
-                    if Forms.ask_forms() == "S":
+                    if Forms.ask_forms() == "Y":
                         continue
                 case 2:
                     # params = id, task_name, task_title, project_title
@@ -59,7 +71,7 @@ class ProfileViews:
                         )
                         UI.show_message(str(e))
 
-                    if Forms.ask_forms() == "S":
+                    if Forms.ask_forms() == "Y":
                         continue
                 case 3:
                     UI.show_message("Enter your new details\n")
@@ -86,7 +98,7 @@ class ProfileViews:
                         )
                         UI.show_message(str(e))
 
-                    if Forms.ask_forms() == "S":
+                    if Forms.ask_forms() == "Y":
                         continue
                 case 4:
                     Session.stop()

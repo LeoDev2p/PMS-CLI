@@ -1,15 +1,22 @@
 from ..forms import UI, Forms, UIAdmin, ViewHelper
+from .operationals import OperationalViews
 from .projects_management import ManagementProjectViews
 from .settings import SettingsViews
 
 
 class ProjectsViews:
+    """
+    Handles project management.
+    """
+
     def __init__(self, controller):
         self.controller = controller
         self.m_project = ManagementProjectViews(controller)
         self.settings_views = SettingsViews(controller)
+        self.operational = OperationalViews(controller)
 
-    def project_management(self):
+    def run(self):
+        """Runs the project management panel."""
         while True:
             ViewHelper.clear_screen()
             UI.banner()
@@ -20,9 +27,9 @@ class ProjectsViews:
                 case 1:
                     self.m_project.run()
                 case 2:
-                    pass
+                    self.settings_views.run()
                 case 3:
-                    pass
+                    self.operational.run()
                 case 4:
                     break
                 case _:

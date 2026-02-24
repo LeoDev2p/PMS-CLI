@@ -19,6 +19,10 @@ from .user.profile import ProfileViews
 
 
 class View:
+    """
+    Handles user login and registration and redirects to the appropriate view.
+    """
+
     def __init__(self, controller):
         self.controller = controller
 
@@ -30,7 +34,7 @@ class View:
             ViewHelper.clear_screen()
             UI.banner()
             UI.show_message("\n")
-            self.menu()
+            UI.menu()
 
             option = Forms.option_forms()
             print()
@@ -64,7 +68,7 @@ class View:
                     ) as e:
                         UI.show_message(str(e))
 
-                        if Forms.ask_forms() == "S":
+                        if Forms.ask_forms() == "Y":
                             continue
                         else:
                             break
@@ -86,7 +90,7 @@ class View:
                     ) as e:
                         UI.show_message(str(e))
 
-                        if Forms.ask_forms() == "S":
+                        if Forms.ask_forms() == "Y":
                             continue
                         else:
                             break
@@ -96,5 +100,3 @@ class View:
                 case _:
                     UI.show_message("Invalid option")
 
-    def menu(self):
-        print("\t    [1] Login     [2] Register     [3] Exit")

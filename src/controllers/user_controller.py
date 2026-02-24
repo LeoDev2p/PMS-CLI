@@ -8,16 +8,28 @@ from utils.validators import (
 
 
 class UserController:
+    """
+    Handles user managemen
+    """
+
     def __init__(self, service):
         self.service = service
         self.log = get_logger("security", self.__class__.__name__)
 
     def get_profile(self) -> tuple:
+        """
+        Returns the profile of the current user.
+        """
         return self.service.fetch_profile()
 
-    # params = username, password
     @validation_password
-    def edit_profile(self, params):
+    def edit_profile(self, params: tuple):
+        """
+        Edits the profile of the current user.
+
+        Args:
+            params (tuple): Tuple of username, password and password_confirmation.
+        """
         validate = validation_data_empty(params)
         if not validate:
             raise DataEmptyError("All fields are required")
@@ -32,10 +44,13 @@ class UserController:
             raise e
 
     # gestion admin
+    def edit_username(self, params: tuple):
+        """
+        Edits the username of a user.
 
-    # el id todavia no se sabe imlmentar fucniond ebusqueda por like
-    def edit_username(self, params):
-        # username, id_user
+        Args:
+            params (tuple): Tuple of username and id.
+        """
         username, id = params
         if not validation_data_empty(username):
             raise DataEmptyError("Fields user are required")
@@ -43,18 +58,28 @@ class UserController:
         self.service.modify_user(username, id)
 
     @validation_email
-    def edit_email(self, params):
+    def edit_email(self, params: tuple):
+        """
+        Edits the email of a user.
+
+        Args:
+            params (tuple): Tuple of email and id.
+        """
         email, id = params
-        # observar OJO
         if not validation_data_empty(email):
             raise DataEmptyError("Fields email are requiered")
 
         self.service.modify_email(email, id)
 
     @validation_password
-    def reset_password(self, params):
+    def reset_password(self, params: tuple):
+        """
+        Resets the password of a user.
+
+        Args:
+            params (tuple): Tuple of password and id.
+        """
         password, id = params
-        # observar OJO
         if not validation_data_empty(password):
             raise DataEmptyError("Fields password  are requiered")
 
@@ -64,21 +89,47 @@ class UserController:
             self.log.warning(str(e))
             raise e
 
-    def change_role(self, params):
+    def change_role(self, params: tuple):
+        """
+        Changes the role of a user.
+
+        Args:
+            params (tuple): Tuple of role and id.
+        """
         role, id = params
-        # observar OJO
         if not validation_data_empty(role):
             raise DataEmptyError("Fields role are requiered")
 
         self.service.modify_role(role, id)
-    
-    def delete_user(self, id):
+
+    def delete_user(self, id: int):
+        """
+        Deletes a user.
+
+        Args:
+            id (int): Id of the user to delete.
+        """
         self.service.remove_user(id)
-    
+
     def get_all_users(self) -> list[tuple]:
+        """
+        Returns all users.
+
+        Returns:
+            list[tuple]: List of id, username, email, role, create_by
+        """
         return self.service.fetch_all_users()
-    
-    def search_user_or_email(self, user_or_email):
+
+    def search_user_or_email(self, user_or_email: str) -> list[tuple]:
+        """
+        Searches for a user or email.
+
+        Args:
+            user_or_email (str): User or email to search.
+
+        Returns:
+            list[tuple]: List of id, username and email.
+        """
         if not validation_data_empty(user_or_email):
             raise DataEmptyError("Email o username requerido")
 

@@ -5,15 +5,19 @@ from datetime import date
 
 
 class DateHelper:
+    """Class to manage date."""
+
     @staticmethod
     def today_is():
-        """Genera la fecha actual: 'YYYY-MM-DD'"""
+        """Generate the current date: 'YYYY-MM-DD'"""
         return date.today().strftime("%Y-%m-%d")
 
 
 class TextHelper:
+    """Class to manage text."""
+
     @staticmethod
-    def normalize(data: tuple | str) -> tuple | str:
+    def normalize(data: tuple | str) -> tuple | list | str:
         if isinstance(data, (tuple, list)):
             return type(data)(map(lambda x: str(x).strip().lower(), data))
 
@@ -21,9 +25,11 @@ class TextHelper:
 
 
 class ViewHelper:
+    """Class to manage views."""
+
     @staticmethod
     def clear_screen():
-        """Limpia la terminal"""
+        """Clear the terminal."""
         # noqa
         import os
 
@@ -41,6 +47,14 @@ class ViewHelper:
 
     @staticmethod
     def length_text_collection(data) -> list | int:
+        """Calculate the length of the text in a collection.
+
+        Args:
+            data (tuple | list): Collection of data.
+
+        Returns:
+            list | int: Length of the text in the collection.
+        """
         # [(), ()]
         if isinstance(data, (list, tuple)):
             if isinstance(data[0], (list, tuple)):

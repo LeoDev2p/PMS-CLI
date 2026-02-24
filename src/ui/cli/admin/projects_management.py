@@ -2,17 +2,25 @@ from src.core.exceptions import (
     DataEmptyError,
     ModelsError,
     NotFoundProjectError,
+    NotFoundStatusProjectError,
     ProjectsExistsError,
 )
 
 from ..forms import UI, Forms, UIAdmin, ViewHelper
+from .settings import StatusProjectsViews
 
 
 class ManagementProjectViews:
+    """
+    Class to manage project views.
+    """
     def __init__(self, controller):
         self.controller = controller
 
     def run(self):
+        """
+        Runs the project management views.
+        """
         while True:
             ViewHelper.clear_screen()
             UI.banner()
@@ -23,12 +31,23 @@ class ManagementProjectViews:
                 case 1:
                     data = ("GeoAI", "")  # forms (title, description)
                     try:
-                        self.controller.project.add_project(data)
-                        UI.show_message("Proyecto agregado con exito")
+                        try:
+                            self.controller.project.get_all_status()
+                        except NotFoundStatusProjectError:
+                            UI.show_message(
+                                "First you need to create the states in 'system setting' or"
+                            )
+                            if Forms.ask_forms("Create by default") == "Y":
+                                self.controller.project.add_project(data)
+                                UI.show_message("Project successfully added")
+                            else:
+                                UI.show_message("Set status in 'SYSTEM SETTING")
+                        else:
+                            self.controller.project.add_project(data)
                     except (DataEmptyError, ProjectsExistsError, ModelsError) as e:
                         UI.show_error(str(e))
 
-                    if Forms.ask_forms() == "S":
+                    if Forms.ask_forms() == "Y":
                         continue
 
                 case 2:
@@ -38,7 +57,7 @@ class ManagementProjectViews:
                     except (NotFoundProjectError, ModelsError) as e:
                         UI.show_error(str(e))
 
-                    if Forms.ask_forms() == "S":
+                    if Forms.ask_forms() == "Y":
                         continue
 
                 case 3:
@@ -51,7 +70,7 @@ class ManagementProjectViews:
                     except (DataEmptyError, ModelsError) as e:
                         UI.show_error(str(e))
 
-                    if Forms.ask_forms() == "S":
+                    if Forms.ask_forms() == "Y":
                         continue
 
                 case 4:
@@ -60,15 +79,15 @@ class ManagementProjectViews:
                         result = self.controller.project.get_by_project(data)
                         print(result)
 
-                        if Forms.ask_forms(question="Do you want delete?") == "S":
+                        if Forms.ask_forms(question="Do you want delete?") == "Y":
                             self.controller.project.delete_project(result[0])
-                            UI.show_message("Proyecto eliminado con exito")
+                            UI.show_message("Project successfully deleted")
                         else:
-                            UI.show_message("Acciona cancelada")
+                            UI.show_message("Action canceled")
                     except (DataEmptyError, NotFoundProjectError, ModelsError) as e:
                         UI.show_error(str(e))
 
-                    if Forms.ask_forms() == "S":
+                    if Forms.ask_forms() == "Y":
                         continue
 
                 case 5:

@@ -16,13 +16,11 @@ class BaseModels:
 
         # noqa: E402
         from .create_tables import CreateTables
-        print (f"[DEBUG]: basemodel {self}")
-        print (f"[DEBUG]: {isinstance(self, CreateTables)}")
         if not isinstance(self, CreateTables):
             self.create_tables = CreateTables()
             self.create_tables.create_all_tables()
 
-    def _execute_query(self, query, params=(), select=False, single=False, is_many=False):
+    def _execute_query(self, query, params: tuple = (), select=False, single=False, is_many=False):
         """
         Execute a query.
 
@@ -30,9 +28,12 @@ class BaseModels:
             query (str): The query to execute.
             params (tuple): The parameters to use in the query.
             select (bool): Whether to select data from the query.
+            single (bool): when fetchone
+            is_many (bool): when multiple data points are to be recorded executemany
 
         Returns:
-            list: The data from the query.
+            tuple: The data from the query
+            list[tuple]: The data from the query.
         """
         try:
             with sqlite3.connect(self.db_path) as con:

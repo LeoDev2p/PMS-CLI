@@ -8,6 +8,10 @@ from .users_management import UserManagementViews
 
 
 class AdminViews:
+    """
+    Handles the admin panel.
+    """
+
     def __init__(self, controller):
         self.controller = controller
         self.session = Session.get_id()
@@ -17,6 +21,7 @@ class AdminViews:
         self.log = get_logger("audit", self.__class__.__name__)
 
     def run(self):
+        """Runs the admin panel."""
         while True:
             ViewHelper.clear_screen()
             UI.banner()
@@ -25,9 +30,9 @@ class AdminViews:
             option = Forms.option_forms()
             match option:
                 case 1:
-                    self.user_views.user_management()
+                    self.user_views.run()
                 case 2:
-                    self.projects_views.project_management()
+                    self.projects_views.run()
                 case 3:
                     self.statistics_panel()
                 case 4:

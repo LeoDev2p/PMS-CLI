@@ -1,5 +1,6 @@
 import re
 from functools import wraps
+from typing import Any
 
 from src.core.exceptions import EmailError, PasswordError
 from src.core.logging import get_logger
@@ -48,7 +49,15 @@ def validation_password(func):
     return wrapper
 
 
-def validation_data_empty(data) -> bool:
+def validation_data_empty(data: Any) -> bool:
+    """Validate if the data is empty.
+
+    Args:
+        data (any): Data to validate.
+
+    Returns:
+        bool: True if the data is not empty, False otherwise.
+    """
     if isinstance(data, (int, float)):
         return True
     if isinstance(data, (list, tuple)):
@@ -61,5 +70,35 @@ def validation_data_empty(data) -> bool:
     )
 
 
-def textvalidator(data):
+def textvalidator(data: str) -> bool:
+    """Validate if the data is a valid email.
+
+    Args:
+        data (str): Data to validate.
+
+    Returns:
+        bool: True if the data is a valid email, False otherwise.
+    """
     return True if re.search(r"@[a-zA-Z0-9]+\.[a-zA-Z]+|@{1}", data) else False
+
+
+def validation_match_status(result: list[tuple], data: tuple | list | list[tuple]) -> list:
+    """Validate if the data matches the result.
+
+    Args:
+        result (list[tuple]): Result to validate.
+        data (tuple | list | list[tuple]): Data to validate.
+
+    Returns:
+        list: List of data that matches the result.
+    """
+    new_result = [r[1] for r in result]
+    if isinstance(data, tuple):
+        return list(filter(lambda x: x in new_result, data))
+
+    else:
+        try:
+            new_data = [d[0] for d in data]
+            return [i for i in new_data if i in new_result]
+        except IndexError:
+            return [i for i in data if i in new_result]

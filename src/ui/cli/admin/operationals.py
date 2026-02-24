@@ -1,6 +1,6 @@
 from utils.helpers import ViewHelper
 
-from ..forms import UI, Forms, UIAdmin
+from ..forms import UI, Forms, UIAdmin, FormsTask
 
 
 class OperationalViews:
@@ -16,7 +16,13 @@ class OperationalViews:
             option = Forms.option_forms()
             match option:
                 case 1:
-                    pass
+                    # mostrar que proyecto
+                    # Datos de la tarea
+                    # mostrar user disponibles
+                    r_projects = self.controller.project.get_all_project()
+                    print (r_projects)
+                    data = ('title', '')  #FormsTask.asigne_task()
+                    
                 case 2:
                     pass
                 case 3:

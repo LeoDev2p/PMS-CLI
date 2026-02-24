@@ -20,7 +20,9 @@ class CreateTables(BaseModels):
         query = """
             CREATE TABLE IF NOT EXISTS projects_status (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL
+            name TEXT NOT NULL,
+            system_key TEXT NOT NULL,
+            is_active INTEGER NOT NULL
             )
         """
 
@@ -33,7 +35,7 @@ class CreateTables(BaseModels):
             title TEXT NOT NULL UNIQUE,
             description TEXT,
             id_admin INTEGER NOT NULL,
-            id_status INTEGER NOT NULL DEFAULT (1),
+            id_status INTEGER NOT NULL,
             create_at TEXT DEFAULT (CURRENT_DATE),
 
             FOREIGN KEY (id_admin) REFERENCES users(id),
@@ -61,7 +63,9 @@ class CreateTables(BaseModels):
         query = """
             CREATE TABLE IF NOT EXISTS task_status (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL
+            name TEXT NOT NULL,
+            system_key TEXT NOT NULL,
+            is_active INTEGER NOT NULL
             )
         """
 
@@ -75,11 +79,11 @@ class CreateTables(BaseModels):
             description TEXT,
             id_status INTEGER NOT NULL,
             id_projects INTEGER NOT NULL,
-            id_assigned_to INTEGER NOT NULL,
+            id_assigned_to INTEGER,
 
             FOREIGN key (id_status) REFERENCES task_status(id),
             FOREIGN KEY (id_projects) REFERENCES projects(id) ON DELETE CASCADE,
-            FOREIGN KEY (id_assigned_to) REFERENCES users(id)
+            FOREIGN KEY (id_assigned_to) REFERENCES users(id) ON DELETE SET NULL
             )
         """
 

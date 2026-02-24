@@ -1,6 +1,11 @@
 from utils.helpers import ViewHelper
 
+
 class UIAdmin:
+    """
+    Class to manage admin views.
+    """
+
     @staticmethod
     def menu_admin():
         print("""
@@ -64,7 +69,7 @@ class UIAdmin:
         [2] gestionar estados de tareas
         [3] Back
         """)
-    
+
     @staticmethod
     def menu_status_projects():
         print("""
@@ -86,7 +91,7 @@ class UIAdmin:
         [4] eliminar estado
         [5] Back
         """)
-    
+
     @staticmethod
     def menu_operational():
         print("""
@@ -97,7 +102,16 @@ class UIAdmin:
         [4] Back
         """)
 
+
 class UI:
+    """
+    Class to manage UI views.
+    """
+
+    @staticmethod
+    def menu():
+        print("\t    [1] Login     [2] Register     [3] Exit")
+
     @staticmethod
     def show_message(message):
         print(message)
@@ -115,8 +129,6 @@ class UI:
         [3] My profile
         [4] Logout
         """)
-
-    
 
     @staticmethod
     def banner():
@@ -203,6 +215,10 @@ class UI:
 
 
 class Forms:
+    """
+    Class to manage forms.
+    """
+
     @staticmethod
     def login_forms() -> tuple:
         email = input("[email]: ")
@@ -227,14 +243,44 @@ class Forms:
     @staticmethod
     def ask_forms(question="Do you want to continue?"):
         try:
-            ask = input(f"{question} (S/N): ").upper()
+            ask = input(f"{question} (Y/N): ").upper()
         except Exception as e:
             print(f"Error: {e}")
             return None
         return ask
 
 
+class FormsProjects:
+    """
+    Class to manage forms projects.
+    """
+
+    @staticmethod
+    def status_fields(edit=False, delete=False):
+        if edit:
+            try:
+                id = int(input("[Id]: "))
+                status = input("[New status]: ")
+                return id, status
+            except ValueError as e:
+                print(str(e))
+
+        elif delete:
+            try:
+                id = int(input("[Id]: "))
+                return id
+            except ValueError as e:
+                print(str(e))
+
+        status = input("[New status]: ")
+        return status
+
+
 class FormsTask:
+    """
+    Class to manage forms tasks.
+    """
+
     @staticmethod
     def edit_taskstatus_forms():
         try:
@@ -246,8 +292,38 @@ class FormsTask:
             print(f"Error: {e}")
             return None
 
+    @staticmethod
+    def asigne_task():
+        title = input("[New task]: ")
+        description = input("[Description]: ")
+        return title, description
+
+    @staticmethod
+    def status_fields(edit=False, delete=False):
+        if edit:
+            try:
+                id = int(input("[Id]: "))
+                status = input("[New status]: ")
+                return id, status
+            except ValueError as e:
+                print(str(e))
+
+        elif delete:
+            try:
+                id = int(input("[Id]: "))
+                return id
+            except ValueError as e:
+                print(str(e))
+
+        status = input("[New status]: ")
+        return status
+
 
 class FormsUser:
+    """
+    Class to manage forms users.
+    """
+
     @staticmethod
     def edit_profile_forms():
         try:
