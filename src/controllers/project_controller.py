@@ -7,6 +7,7 @@ class ProjectController:
     """
     Class to manage project controller.
     """
+
     def __init__(self, service):
         self.p_service = service
         self.log = get_logger("audit", self.__class__.__name__)
@@ -78,6 +79,45 @@ class ProjectController:
 
         return self.p_service.fetch_by_project(title)
 
+    def get_projects_new(self) -> list[tuple]:
+        """
+        Gets all new projects.
+
+        Returns:
+            list[tuple]: List of tuples of new projects.
+        """
+        return self.p_service.fetch_projects_new()
+
+    def count_projects_by_title(self, title: str) -> int:
+        """
+        Counts the number of projects by title.
+
+        Args:
+            title (str): Project title.
+
+        Returns:
+            int: Number of projects.
+        """
+        if not validation_data_empty(title):
+            raise DataEmptyError("The project title is required")
+
+        return self.p_service.fetch_count_projects_by_title(title)
+
+    def get_projects_by_title(self, title: str) -> list[tuple]:
+        """
+        Gets all projects by title.
+
+        Args:
+            title (str): Project title.
+
+        Returns:
+            list[tuple]: List of tuples of projects.
+        """
+        if not validation_data_empty(title):
+            raise DataEmptyError("The project title is required")
+
+        return self.p_service.fetch_projects_by_title(title)
+
     # edit
     def edit_title_project(self, params: tuple):
         """
@@ -91,7 +131,7 @@ class ProjectController:
             raise DataEmptyError("The new project title is required")
 
         self.p_service.modify_title_project(params)
-    
+
     def edit_project_status_by_project(self, params: tuple):
         """
         Edits a project status by project.

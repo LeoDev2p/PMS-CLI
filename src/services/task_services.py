@@ -77,12 +77,29 @@ class TaskServices:
         return result
 
     # create
+    def create_task(self, params):
+        """
+        Creates a new task.
+
+        Args:
+            params (tuple): Tuple of (title, description, id_projects, id_assigned_to).
+        """
+        normalized = TextHelper.normalize(params)
+        try:
+            self.t_model.insert_task(normalized)
+        except DatabaseLockedError as e:
+            self.log_error(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+        else:
+            self.log_audit.info("Task created successfully")
+
     def create_task_status(self, params: list[tuple]):
         """
         Creates a new task status.
 
         Args:
             params (list[tuple]): List of tuples of task status names.
+            example: [("name", "system_key: int")]
 
         Raises:
             StatusExistsError: If task statuses already exist.
@@ -101,12 +118,17 @@ class TaskServices:
                 raise StatusExistsError(f"States already exist {duplicates}")
 
             system_key = {
-                1: "pending",
-                2: "in_progress",
-                3: "cancelled",
+                1: "PENDING",
+                2: "IN_PROGRESS",
+                3: "REVIEW",
+                4: "COMPLETED",
+                5: "BLOCKED",
             }
 
-            new_params = [(status, system_key[key], 0) for status, key in normalized]
+            new_params = []
+            for status, key in normalized:
+                id_system_key = self.t_model.select_by_system_key(system_key[key])
+                new_params.append((status, id_system_key[0], 1))
 
             self.t_model.insert_task_status(new_params, is_many=True)
         except (DatabaseLockedError, ModelsError) as e:
@@ -123,11 +145,11 @@ class TaskServices:
             ModelsError: If there is a technical error in the data server.
         """
         params = [
-            ("pendiente"),
-            ("progreso"),
-            ("revision"),
-            ("completada"),
-            ("bloqueada"),
+            ("pendiente", "PENDING", 1),
+            ("progreso", "IN_PROGRESS", 1),
+            ("revision", "REVIEW", 1),
+            ("completada", "COMPLETED", 1),
+            ("bloqueada", "BLOCKED", 1),
         ]
         try:
             self.t_model.insert_task_status(params, is_many=True)

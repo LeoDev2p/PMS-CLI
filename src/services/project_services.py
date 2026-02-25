@@ -76,12 +76,17 @@ class ProjectServices:
                 raise StatusExistsError(f"States already exist {duplicates}")
 
             system_key = {
-                1: "active",
-                2: "on_hold",
-                3: "inactive",
+                1: "NEW",
+                2: "ACTIVE",
+                3: "ON_HOLD",
+                4: "FINALIZED",
+                5: "CANCELLED",
             }
 
-            new_params = [(status, system_key[key], 0) for status, key in normalized]
+            new_params = []
+            for status, key in normalized:
+                id_system_key = self.p_model.select_by_system_key(system_key[key])
+                new_params.append((status, id_system_key[0], 1))
 
             self.p_model.insert_projects_status(new_params, is_many=True)
         except DatabaseLockedError as e:
@@ -95,11 +100,11 @@ class ProjectServices:
         Creates default project statuses.
         """
         params = [
-            ("new", "active", 1),
-            ("active", "active", 0),
-            ("paused", "on_hold", 0),
-            ("finalized", "inactive", 0),
-            ("cancelled", "inactive", 0),
+            ("new", "NEW", 1),
+            ("active", "ACTIVE", 1),
+            ("paused", "ON_HOLD", 1),
+            ("finalized", "FINALIZED", 1),
+            ("cancelled", "CANCELLED", 1),
         ]
 
         try:
@@ -154,6 +159,49 @@ class ProjectServices:
 
         return result
 
+    def fetch_projects_new(self) -> list[tuple]:
+        """
+        Gets all new projects.
+
+        Returns:
+            list[tuple]: List of tuples of new projects.
+        """
+        result = self.p_model.select_projects_new()
+        if not result:
+            raise NotFoundProjectError("No hay proyectos nuevos")
+
+        return result
+
+    def fetch_count_projects_by_title(self, title: str) -> int:
+        """
+        Counts the number of projects by title.
+
+        Args:
+            title (str): Project title.
+
+        Returns:
+            int: Number of projects.
+        """
+        normalized = TextHelper.normalize(title)
+        return self.p_model.count_projects_by_title(normalized)
+
+    def fetch_projects_by_title(self, title: str) -> list[tuple]:
+        """
+        Gets all projects by title.
+
+        Args:
+            title (str): Project title.
+
+        Returns:
+            list[tuple]: List of tuples of projects.
+        """
+        normalized = TextHelper.normalize(title)
+        result = self.p_model.select_projects_by_title(normalized)
+        if not result:
+            raise NotFoundProjectError(f"Not exists {title}")
+
+        return result
+
     # Modify
     def modify_title_project(self, params: tuple):
         """
@@ -166,7 +214,6 @@ class ProjectServices:
         title, id = params
         normalized = TextHelper.normalize(title)
         try:
-            print (f"[DEBUG] {normalized, id}")
             self.p_model.update_project((normalized, id))
             self.log_audit.info(
                 f"Admin {Session.get_id()}: Proyecto {title} actualizado con exito"
@@ -174,7 +221,7 @@ class ProjectServices:
         except DatabaseLockedError as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
-    
+
     def modify_project_status_by_project(self, params: tuple):
         """
         Edits a project status by project.

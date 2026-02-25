@@ -130,6 +130,21 @@ class UsersModels(BaseModels):
         """
 
         return self._execute_query(query, (id,), select=True, single=True)
+    
+    def select_free_operational_users(self) -> list[tuple]:
+        """
+        Selects all users operational.
+
+        Returns:
+            list[tuple]: List of id, username and email.
+        """
+        query = """
+            SELECT u.id, u.username, t.title FROM users u
+            LEFT JOIN task t ON u.id = t.id_assigned_to
+            WHERE u.role <> 'admin' AND t.title is NULL
+        """
+
+        return self._execute_query(query, select=True)
 
     def like_by_username(self, username):
         """

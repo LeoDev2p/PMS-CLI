@@ -15,7 +15,8 @@ class UserServices:
         self.user_model = user_model
         self.log_audit = get_logger("audit", self.__class__.__name__)
         self.log_error = get_logger("error", self.__class__.__name__)
-
+    
+    # fetch
     def fetch_profile(self) -> tuple:
         """
         Fetches the profile of the current user.
@@ -50,7 +51,17 @@ class UserServices:
                 raise NotFoundUserError("Usuario no registrado")
 
         return result
+    
+    def fetch_free_operational_users(self) -> list[tuple]:
+        """
+        Fetches all free operational users.
 
+        Returns:
+            list[tuple]: List of id, username and title_task.
+        """
+        return self.user_model.select_free_operational_users()
+
+    # modify
     def modify_profile(self, params):
         """
         Modifies the profile of the current user.
@@ -140,6 +151,7 @@ class UserServices:
             self.log_error.critical(f"Error: {e}")
             raise e
 
+    # remove
     def remove_user(self, id):
         """
         Removes a user.

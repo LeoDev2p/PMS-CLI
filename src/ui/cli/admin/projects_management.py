@@ -1,4 +1,3 @@
-from src.ui.cli.forms import FormsProjects
 from src.core.exceptions import (
     DataEmptyError,
     ModelsError,
@@ -6,6 +5,7 @@ from src.core.exceptions import (
     NotFoundStatusProjectError,
     ProjectsExistsError,
 )
+from src.ui.cli.forms import FormsProjects
 
 from ..forms import UI, Forms, UIAdmin, ViewHelper
 
@@ -85,7 +85,7 @@ class ManagementProjectViews:
                     break
                 case _:
                     UI.show_message("Invalid option")
-    
+
     def edit_project(self):
         """
         Edits a project.
@@ -96,7 +96,7 @@ class ManagementProjectViews:
         while True:
             ViewHelper.clear_screen()
             UI.banner()
-            print ("""
+            print("""
             [1] Editing title
             [2] Editing status
             [3] Back

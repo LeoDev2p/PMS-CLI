@@ -62,7 +62,11 @@ class StatusProjectsViews:
                 case 1:
                     data = []
                     UI.show_message("Para terminar 'N'")
-                    UI.show_message("Type: [1] Active | [2] On Hole | [3] Inactive")
+                    UI.show_message("Para que el sistema sepa cómo manejar este estado, elija la categoría que mejor lo describa:")
+                    print("-" * 40)
+                    print(" 1. NEW      2. ACTIVE      3. ON HOLD")
+                    print(" 4. COMPLETED   5. CANCELLED")
+                    print("-" * 40)
                     while True:
                         status = FormsProjects.status_fields()
                         if status.upper() == "N":
@@ -146,7 +150,11 @@ class StatusTasksViews:
                 case 1:
                     data = []
                     UI.show_message("Para terminar 'N'")
-                    UI.show_message("Type: [1] Pending | [2] In Progress | [3] Cancelled")
+                    UI.show_message("Para que el sistema sepa cómo manejar este estado, elija la categoría que mejor lo describa:")
+                    print("-" * 40)
+                    print(" 1. PENDING      2. IN PROGRESS      3. REVIEW")
+                    print(" 4. COMPLETED   5. BLOCKED")
+                    print("-" * 40)
                     while True:
                         status = FormsTask.status_fields()
                         if status.upper() == "N":

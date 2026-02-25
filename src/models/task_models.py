@@ -84,10 +84,63 @@ class TaskModels(BaseModels):
 
         return self._execute_query(query, (name,), select=True, single=True)
     
-    def select_user_free():
-        pass
+    def select_by_system_key(self, system_key):
+        """
+        Selects a task status by system key.
+
+        Args:
+            system_key (str): Task status system key.
+
+        Returns:
+            tuple: Tuple of (task_status_id,).
+        """
+        query = "SELECT id FROM task_status WHERE system_key = ?"
+
+        return self._execute_query(query, (system_key,), select=True, single=True)
+    
+    def select_all_tasks_of_project(self, id):
+        """
+        Selects all tasks of a project.
+
+        Args:
+            id (int): Project id.
+
+        Returns:
+            list[tuple]: List of tasks.
+        """
+        query = """
+            SELECT 
+                p.title AS project, 
+                COALESCE(u.username, 'SIN ASIGNAR (Vacante)') AS responsible,
+                t.title AS task_, 
+                ts.name AS progress
+            FROM task t
+            JOIN projects p ON t.id_projects = p.id
+            JOIN task_status ts ON t.id_status = ts.id
+            LEFT JOIN users u ON t.id_assigned_to = u.id 
+            WHERE p.id = ?
+            ORDER BY responsible DESC;
+        """
+
+        return self._execute_query(query, (id,), select=True)
+    
+
     
     # insert
+    def insert_task(self, params):
+        """
+        Inserts a new task.
+
+        Args:
+            params (tuple): Tuple of (title, description, id_projects, id_assigned_to).
+        """
+        query = """
+            INSERT INTO task (title, description, id_status, id_projects, id_assigned_to)
+            VALUES (?, ?, 1, ?, ?)
+        """
+
+        self._execute_query(query, params)
+
     def insert_task_status(self, params: tuple | list[tuple], is_many = False):
         """
         Inserts a new task status.

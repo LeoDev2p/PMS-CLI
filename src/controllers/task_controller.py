@@ -56,6 +56,22 @@ class TaskController:
         return self.t_service.fetch_task_by_project_task(params)
 
     # add
+    def add_task(self, params):
+        """
+        Adds a new task.
+
+        Args:
+            params (tuple): Tuple of (title, description, id_projects, id_assigned_to).
+        """
+        params_list = list(params)
+        params_list.pop(1)
+        validate = validation_data_empty(params_list)
+        if not validate:
+            raise DataEmptyError("All fields are required")
+
+        params_list.insert(1, "")
+        self.t_service.create_task(tuple(params_list))
+
     def add_task_status(self, params: tuple | list[tuple]):
         """
         Adds a new task status.

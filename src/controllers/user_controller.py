@@ -16,12 +16,47 @@ class UserController:
         self.service = service
         self.log = get_logger("security", self.__class__.__name__)
 
+    # get
     def get_profile(self) -> tuple:
         """
         Returns the profile of the current user.
         """
         return self.service.fetch_profile()
+    
+    def get_all_users(self) -> list[tuple]:
+        """
+        Returns all users.
 
+        Returns:
+            list[tuple]: List of id, username, email, role, create_by
+        """
+        return self.service.fetch_all_users()
+
+    def search_user_or_email(self, user_or_email: str) -> list[tuple]:
+        """
+        Searches for a user or email.
+
+        Args:
+            user_or_email (str): User or email to search.
+
+        Returns:
+            list[tuple]: List of id, username and email.
+        """
+        if not validation_data_empty(user_or_email):
+            raise DataEmptyError("Email o username requerido")
+
+        return self.service.fetch_user_or_email(user_or_email)
+    
+    def get_free_operational_users(self) -> list[tuple]:
+        """
+        Gets all free operational users.
+
+        Returns:
+            list[tuple]: List of id, username and title_task.
+        """
+        return self.service.fetch_free_operational_users()
+
+    # edit
     @validation_password
     def edit_profile(self, params: tuple):
         """
@@ -102,6 +137,7 @@ class UserController:
 
         self.service.modify_role(role, id)
 
+    # delete
     def delete_user(self, id: int):
         """
         Deletes a user.
@@ -111,26 +147,3 @@ class UserController:
         """
         self.service.remove_user(id)
 
-    def get_all_users(self) -> list[tuple]:
-        """
-        Returns all users.
-
-        Returns:
-            list[tuple]: List of id, username, email, role, create_by
-        """
-        return self.service.fetch_all_users()
-
-    def search_user_or_email(self, user_or_email: str) -> list[tuple]:
-        """
-        Searches for a user or email.
-
-        Args:
-            user_or_email (str): User or email to search.
-
-        Returns:
-            list[tuple]: List of id, username and email.
-        """
-        if not validation_data_empty(user_or_email):
-            raise DataEmptyError("Email o username requerido")
-
-        return self.service.fetch_user_or_email(user_or_email)

@@ -96,9 +96,9 @@ class UIAdmin:
     def menu_operational():
         print("""
                       OPERATIONAL
-        [1] nueva asignacion / crear tarea
-        [2] control de equipos  monitoreo
-        [3] mentenimiento de personal
+        [1] new assignment / create task
+        [2] team control / monitoring
+        [3] personnel maintenance
         [4] Back
         """)
 
@@ -241,6 +241,14 @@ class Forms:
             print(f"Error: {e}")
 
     @staticmethod
+    def id_forms():
+        try:
+            id = int(input("[select id]: "))
+            return id
+        except ValueError as e:
+            print(f"Error: {e}")
+
+    @staticmethod
     def ask_forms(question="Do you want to continue?"):
         try:
             ask = input(f"{question} (Y/N): ").upper()
@@ -274,15 +282,16 @@ class FormsProjects:
 
         status = input("[New status]: ")
         return status
-    
+
     @staticmethod
     def system_key_status():
         try:
             key = int(input("[Id type]: "))
             return key
         except ValueError as e:
-            print (str(e))
+            print(str(e))
 
+    @staticmethod
     def edit_project_forms():
         try:
             id = int(input("[Id]: "))
@@ -291,6 +300,7 @@ class FormsProjects:
         except ValueError as e:
             print(str(e))
 
+    @staticmethod
     def edit_project_status_forms():
         try:
             id_project = int(input("[Id project]: "))
@@ -298,6 +308,15 @@ class FormsProjects:
             return id_status, id_project
         except ValueError as e:
             print(str(e))
+    
+    @staticmethod
+    def search_project_forms():
+        try:
+            title = input("[Title]: ")
+            return title
+        except ValueError as e:
+            print(str(e))
+
 
 class FormsTask:
     """
@@ -340,14 +359,14 @@ class FormsTask:
 
         status = input("[New status]: ")
         return status
-    
+
     @staticmethod
     def system_key_status():
         try:
             key = int(input("[Id type]: "))
             return key
         except ValueError as e:
-            print (str(e))
+            print(str(e))
 
 
 class FormsUser:
