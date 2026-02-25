@@ -97,8 +97,8 @@ class TaskModels(BaseModels):
             is_many (bool): Whether the params is a list of tuples.
         """
         query = """
-            INSERT INTO task_status (name)
-            VALUES (?)
+            INSERT INTO task_status (name, system_key, is_active)
+            VALUES (?, ?, ?)
         """
 
         self._execute_query(query, params, is_many = is_many)

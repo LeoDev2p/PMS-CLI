@@ -77,9 +77,9 @@ class UserController:
         Resets the password of a user.
 
         Args:
-            params (tuple): Tuple of password and id.
+            params (tuple): Tuple of id and password.
         """
-        password, id = params
+        id, password = params
         if not validation_data_empty(password):
             raise DataEmptyError("Fields password  are requiered")
 

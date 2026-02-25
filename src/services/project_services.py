@@ -9,13 +9,13 @@ from src.core.exceptions import (
 from src.core.logging import get_logger
 from src.models.sessions import Session
 from utils.helpers import TextHelper
-from utils.validators import validation_match_status
 
 
 class ProjectServices:
     """
     Class to manage project services.
     """
+
     def __init__(self, model):
         self.p_model = model
         self.log_audit = get_logger("audit", self.__class__.__name__)
@@ -41,7 +41,7 @@ class ProjectServices:
         status = self.p_model.select_all_status()
         if not status:
             self.create_default_status()
-        
+
         id_status_default = self.p_model.default_min_id_status()
         params = (normalize[0], normalize[1], self.id_admin, id_status_default[0])
 
@@ -65,12 +65,24 @@ class ProjectServices:
         try:
             result_status = self.p_model.select_all_status()
             normalized = TextHelper.normalize(params)
-            validate_match = validation_match_status(result_status, normalized)
 
-            if validate_match:
-                raise StatusExistsError(f"Estados ya existen {validate_match}")
+            #
+            existing_names = {state[1] for state in result_status}
+            new_names = {state[0] for state in normalized}
 
-            new_params = [(x,) for x in normalized]
+            duplicates = new_names.intersection(existing_names)
+
+            if duplicates:
+                raise StatusExistsError(f"States already exist {duplicates}")
+
+            system_key = {
+                1: "active",
+                2: "on_hold",
+                3: "inactive",
+            }
+
+            new_params = [(status, system_key[key], 0) for status, key in normalized]
+
             self.p_model.insert_projects_status(new_params, is_many=True)
         except DatabaseLockedError as e:
             self.log_error(f"Error: {e}")
@@ -82,7 +94,13 @@ class ProjectServices:
         """
         Creates default project statuses.
         """
-        params = [("new", "active", 1), ("active", "active", 0), ("paused", "on_hold", 0), ("finalized", "inactive", 0), ("cancelled", "inactive", 0)]
+        params = [
+            ("new", "active", 1),
+            ("active", "active", 0),
+            ("paused", "on_hold", 0),
+            ("finalized", "inactive", 0),
+            ("cancelled", "inactive", 0),
+        ]
 
         try:
             self.p_model.insert_projects_status(params, is_many=True)
@@ -137,7 +155,7 @@ class ProjectServices:
         return result
 
     # Modify
-    def modify_project(self, params: tuple):
+    def modify_title_project(self, params: tuple):
         """
         Edits a project.
 
@@ -148,11 +166,26 @@ class ProjectServices:
         title, id = params
         normalized = TextHelper.normalize(title)
         try:
+            print (f"[DEBUG] {normalized, id}")
             self.p_model.update_project((normalized, id))
             self.log_audit.info(
                 f"Admin {Session.get_id()}: Proyecto {title} actualizado con exito"
             )
         except DatabaseLockedError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+    
+    def modify_project_status_by_project(self, params: tuple):
+        """
+        Edits a project status by project.
+
+        Args:
+            params (tuple): Tuple of project status parameters.
+            example: (id_new_status, id_project)
+        """
+        try:
+            self.p_model.update_project_status_by_project(params)
+        except (DatabaseLockedError, ModelsError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
 
@@ -169,7 +202,7 @@ class ProjectServices:
         try:
             params = (normalized, id)
             self.p_model.update_project_status(params)
-        except DatabaseLockedError as e:
+        except (DatabaseLockedError, ModelsError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
 

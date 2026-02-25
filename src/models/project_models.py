@@ -15,7 +15,7 @@ class ProjectModels(BaseModels):
             list[tuple]: List of tuples of projects.
         """
         query = """
-            SELECT p.title, ps.name FROM projects p
+            SELECT p.id, p.title, ps.name FROM projects p
             JOIN projects_status ps ON p.id_status = ps.id
         """
 
@@ -111,7 +111,22 @@ class ProjectModels(BaseModels):
         """
         query = """
             UPDATE projects
-            SET title = ?, id_status = ?
+            SET title = ?
+            WHERE id = ?
+        """
+
+        self._execute_query(query, params)
+    
+    def update_project_status_by_project(self, params):
+        """
+        Updates a project status by project.
+
+        Args:
+            params (tuple): Tuple of project status parameters.
+        """
+        query = """
+            UPDATE projects
+            SET id_status = ?
             WHERE id = ?
         """
 

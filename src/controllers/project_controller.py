@@ -31,7 +31,7 @@ class ProjectController:
 
         Args:
             params (tuple | list[tuple]): Tuple or list of tuples of project statuses.
-            example: (name,) or [(name,), (name,)]
+            example: (name,) or [(name: str, key: int,), (name, key,)]
         """
         if not validation_data_empty(params):
             raise DataEmptyError("Se require estados del proyecto")
@@ -79,7 +79,7 @@ class ProjectController:
         return self.p_service.fetch_by_project(title)
 
     # edit
-    def edit_project(self, params: tuple):
+    def edit_title_project(self, params: tuple):
         """
         Edits a project.
 
@@ -88,9 +88,22 @@ class ProjectController:
             example: (title, id)
         """
         if not validation_data_empty(params[0]):
-            raise DataEmptyError("Se require el nuevo titulo del proyecto")
+            raise DataEmptyError("The new project title is required")
 
-        self.p_service.modify_project(params)
+        self.p_service.modify_title_project(params)
+    
+    def edit_project_status_by_project(self, params: tuple):
+        """
+        Edits a project status by project.
+
+        Args:
+            params (tuple): Tuple of project status parameters.
+            example: (id_new_status, id_project)
+        """
+        if not validation_data_empty(params):
+            raise DataEmptyError("The new project status is required")
+
+        self.p_service.modify_project_status_by_project(params)
 
     def edit_project_status(self, params: tuple):
         """
@@ -104,7 +117,7 @@ class ProjectController:
         if not validation_data_empty(status):
             raise DataEmptyError("Se requiere el nuevo nombre de estado del proyecto")
 
-        self.p_service.modify_project_status(status, id)
+        self.p_service.modify_project_status((status, id))
 
     # delete
     def delete_project(self, id: int):

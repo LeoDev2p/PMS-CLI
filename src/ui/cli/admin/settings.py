@@ -13,6 +13,7 @@ class SettingsViews:
     """
     Class to manage system settings views.
     """
+
     def __init__(self, controller):
         self.controller = controller
         self.status_projects_views = StatusProjectsViews(controller)
@@ -43,6 +44,7 @@ class StatusProjectsViews:
     """
     Class to manage project status views.
     """
+
     def __init__(self, controller):
         self.controller = controller
 
@@ -60,17 +62,22 @@ class StatusProjectsViews:
                 case 1:
                     data = []
                     UI.show_message("Para terminar 'N'")
+                    UI.show_message("Type: [1] Active | [2] On Hole | [3] Inactive")
                     while True:
                         status = FormsProjects.status_fields()
                         if status.upper() == "N":
                             break
 
-                        data.append(status)
+                        key = FormsProjects.system_key_status()
+                        data.append((status, key))
 
                     try:
                         self.controller.project.add_project_status(data)
                     except (StatusExistsError, ModelsError) as e:
                         UI.show_error(str(e))
+
+                    if Forms.ask_forms() == "Y":
+                        continue
 
                 case 2:
                     try:
@@ -91,7 +98,10 @@ class StatusProjectsViews:
                     except (DataEmptyError, ModelsError) as e:
                         UI.show_error(str(e))
 
-                case 5:
+                    if Forms.ask_forms() == "Y":
+                        continue
+
+                case 4:
                     result = self.controller.project.get_all_status()
                     print(result)
                     id = FormsProjects.status_fields(delete=True)
@@ -101,7 +111,10 @@ class StatusProjectsViews:
                     except (DataEmptyError, ModelsError) as e:
                         UI.show_error(str(e))
 
-                case 6:
+                    if Forms.ask_forms() == "Y":
+                        continue
+
+                case 5:
                     break
                 case _:
                     UI.show_message("Invalid option")
@@ -115,6 +128,7 @@ class StatusTasksViews:
     """
     Class to manage task status views.
     """
+
     def __init__(self, controller):
         self.controller = controller
 
@@ -132,12 +146,14 @@ class StatusTasksViews:
                 case 1:
                     data = []
                     UI.show_message("Para terminar 'N'")
+                    UI.show_message("Type: [1] Pending | [2] In Progress | [3] Cancelled")
                     while True:
                         status = FormsTask.status_fields()
                         if status.upper() == "N":
                             break
 
-                        data.append(status)
+                        system_key = FormsTask.system_key_status()
+                        data.append((status, system_key))
 
                     try:
                         self.controller.task.add_task_status(data)
@@ -145,20 +161,19 @@ class StatusTasksViews:
                     except (StatusExistsError, ModelsError) as e:
                         UI.show_error(str(e))
 
-                    if Forms.ask_forms == "Y":
+                    if Forms.ask_forms() == "Y":
                         continue
 
                 case 2:
                     try:
                         result = self.controller.task.get_all_status()
                         print(result)
-                        if Forms.ask_forms == "Y":
-                            continue
+
                     except DataNotFoundError as e:
                         UI.show_error(str(e))
 
-                        if Forms.ask_forms == "Y":
-                            continue
+                    if Forms.ask_forms() == "Y":
+                        continue
 
                 case 3:
                     result = self.controller.task.get_all_status()
@@ -170,7 +185,7 @@ class StatusTasksViews:
                     except (DataEmptyError, ModelsError) as e:
                         UI.show_error(str(e))
 
-                    if Forms.ask_forms == "Y":
+                    if Forms.ask_forms() == "Y":
                         continue
 
                 case 4:
@@ -183,7 +198,7 @@ class StatusTasksViews:
                     except (DataEmptyError, ModelsError) as e:
                         UI.show_error(str(e))
 
-                    if Forms.ask_forms == "Y":
+                    if Forms.ask_forms() == "Y":
                         continue
 
                 case 5:

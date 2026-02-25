@@ -58,16 +58,22 @@ def validation_data_empty(data: Any) -> bool:
     Returns:
         bool: True if the data is not empty, False otherwise.
     """
+    if data is None:
+        return False
+
     if isinstance(data, (int, float)):
         return True
-    if isinstance(data, (list, tuple)):
-        return all(x != "" and not str(x).isspace() for x in data)
 
-    return (
-        True
-        if isinstance(data, str) and data != "" and not str(data).isspace()
-        else False
-    )
+    if isinstance(data, str):
+        return bool(data.strip())
+
+    if isinstance(data, (list, tuple, set)):
+        if not data:
+            return False
+
+        return all(validation_data_empty(item) for item in data)
+
+    return bool(data)
 
 
 def textvalidator(data: str) -> bool:
@@ -82,7 +88,10 @@ def textvalidator(data: str) -> bool:
     return True if re.search(r"@[a-zA-Z0-9]+\.[a-zA-Z]+|@{1}", data) else False
 
 
-def validation_match_status(result: list[tuple], data: tuple | list | list[tuple]) -> list:
+# funcion invalida eliminar
+def validation_match_status(
+    result: list[tuple], data: tuple | list | list[tuple]
+) -> list:
     """Validate if the data matches the result.
 
     Args:

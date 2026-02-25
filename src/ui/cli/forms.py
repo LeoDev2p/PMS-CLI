@@ -274,7 +274,30 @@ class FormsProjects:
 
         status = input("[New status]: ")
         return status
+    
+    @staticmethod
+    def system_key_status():
+        try:
+            key = int(input("[Id type]: "))
+            return key
+        except ValueError as e:
+            print (str(e))
 
+    def edit_project_forms():
+        try:
+            id = int(input("[Id]: "))
+            title = input("[New title]: ")
+            return title, id
+        except ValueError as e:
+            print(str(e))
+
+    def edit_project_status_forms():
+        try:
+            id_project = int(input("[Id project]: "))
+            id_status = int(input("[Id status]: "))
+            return id_status, id_project
+        except ValueError as e:
+            print(str(e))
 
 class FormsTask:
     """
@@ -317,6 +340,14 @@ class FormsTask:
 
         status = input("[New status]: ")
         return status
+    
+    @staticmethod
+    def system_key_status():
+        try:
+            key = int(input("[Id type]: "))
+            return key
+        except ValueError as e:
+            print (str(e))
 
 
 class FormsUser:

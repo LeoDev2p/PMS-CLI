@@ -10,7 +10,6 @@ from src.core.exceptions import (
 from src.core.logging import get_logger
 from src.models.sessions import Session
 from utils.helpers import TextHelper
-from utils.validators import validation_match_status
 
 
 class TaskServices:
@@ -91,19 +90,26 @@ class TaskServices:
         """
         try:
             result_status = self.t_model.select_all_status()
-            print(f"[DEBUG] task service {result_status}")
-            print()
             normalized = TextHelper.normalize(params)
 
-            if result_status:
-                validate_match = validation_match_status(result_status, normalized)
+            existing_names = {state[1] for state in result_status}
+            new_names = {state[0] for state in normalized}
 
-                if validate_match:
-                    raise StatusExistsError(f"Estados ya existen {validate_match}")
+            duplicates = new_names.intersection(existing_names)
 
-            new_params = [(x,) for x in normalized]
+            if duplicates:
+                raise StatusExistsError(f"States already exist {duplicates}")
+
+            system_key = {
+                1: "pending",
+                2: "in_progress",
+                3: "cancelled",
+            }
+
+            new_params = [(status, system_key[key], 0) for status, key in normalized]
+
             self.t_model.insert_task_status(new_params, is_many=True)
-        except DatabaseLockedError as e:
+        except (DatabaseLockedError, ModelsError) as e:
             self.log_error(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
         else:

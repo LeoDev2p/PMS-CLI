@@ -18,10 +18,17 @@ class TextHelper:
 
     @staticmethod
     def normalize(data: tuple | str) -> tuple | list | str:
-        if isinstance(data, (tuple, list)):
-            return type(data)(map(lambda x: str(x).strip().lower(), data))
+        """
+        Recursively normalizes data (strings, lists, tuples).
+        Converts strings to lowercase and removes spaces.
+        """
+        if isinstance(data, str):
+            return data.strip().lower()
 
-        return data.strip().lower() if isinstance(data, str) else data
+        if isinstance(data, (list, tuple)):
+            return type(data)(TextHelper.normalize(item) for item in data)
+
+        return data
 
 
 class ViewHelper:

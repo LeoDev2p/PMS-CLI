@@ -43,10 +43,9 @@ class UserManagementViews:
                         ) as e:
                             UI.show_message(str(e))
 
-                        if Forms.ask_forms() == "S":
+                        if Forms.ask_forms() == "Y":
                             continue
-                        else:
-                            break
+
                 case 2:
                     self.edit_user()
                 case 3:
@@ -60,19 +59,15 @@ class UserManagementViews:
                     except (NotFoundUserError, ModelsError) as e:
                         UI.show_message(str(e))
 
-                    if Forms.ask_forms() == "S":
+                    if Forms.ask_forms() == "Y":
                         continue
-                    else:
-                        break
 
                 case 4:
                     result = self.controller.user.get_all_users()
                     print(result)
 
-                    if Forms.ask_forms() == "S":
+                    if Forms.ask_forms() == "Y":
                         continue
-                    else:
-                        break
 
                 case 5:
                     break
@@ -102,7 +97,7 @@ class UserManagementViews:
                     except (DataEmptyError, NotFoundUserError, ModelsError) as e:
                         UI.show_message(str(e))
 
-                    if Forms.ask_forms() == "S":
+                    if Forms.ask_forms() == "Y":
                         continue
 
                 case 2:
@@ -116,7 +111,7 @@ class UserManagementViews:
                     except (DataEmptyError, NotFoundUserError, ModelsError) as e:
                         UI.show_message(str(e))
 
-                    if Forms.ask_forms() == "S":
+                    if Forms.ask_forms() == "Y":
                         continue
 
                 case 3:
@@ -126,11 +121,11 @@ class UserManagementViews:
 
                     data = FormsUser.edit_password_forms()
                     try:
-                        self.controller.user.reset_password((data, result[0]))
+                        self.controller.user.reset_password((result[0], data))
                     except (DataEmptyError, NotFoundUserError, ModelsError) as e:
                         UI.show_message(str(e))
 
-                    if Forms.ask_forms() == "S":
+                    if Forms.ask_forms() == "Y":
                         continue
                 case 4:
                     user_email = FormsUser.search_forms()
@@ -143,7 +138,7 @@ class UserManagementViews:
                     except (DataEmptyError, NotFoundUserError, ModelsError) as e:
                         UI.show_message(str(e))
 
-                    if Forms.ask_forms() == "S":
+                    if Forms.ask_forms() == "Y":
                         continue
                 case 5:
                     break

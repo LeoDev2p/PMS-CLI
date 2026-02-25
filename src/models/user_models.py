@@ -73,7 +73,7 @@ class UsersModels(BaseModels):
         """
         query = """
             UPDATE users
-            SET password = ?
+            SET password_hash = ?
             WHERE id = ?
         """
 
@@ -91,7 +91,7 @@ class UsersModels(BaseModels):
 
         self._execute_query(query, params)
 
-    def delete(self, params):
+    def delete(self, id):
         """
         Deletes a user.
         """
@@ -100,7 +100,7 @@ class UsersModels(BaseModels):
             WHERE id = ?
         """
 
-        self._execute_query(query, params)
+        self._execute_query(query, (id,))
 
     # filters
     def select_by_email(self, email):
