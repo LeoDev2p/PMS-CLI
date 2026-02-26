@@ -56,6 +56,15 @@ class UserController:
         """
         return self.service.fetch_free_operational_users()
 
+    def get_users_without_active_task(self) -> list[tuple]:
+        """
+        Gets all users without active task.
+
+        Returns:
+            list[tuple]: List of id, username and title_task.
+        """
+        return self.service.fetch_users_without_active_task()
+
     # edit
     @validation_password
     def edit_profile(self, params: tuple):

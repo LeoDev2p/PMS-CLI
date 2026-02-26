@@ -131,6 +131,21 @@ class UsersModels(BaseModels):
 
         return self._execute_query(query, (id,), select=True, single=True)
     
+    def select_users_without_active_tasks(self) -> list[tuple]:
+        query = """
+            SELECT u.id, u.username
+            FROM users u
+            WHERE u.id NOT IN (
+                SELECT t.id_assigned_to
+                FROM task t
+                JOIN task_status ts ON t.id_status = ts.id
+                WHERE ts.system_key != 'COMPLETED'
+                AND t.id_assigned_to IS NOT NULL
+            ) AND u.role <> 'admin';
+        """
+
+        return self._execute_query(query, select=True)
+    
     def select_free_operational_users(self) -> list[tuple]:
         """
         Selects all users operational.

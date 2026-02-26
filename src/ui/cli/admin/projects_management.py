@@ -30,7 +30,7 @@ class ManagementProjectViews:
             option = Forms.option_forms()
             match option:
                 case 1:
-                    data = ("GeoAI", "")  # forms (title, description)
+                    data = FormsProjects.project_forms()
                     try:
                         try:
                             self.controller.project.get_all_status()
@@ -65,11 +65,11 @@ class ManagementProjectViews:
                     self.edit_project()
 
                 case 4:
-                    data = "GeoAi"  # Forms
+                    data = FormsProjects.search_project_forms()
                     try:
                         result = self.controller.project.get_by_project(data)
                         print(result)
-                        id_project = Forms.option_forms()
+                        id_project = Forms.option_forms() # cambiar
                         if Forms.ask_forms(question="Do you want delete?") == "Y":
                             self.controller.project.delete_project(id_project)
                             UI.show_message("Project successfully deleted")

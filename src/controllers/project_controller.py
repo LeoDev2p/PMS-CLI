@@ -118,6 +118,9 @@ class ProjectController:
 
         return self.p_service.fetch_projects_by_title(title)
 
+    def get_project_new_active(self):
+        return self.p_service.fetch_project_new_active()
+
     # edit
     def edit_title_project(self, params: tuple):
         """

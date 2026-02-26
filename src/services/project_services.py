@@ -43,7 +43,9 @@ class ProjectServices:
             self.create_default_status()
 
         id_status_default = self.p_model.default_min_id_status()
-        params = (normalize[0], normalize[1], self.id_admin, id_status_default[0])
+
+        
+        params = (normalize[0], normalize[1] if normalize[1] else None, self.id_admin, id_status_default[0])
 
         try:
             self.p_model.insert_project(params)
@@ -85,12 +87,11 @@ class ProjectServices:
 
             new_params = []
             for status, key in normalized:
-                id_system_key = self.p_model.select_by_system_key(system_key[key])
-                new_params.append((status, id_system_key[0], 1))
+                new_params.append((status, system_key[key], 1))
 
             self.p_model.insert_projects_status(new_params, is_many=True)
         except DatabaseLockedError as e:
-            self.log_error(f"Error: {e}")
+            self.log_error.error(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
         else:
             self.log_audit.info("Estados creados con exito")
@@ -200,6 +201,13 @@ class ProjectServices:
         if not result:
             raise NotFoundProjectError(f"Not exists {title}")
 
+        return result
+    
+    def fetch_project_new_active(self):
+        result = self.p_model.select_project_new_active()
+        if not result:
+            raise NotFoundProjectError("No project available")
+        
         return result
 
     # Modify

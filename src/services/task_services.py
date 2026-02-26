@@ -75,6 +75,25 @@ class TaskServices:
             raise NotFoundTaskError("No tasks found for this projects.")
 
         return result
+    
+    def fetch_task_by_title(self, id_project):
+        """
+        Fetches a task by title.
+
+        Args:
+            id_project (int): Project id.
+
+        Returns:
+            tuple: Tuple of (t.id, t.title, ts.name, p.title, u.username).
+
+        Raises:
+            NotFoundTaskError: If no task is found.
+        """
+        result = self.t_model.select_by_task_title(id_project)
+        if not result:
+            raise NotFoundTaskError("No tasks found for this projects.")
+
+        return result
 
     # create
     def create_task(self, params):
@@ -127,8 +146,7 @@ class TaskServices:
 
             new_params = []
             for status, key in normalized:
-                id_system_key = self.t_model.select_by_system_key(system_key[key])
-                new_params.append((status, id_system_key[0], 1))
+                new_params.append((status, system_key[key], 1))
 
             self.t_model.insert_task_status(new_params, is_many=True)
         except (DatabaseLockedError, ModelsError) as e:
@@ -160,12 +178,12 @@ class TaskServices:
             self.log_audit.info("Estados creados con exito")
 
     # modify
-    def modify_id_taskstatus(self, state_name, task_title, project_title) -> bool:
+    def modify_id_taskstatus(self, id_status, task_id, project_id) -> bool:
         """
         Modifies the status of a task.
 
         Args:
-            state_name (str): New task status name.
+            id_status (int): New task status id.
             task_title (str): Task title.
             project_title (str): Project title.
 
@@ -174,19 +192,9 @@ class TaskServices:
             NotFoundProjectError: If the project could not be found.
             ModelsError: If there is a technical error in the data server.
         """
-        normalized = TextHelper.normalize((state_name, task_title, project_title))
-
-        id_taskstatus = self.t_model.select_by_task_status(normalized[0])
-
-        if not id_taskstatus:
-            raise NotFoundTaskStatusError("The task status could not be found.")
 
         try:
-            id_projects = self.p_model.select_by_projects(normalized[2])
-            if not id_projects:
-                raise NotFoundProjectError("Project not found.")
-
-            params = (id_taskstatus[0], normalized[1], id_projects[0])
+            params = (id_status, task_id, project_id)
 
             self.t_model.update_by_status_task(params)
         except DatabaseLockedError as e:
@@ -194,7 +202,7 @@ class TaskServices:
             raise ModelsError("Technical error in the data server. Contact support.")
 
         self.log_audit.info(
-            f"User {Session.get_id()} updated state task of the {task_title}"
+            f"User {Session.get_id()} updated state task of the {task_id}"
         )
 
     def modify_status(self, status, id):
@@ -235,4 +243,4 @@ class TaskServices:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
         else:
-            self.log_audit(f"Estado {id} eliminado con exito")
+            self.log_audit.info(f"Estado {id} eliminado con exito")

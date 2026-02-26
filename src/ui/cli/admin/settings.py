@@ -99,6 +99,7 @@ class StatusProjectsViews:
 
                     try:
                         self.controller.project.edit_project_status(data)
+                        UI.show_message("Status successfully edited")
                     except (DataEmptyError, ModelsError) as e:
                         UI.show_error(str(e))
 
@@ -112,6 +113,7 @@ class StatusProjectsViews:
 
                     try:
                         self.controller.project.delete_project_status(id)
+                        UI.show_message("Status successfully deleted")
                     except (DataEmptyError, ModelsError) as e:
                         UI.show_error(str(e))
 
@@ -149,8 +151,8 @@ class StatusTasksViews:
             match option:
                 case 1:
                     data = []
-                    UI.show_message("Para terminar 'N'")
-                    UI.show_message("Para que el sistema sepa cómo manejar este estado, elija la categoría que mejor lo describa:")
+                    UI.show_message("To end 'N'")
+                    UI.show_message("To let the system know how to handle this status, choose the category that best describes it:")
                     print("-" * 40)
                     print(" 1. PENDING      2. IN PROGRESS      3. REVIEW")
                     print(" 4. COMPLETED   5. BLOCKED")
@@ -165,7 +167,7 @@ class StatusTasksViews:
 
                     try:
                         self.controller.task.add_task_status(data)
-                        UI.show_message("Estados de tarea creados con exito")
+                        UI.show_message("Task status created successfully")
                     except (StatusExistsError, ModelsError) as e:
                         UI.show_error(str(e))
 
@@ -190,6 +192,7 @@ class StatusTasksViews:
 
                     try:
                         self.controller.task.edit_status(data)
+                        UI.show_message("Task status edited successfully")
                     except (DataEmptyError, ModelsError) as e:
                         UI.show_error(str(e))
 
@@ -203,6 +206,7 @@ class StatusTasksViews:
 
                     try:
                         self.controller.task.delete_status(id)
+                        UI.show_message("Task status deleted successfully")
                     except (DataEmptyError, ModelsError) as e:
                         UI.show_error(str(e))
 

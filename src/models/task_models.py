@@ -125,6 +125,22 @@ class TaskModels(BaseModels):
         return self._execute_query(query, (id,), select=True)
     
 
+    def select_by_task_title(self, id_project: int) -> list[tuple]:
+        """
+        Selects a task by title.
+
+        Returns:
+            list[tuple]: List of tasks.
+        """
+        query = """
+            SELECT t.id, t.title, ts.name, p.title, u.username FROM task t
+            LEFT JOIN task_status ts ON t.id_status = ts.id
+            LEFT JOIN projects p ON t.id_projects = p.id
+            LEFT JOIN users u ON t.id_assigned_to = u.id
+            WHERE p.id = ?
+        """
+
+        return self._execute_query(query, (id_project,), select=True)
     
     # insert
     def insert_task(self, params):
@@ -167,7 +183,7 @@ class TaskModels(BaseModels):
         query = """
             UPDATE task
             SET id_status = ?
-            WHERE title = ? AND id_projects = ?
+            WHERE id = ? AND id_projects = ?
         """
 
         self._execute_query(query, params)
@@ -188,13 +204,13 @@ class TaskModels(BaseModels):
         self._execute_query(query, params)
     
     # delete
-    def delte_status(self, id):
+    def delete_status(self, id):
         """
         Deletes a task status.
 
         Args:
             id (int): Task status id.
         """
-        query = "DELTE FROM task_status WHERE id = ?"
+        query = "DELETE FROM task_status WHERE id = ?"
 
         self._execute_query(query, (id,))

@@ -310,6 +310,12 @@ class FormsProjects:
             print(str(e))
     
     @staticmethod
+    def project_forms():
+        title = input("[New project]: ")
+        description = input("[Description]: ")
+        return title, description
+    
+    @staticmethod
     def search_project_forms():
         try:
             title = input("[Title]: ")
@@ -368,6 +374,21 @@ class FormsTask:
         except ValueError as e:
             print(str(e))
 
+    @staticmethod
+    def search_task_forms():
+        try:
+            title = input("[Task title]: ")
+            return title
+        except ValueError as e:
+            print(str(e))
+    
+    @staticmethod
+    def id_forms():
+        try:
+            id = int(input("[Selecy id]: "))
+            return id
+        except ValueError as e:
+            print(str(e))
 
 class FormsUser:
     """

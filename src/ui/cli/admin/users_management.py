@@ -45,6 +45,8 @@ class UserManagementViews:
 
                         if Forms.ask_forms() == "Y":
                             continue
+                        else:
+                            break
 
                 case 2:
                     self.edit_user()

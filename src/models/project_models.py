@@ -67,7 +67,7 @@ class ProjectModels(BaseModels):
         Returns:
             tuple: Default minimum id of project status.
         """
-        query = "SELECT MIN(id) FROM projects_status WHERE system_key = 'active'"
+        query = "SELECT MIN(id) FROM projects_status"
 
         return self._execute_query(query, select=True, single=True)
 
@@ -122,6 +122,16 @@ class ProjectModels(BaseModels):
         """
 
         return self._execute_query(query, (f"%{title}%",), select=True, single=True)
+    
+    def select_project_new_active(self) -> list[tuple]:
+        query = """
+            SELECT p.id, p.title FROM projects p
+            JOIN projects_status ps ON p.id_status = ps.id
+            WHERE ps.system_key in ('NEW', 'ACTIVE')
+            ORDER BY P.id DESC
+        """
+        
+        return self._execute_query(query, select=True)
 
     # insert
     def insert_projects_status(self, params: tuple | list[tuple], is_many=False):

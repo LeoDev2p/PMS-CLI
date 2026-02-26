@@ -54,6 +54,22 @@ class TaskController:
             raise DataEmptyError("All fields are required")
 
         return self.t_service.fetch_task_by_project_task(params)
+    
+    def get_task_by_title(self, id_project):
+        """
+        Gets a task by title.
+
+        Args:
+            id_project (int): project_id.
+
+        Returns:
+            tuple: Tuple of (t.id, t.title, ts.name, p.title, u.username).
+        """
+        validate = validation_data_empty(id_project)
+        if not validate:
+            raise DataEmptyError("All fields are required")
+
+        return self.t_service.fetch_task_by_title(id_project)
 
     # add
     def add_task(self, params):
@@ -69,7 +85,7 @@ class TaskController:
         if not validate:
             raise DataEmptyError("All fields are required")
 
-        params_list.insert(1, "")
+        params_list.insert(1, None)
         self.t_service.create_task(tuple(params_list))
 
     def add_task_status(self, params: tuple | list[tuple]):
@@ -91,28 +107,28 @@ class TaskController:
         self.t_service.create_default_status()
 
     # edit
-    def edit_task_state(self, state_name, task_title, project_title):
+    def edit_task_state(self, id_status, task_id, project_id):
         """
         Edits the status of a task.
 
         Args:
-            state_name (str): New task status name.
-            task_title (str): Task title.
-            project_title (str): Project title.
+            id_status (int): New task status id.
+            task_id (int): Task id.
+            project_id (int): Project id.
         """
-        validate = validation_data_empty((state_name, task_title, project_title))
+        validate = validation_data_empty((id_status, task_id, project_id))
         if not validate:
             raise DataEmptyError("All fields are required")
 
         try:
             result = self.t_service.modify_id_taskstatus(
-                state_name, task_title, project_title
+                id_status, task_id, project_id
             )
 
             return result
         except (NotFoundTaskError, NotFoundTaskStatusError, NotFoundProjectError) as e:
             self.log.info(
-                f"User {Session.get_id()} attempted update task {task_title} in project {project_title} but failed"
+                f"User {Session.get_id()} attempted update task {task_id} in project {project_id} but failed"
             )
             raise e
 

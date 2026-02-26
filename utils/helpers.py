@@ -29,6 +29,11 @@ class TextHelper:
             return type(data)(TextHelper.normalize(item) for item in data)
 
         return data
+    
+    @staticmethod
+    def normalize_data_models(headers: tuple, data: list[tuple | tuple]) -> list[tuple] | tuple:
+        pass
+
 
 
 class ViewHelper:
@@ -73,3 +78,4 @@ class ViewHelper:
 
             for _ in range(len(data)):
                 return list(map(lambda x: len(str(x)), data))
+
