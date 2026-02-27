@@ -130,7 +130,7 @@ class UsersModels(BaseModels):
         """
 
         return self._execute_query(query, (id,), select=True, single=True)
-    
+
     def select_users_without_active_tasks(self) -> list[tuple]:
         query = """
             SELECT u.id, u.username
@@ -145,7 +145,7 @@ class UsersModels(BaseModels):
         """
 
         return self._execute_query(query, select=True)
-    
+
     def select_free_operational_users(self) -> list[tuple]:
         """
         Selects all users operational.
@@ -160,6 +160,18 @@ class UsersModels(BaseModels):
         """
 
         return self._execute_query(query, select=True)
+    
+    def select_user_by_project(self, id_project):
+        """selecionar usuarios por proyecto y tareas"""
+
+        query = """
+        SELECT u.id, u.username, p.title FROM users u
+        JOIN users_projects up ON u.id = up.id_users
+        JOIN projects p ON up.id_projects = p.id
+        WHERE p.id = ?
+        """
+        
+        return self._execute_query(query, (id_project,), select=True)
 
     def like_by_username(self, username):
         """

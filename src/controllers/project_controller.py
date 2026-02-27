@@ -4,189 +4,148 @@ from utils.validators import validation_data_empty
 
 
 class ProjectController:
-    """
-    Class to manage project controller.
-    """
+    """Controller for project operations."""
 
     def __init__(self, service):
-        self.p_service = service
+        self.service = service
         self.log = get_logger("audit", self.__class__.__name__)
 
-    # add
-    def add_project(self, params):
-        """
-        Adds a new project.
+    # ── get ─────────────────────────────────────────────────
+    def get_all(self) -> list[dict]:
+        """Returns all projects."""
+        return self.service.fetch_all()
+
+    def get_by_title(self, title: str) -> list[dict]:
+        """Returns projects matching title."""
+        if not validation_data_empty(title):
+            raise DataEmptyError("Se require el titulo del proyecto")
+
+        return self.service.fetch_by_title(title)
+
+    def get_search_by_title(self, title: str) -> list[dict]:
+        """Returns projects with description matching title."""
+        if not validation_data_empty(title):
+            raise DataEmptyError("The project title is required")
+
+        return self.service.fetch_search_by_title(title)
+
+    def count_by_title(self, title: str) -> int:
+        """Counts projects matching title."""
+        if not validation_data_empty(title):
+            raise DataEmptyError("The project title is required")
+
+        return self.service.fetch_count_by_title(title)
+
+    def get_new(self) -> list[dict]:
+        """Returns all new projects."""
+        return self.service.fetch_new()
+
+    def get_new_active(self) -> list[dict]:
+        """Returns all new or active projects."""
+        return self.service.fetch_new_active()
+
+    # ── add ─────────────────────────────────────────────────
+    def add(self, params: tuple):
+        """Adds a new project.
 
         Args:
-            params (tuple): Tuple of project parameters.
-            example: (title, description)
+            params: (title, description)
         """
         if not validation_data_empty(params[0]):
             raise DataEmptyError("Project title required")
 
-        self.p_service.create_project(params)
+        self.service.create(params)
 
-    def add_project_status(self, params: tuple | list[tuple]):
-        """
-        Adds a new project status.
-
-        Args:
-            params (tuple | list[tuple]): Tuple or list of tuples of project statuses.
-            example: (name,) or [(name: str, key: int,), (name, key,)]
-        """
-        if not validation_data_empty(params):
-            raise DataEmptyError("Se require estados del proyecto")
-
-        self.p_service.create_projects_status(params)
-
-    def add_default_status(self):
-        """
-        Adds default project status.
-        """
-        self.p_service.create_default_status()
-
-    # get
-    def get_all_project(self) -> list[tuple]:
-        """
-        Gets all projects.
-
-        Returns:
-            list[tuple]: List of tuples of projects.
-        """
-        return self.p_service.fetch_all_project()
-
-    def get_all_status(self) -> list[tuple]:
-        """
-        Gets all project statuses.
-
-        Returns:
-            list[tuple]: List of tuples of project statuses.
-        """
-        return self.p_service.fetch_all_status()
-
-    def get_by_project(self, title: str) -> tuple:
-        """
-        Gets a project by title.
+    # ── edit ────────────────────────────────────────────────
+    def edit_title(self, params: tuple):
+        """Edits a project title.
 
         Args:
-            title (str): Project title.
-
-        Returns:
-            tuple: Tuple of the project.
-        """
-        if not validation_data_empty(title):
-            raise DataEmptyError("Se require el titulo del proyecto")
-
-        return self.p_service.fetch_by_project(title)
-
-    def get_projects_new(self) -> list[tuple]:
-        """
-        Gets all new projects.
-
-        Returns:
-            list[tuple]: List of tuples of new projects.
-        """
-        return self.p_service.fetch_projects_new()
-
-    def count_projects_by_title(self, title: str) -> int:
-        """
-        Counts the number of projects by title.
-
-        Args:
-            title (str): Project title.
-
-        Returns:
-            int: Number of projects.
-        """
-        if not validation_data_empty(title):
-            raise DataEmptyError("The project title is required")
-
-        return self.p_service.fetch_count_projects_by_title(title)
-
-    def get_projects_by_title(self, title: str) -> list[tuple]:
-        """
-        Gets all projects by title.
-
-        Args:
-            title (str): Project title.
-
-        Returns:
-            list[tuple]: List of tuples of projects.
-        """
-        if not validation_data_empty(title):
-            raise DataEmptyError("The project title is required")
-
-        return self.p_service.fetch_projects_by_title(title)
-
-    def get_project_new_active(self):
-        return self.p_service.fetch_project_new_active()
-
-    # edit
-    def edit_title_project(self, params: tuple):
-        """
-        Edits a project.
-
-        Args:
-            params (tuple): Tuple of project parameters.
-            example: (title, id)
+            params: (title, id)
         """
         if not validation_data_empty(params[0]):
             raise DataEmptyError("The new project title is required")
 
-        self.p_service.modify_title_project(params)
+        self.service.modify_title(params)
 
-    def edit_project_status_by_project(self, params: tuple):
-        """
-        Edits a project status by project.
+    def edit_status(self, params: tuple):
+        """Edits a project's status.
 
         Args:
-            params (tuple): Tuple of project status parameters.
-            example: (id_new_status, id_project)
+            params: (id_new_status, id_project)
         """
         if not validation_data_empty(params):
             raise DataEmptyError("The new project status is required")
 
-        self.p_service.modify_project_status_by_project(params)
+        self.service.modify_status(params)
 
-    def edit_project_status(self, params: tuple):
-        """
-        Edits a project status.
+    # ── delete ──────────────────────────────────────────────
+    def delete(self, id: int):
+        """Deletes a project."""
+        if not validation_data_empty(id):
+            raise DataEmptyError("Se require el id del proyecto")
+
+        self.service.remove(id)
+
+
+class ProjectStatusController:
+    """Controller for project status operations."""
+
+    def __init__(self, service):
+        self.service = service
+
+    # ── get ─────────────────────────────────────────────────
+    def get_all(self) -> list[dict]:
+        """Returns all project statuses."""
+        return self.service.fetch_all()
+
+    # ── add ─────────────────────────────────────────────────
+    def add(self, params: tuple | list[tuple]):
+        """Adds custom project statuses."""
+        if not validation_data_empty(params):
+            raise DataEmptyError("Se require estados del proyecto")
+
+        self.service.create(params)
+
+    def add_default(self):
+        """Adds the default project statuses."""
+        self.service.create_default()
+
+    # ── edit ────────────────────────────────────────────────
+    def edit(self, params: tuple):
+        """Edits a project status name.
 
         Args:
-            params (tuple): Tuple of project status parameters.
-            example: (id, status)
+            params: (id, status_name)
         """
         id, status = params
         if not validation_data_empty(status):
             raise DataEmptyError("Se requiere el nuevo nombre de estado del proyecto")
 
-        self.p_service.modify_project_status((status, id))
+        self.service.modify((status, id))
 
-    # delete
-    def delete_project(self, id: int):
-        """
-        Deletes a project.
-
-        Args:
-            id (int): Project id.
-        """
-        if not validation_data_empty(id):
-            raise DataEmptyError("Se require el id del proyecto")
-
-        self.p_service.remove_project(id)
-
-    def delete_project_status(self, id: int):
-        """
-        Deletes a project status.
-
-        Args:
-            id (int): Project status id.
-        """
+    # ── delete ──────────────────────────────────────────────
+    def delete(self, id: int):
+        """Deletes a project status."""
         if not validation_data_empty(id):
             raise DataEmptyError("Se require el id del estado")
 
-        self.p_service.remove_project_status(id)
+        self.service.remove(id)
 
 
-class StatusProjectsController:
-    pass
+class UserProjectController:
+    """Controller for user-project membership operations."""
+
+    def __init__(self, service):
+        self.service = service
+
+    def add(self, params: tuple):
+        """Adds a user-project membership.
+
+        Args:
+            params: (id_user, id_project)
+        """
+        if not validation_data_empty(params):
+            raise DataEmptyError("Se requieren los datos de usuario y proyecto")
+
+        self.service.create(params)

@@ -258,6 +258,8 @@ class Forms:
         return ask
 
 
+
+
 class FormsProjects:
     """
     Class to manage forms projects.
@@ -308,17 +310,17 @@ class FormsProjects:
             return id_status, id_project
         except ValueError as e:
             print(str(e))
-    
+
     @staticmethod
     def project_forms():
         title = input("[New project]: ")
         description = input("[Description]: ")
         return title, description
-    
+
     @staticmethod
     def search_project_forms():
         try:
-            title = input("[Title]: ")
+            title = input("[Search by title]: ")
             return title
         except ValueError as e:
             print(str(e))
@@ -381,7 +383,7 @@ class FormsTask:
             return title
         except ValueError as e:
             print(str(e))
-    
+
     @staticmethod
     def id_forms():
         try:
@@ -389,6 +391,7 @@ class FormsTask:
             return id
         except ValueError as e:
             print(str(e))
+
 
 class FormsUser:
     """

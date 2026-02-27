@@ -1,0 +1,12 @@
+
+[tool.ruff]
+# Longitud de línea
+line-length = 120
+
+[tool.ruff.lint]
+# añadir "E" (estilo) y "F" (errores lógicos) para más seguridad
+select = ["E", "F", "I"]
+
+[tool.ruff.lint.pydocstyle]
+# Formato de Google
+convention = "google"

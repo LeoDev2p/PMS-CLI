@@ -60,12 +60,12 @@ class UserServices:
             list[tuple]: List of id, username and title_task.
         """
         return self.user_model.select_free_operational_users()
-    
+
     def fetch_users_without_active_task(self):
         result = self.user_model.select_users_without_active_tasks()
         if not result:
             raise NotFoundUserError("There are no free users available")
-        
+
         return result
 
     # modify
@@ -158,18 +158,26 @@ class UserServices:
             self.log_error.critical(f"Error: {e}")
             raise e
 
+    def fetch_user_by_project(self, id_project):
+        result = self.user_model.select_user_by_project(id_project)
+        if not result:
+            raise NotFoundUserError("There are no users available for this project")
+
+        return result
+
     # remove
-    def remove_user(self, id):
+    def remove_user(self, id_user):
         """
         Removes a user.
 
         Args:
-            id (int): Id of the user to remove.
+            id_user (int): Id of the user to remove.
         """
-        if not self.user_model.select_by_users(id):
+        if not self.user_model.select_by_users(id_user):
             raise NotFoundUserError("User not found")
+
         try:
-            self.user_model.delete(id)
+            self.user_model.delete(id_user)
             self.log_audit.info(f"Admin user {Session.get_id()} deleted user {id}")
         except (DatabaseLockedError, ModelsError) as e:
             self.log_error.critical(f"Error: {e}")

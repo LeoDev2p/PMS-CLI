@@ -2,136 +2,53 @@ from src.models.sqlite import BaseModels
 
 
 class TaskModels(BaseModels):
-    """
-    Handles task models.
-    """
-    # select
-    def select_all(self):
-        """
-        Selects all tasks.
+    """Handles task CRUD operations."""
 
-        Returns:
-            list[tuple]: List of tasks.
-        """
-        query = """
-        SELECT * FROM task
-        """
-
-        return self._execute_query(query, select=True)
-    
-    def select_all_status(self):
-        """
-        Selects all task statuses.
-
-        Returns:
-            list[tuple]: List of task statuses.
-        """
-        query = """
-            SELECT * FROM task_status
-        """
-
+    # ── select ──────────────────────────────────────────────
+    def get_all(self) -> list[tuple]:
+        """Returns all tasks."""
+        query = "SELECT * FROM task"
         return self._execute_query(query, select=True)
 
-    def select_task_by_project_task(self, params):
-        """
-        Selects a task by project and task title.
-
-        Args:
-            params (tuple): Tuple of (project_title, task_title).
-
-        Returns:
-            tuple: Tuple of (task_title, task_description, task_status, project_title).
-        """
+    def get_by_project_and_title(self, params: tuple) -> tuple:
+        """Returns a task by project title and task title."""
         query = """
             SELECT t.title, t.description, ts.name, p.title FROM task t
             JOIN task_status ts ON t.id_status = ts.id
             JOIN projects p ON t.id_projects = p.id
             WHERE p.title = ? AND t.title = ?
         """
-
         return self._execute_query(query, params, select=True, single=True)
 
-    def select_all_tasks_of_user(self, id):
-        """
-        Selects all tasks of a user.
-
-        Args:
-            id (int): User id.
-
-        Returns:
-            list[tuple]: List of tasks.
-        """
+    def get_all_by_user(self, id: int) -> list[tuple]:
+        """Returns all tasks assigned to a user."""
         query = """
             SELECT t.title, t.description, ts.name, p.title FROM task t
             JOIN task_status ts ON t.id_status = ts.id
             JOIN projects p ON t.id_projects = p.id
             WHERE t.id_assigned_to = ?
         """
-
         return self._execute_query(query, (id,), select=True)
 
-    def select_by_task_status(self, name):
-        """
-        Selects a task status by name.
-
-        Args:
-            name (str): Task status name.
-
-        Returns:
-            tuple: Tuple of (task_status_id,).
-        """
-        query = "SELECT id FROM task_status WHERE name = ?"
-
-        return self._execute_query(query, (name,), select=True, single=True)
-    
-    def select_by_system_key(self, system_key):
-        """
-        Selects a task status by system key.
-
-        Args:
-            system_key (str): Task status system key.
-
-        Returns:
-            tuple: Tuple of (task_status_id,).
-        """
-        query = "SELECT id FROM task_status WHERE system_key = ?"
-
-        return self._execute_query(query, (system_key,), select=True, single=True)
-    
-    def select_all_tasks_of_project(self, id):
-        """
-        Selects all tasks of a project.
-
-        Args:
-            id (int): Project id.
-
-        Returns:
-            list[tuple]: List of tasks.
-        """
+    def get_all_by_project(self, id: int) -> list[tuple]:
+        """Returns all tasks of a project with assignment info."""
         query = """
-            SELECT 
-                p.title AS project, 
+            SELECT
+                p.title AS project,
                 COALESCE(u.username, 'SIN ASIGNAR (Vacante)') AS responsible,
-                t.title AS task_, 
+                t.title AS task_,
                 ts.name AS progress
             FROM task t
             JOIN projects p ON t.id_projects = p.id
             JOIN task_status ts ON t.id_status = ts.id
-            LEFT JOIN users u ON t.id_assigned_to = u.id 
+            LEFT JOIN users u ON t.id_assigned_to = u.id
             WHERE p.id = ?
             ORDER BY responsible DESC;
         """
-
         return self._execute_query(query, (id,), select=True)
-    
 
-    def select_by_task_title(self, id_project: int) -> list[tuple]:
-        """
-        Selects a task by title.
-
-        Returns:
-            list[tuple]: List of tasks.
-        """
+    def get_details_by_project(self, id_project: int) -> list[tuple]:
+        """Returns task details (id, title, status, project, user) by project."""
         query = """
             SELECT t.id, t.title, ts.name, p.title, u.username FROM task t
             LEFT JOIN task_status ts ON t.id_status = ts.id
@@ -139,78 +56,95 @@ class TaskModels(BaseModels):
             LEFT JOIN users u ON t.id_assigned_to = u.id
             WHERE p.id = ?
         """
-
         return self._execute_query(query, (id_project,), select=True)
-    
-    # insert
-    def insert_task(self, params):
-        """
-        Inserts a new task.
 
-        Args:
-            params (tuple): Tuple of (title, description, id_projects, id_assigned_to).
-        """
+    # ── insert ──────────────────────────────────────────────
+    def create(self, params: tuple):
+        """Inserts a new task."""
         query = """
             INSERT INTO task (title, description, id_status, id_projects, id_assigned_to)
             VALUES (?, ?, 1, ?, ?)
         """
-
         self._execute_query(query, params)
 
-    def insert_task_status(self, params: tuple | list[tuple], is_many = False):
-        """
-        Inserts a new task status.
-
-        Args:
-            params (tuple | list[tuple]): Tuple or list of tuples of task status names.
-            is_many (bool): Whether the params is a list of tuples.
-        """
-        query = """
-            INSERT INTO task_status (name, system_key, is_active)
-            VALUES (?, ?, ?)
-        """
-
-        self._execute_query(query, params, is_many = is_many)
-
-    # update
-    def update_by_status_task(self, params):
-        """
-        Updates the status of a task.
-
-        Args:
-            params (tuple): Tuple of (task_status_id, task_title, project_title).
-        """
+    # ── update ──────────────────────────────────────────────
+    def update_status(self, params: tuple):
+        """Updates the status of a task."""
         query = """
             UPDATE task
             SET id_status = ?
             WHERE id = ? AND id_projects = ?
         """
-
         self._execute_query(query, params)
-    
-    def update_status(self, params):
+
+    def update_assigned_user(self, params: tuple):
+        """Updates the assigned user of a task."""
+        query = """
+            UPDATE task
+            SET id_assigned_to = ?
+            WHERE id = ?
         """
-        Updates the status of a task status.
+        self._execute_query(query, params)
+
+    def unassign_tasks_by_user_project(self, params: tuple):
+        """Sets id_assigned_to to NULL for all tasks of a user in a specific project.
 
         Args:
-            params (tuple): Tuple of (task_status_name, task_status_id).
+            params: (id_assigned_to, id_projects)
         """
+        query = """
+            UPDATE task
+            SET id_assigned_to = NULL
+            WHERE id_assigned_to = ? AND id_projects = ?
+        """
+        self._execute_query(query, params)
+
+
+class TaskStatusModels(BaseModels):
+    """Handles task_status CRUD operations."""
+
+    # ── select ──────────────────────────────────────────────
+    def get_all(self) -> list[tuple]:
+        """Returns all task statuses."""
+        query = "SELECT * FROM task_status"
+        return self._execute_query(query, select=True)
+
+    def get_by_name(self, name: str) -> tuple:
+        """Returns a task status id by name."""
+        query = "SELECT id FROM task_status WHERE name = ?"
+        return self._execute_query(query, (name,), select=True, single=True)
+
+    def get_by_system_key(self, system_key: str) -> tuple:
+        """Returns a task status id by system key."""
+        query = "SELECT id FROM task_status WHERE system_key = ?"
+        return self._execute_query(query, (system_key,), select=True, single=True)
+
+    # ── insert ──────────────────────────────────────────────
+    def create(self, params: tuple | list[tuple], is_many=False):
+        """Inserts one or many task statuses.
+
+        Args:
+            params: (name, system_key, is_active) or list of tuples.
+            is_many: True for bulk insert.
+        """
+        query = """
+            INSERT INTO task_status (name, system_key, is_active)
+            VALUES (?, ?, ?)
+        """
+        self._execute_query(query, params, is_many=is_many)
+
+    # ── update ──────────────────────────────────────────────
+    def update(self, params: tuple):
+        """Updates a task status name."""
         query = """
             UPDATE task_status
             SET name = ?
             WHERE id = ?
         """
-
         self._execute_query(query, params)
-    
-    # delete
-    def delete_status(self, id):
-        """
-        Deletes a task status.
 
-        Args:
-            id (int): Task status id.
-        """
+    # ── delete ──────────────────────────────────────────────
+    def delete(self, id: int):
+        """Deletes a task status."""
         query = "DELETE FROM task_status WHERE id = ?"
-
         self._execute_query(query, (id,))

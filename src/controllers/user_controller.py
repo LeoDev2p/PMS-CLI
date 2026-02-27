@@ -64,6 +64,9 @@ class UserController:
             list[tuple]: List of id, username and title_task.
         """
         return self.service.fetch_users_without_active_task()
+    
+    def get_user_by_project(self, id_project):
+        return self.service.fetch_user_by_project(id_project)
 
     # edit
     @validation_password
@@ -147,12 +150,12 @@ class UserController:
         self.service.modify_role(role, id)
 
     # delete
-    def delete_user(self, id: int):
+    def delete_user(self, id_user: int):
         """
         Deletes a user.
 
         Args:
-            id (int): Id of the user to delete.
+            id_user (int): Id of the user to delete.
         """
-        self.service.remove_user(id)
+        self.service.remove_user(id_user)
 

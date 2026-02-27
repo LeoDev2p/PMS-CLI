@@ -10,9 +10,7 @@ from ..forms import UI, Forms, FormsProjects, FormsTask, UIAdmin
 
 
 class SettingsViews:
-    """
-    Class to manage system settings views.
-    """
+    """Class to manage system settings views."""
 
     def __init__(self, controller):
         self.controller = controller
@@ -20,9 +18,7 @@ class SettingsViews:
         self.status_tasks_views = StatusTasksViews(controller)
 
     def run(self):
-        """
-        Runs the system settings views.
-        """
+        """Runs the system settings views."""
         while True:
             ViewHelper.clear_screen()
             UI.banner()
@@ -41,17 +37,13 @@ class SettingsViews:
 
 
 class StatusProjectsViews:
-    """
-    Class to manage project status views.
-    """
+    """Class to manage project status views."""
 
     def __init__(self, controller):
         self.controller = controller
 
     def run(self):
-        """
-        Runs the project status views.
-        """
+        """Runs the project status views."""
         while True:
             ViewHelper.clear_screen()
             UI.banner()
@@ -62,7 +54,9 @@ class StatusProjectsViews:
                 case 1:
                     data = []
                     UI.show_message("Para terminar 'N'")
-                    UI.show_message("Para que el sistema sepa cómo manejar este estado, elija la categoría que mejor lo describa:")
+                    UI.show_message(
+                        "Para que el sistema sepa cómo manejar este estado, elija la categoría que mejor lo describa:"
+                    )
                     print("-" * 40)
                     print(" 1. NEW      2. ACTIVE      3. ON HOLD")
                     print(" 4. COMPLETED   5. CANCELLED")
@@ -76,7 +70,7 @@ class StatusProjectsViews:
                         data.append((status, key))
 
                     try:
-                        self.controller.project.add_project_status(data)
+                        self.controller.project_status.add(data)
                     except (StatusExistsError, ModelsError) as e:
                         UI.show_error(str(e))
 
@@ -85,7 +79,7 @@ class StatusProjectsViews:
 
                 case 2:
                     try:
-                        result = self.controller.project.get_all_status()
+                        result = self.controller.project_status.get_all()
                         print(result)
                     except DataNotFoundError as e:
                         UI.show_error(str(e))
@@ -93,12 +87,12 @@ class StatusProjectsViews:
                     if Forms.ask_forms() == "Y":
                         continue
                 case 3:
-                    result = self.controller.project.get_all_status()
+                    result = self.controller.project_status.get_all()
                     print(result)
                     data = FormsProjects.status_fields(edit=True)
 
                     try:
-                        self.controller.project.edit_project_status(data)
+                        self.controller.project_status.edit(data)
                         UI.show_message("Status successfully edited")
                     except (DataEmptyError, ModelsError) as e:
                         UI.show_error(str(e))
@@ -107,12 +101,12 @@ class StatusProjectsViews:
                         continue
 
                 case 4:
-                    result = self.controller.project.get_all_status()
+                    result = self.controller.project_status.get_all()
                     print(result)
                     id = FormsProjects.status_fields(delete=True)
 
                     try:
-                        self.controller.project.delete_project_status(id)
+                        self.controller.project_status.delete(id)
                         UI.show_message("Status successfully deleted")
                     except (DataEmptyError, ModelsError) as e:
                         UI.show_error(str(e))
@@ -127,21 +121,17 @@ class StatusProjectsViews:
 
     @staticmethod
     def default_status(controllers):
-        controllers.project.add_default_status()
+        controllers.project_status.add_default()
 
 
 class StatusTasksViews:
-    """
-    Class to manage task status views.
-    """
+    """Class to manage task status views."""
 
     def __init__(self, controller):
         self.controller = controller
 
     def run(self):
-        """
-        Runs the task status views.
-        """
+        """Runs the task status views."""
         while True:
             ViewHelper.clear_screen()
             UI.banner()
@@ -152,7 +142,9 @@ class StatusTasksViews:
                 case 1:
                     data = []
                     UI.show_message("To end 'N'")
-                    UI.show_message("To let the system know how to handle this status, choose the category that best describes it:")
+                    UI.show_message(
+                        "To let the system know how to handle this status, choose the category that best describes it:"
+                    )
                     print("-" * 40)
                     print(" 1. PENDING      2. IN PROGRESS      3. REVIEW")
                     print(" 4. COMPLETED   5. BLOCKED")
@@ -166,7 +158,7 @@ class StatusTasksViews:
                         data.append((status, system_key))
 
                     try:
-                        self.controller.task.add_task_status(data)
+                        self.controller.task_status.add(data)
                         UI.show_message("Task status created successfully")
                     except (StatusExistsError, ModelsError) as e:
                         UI.show_error(str(e))
@@ -176,7 +168,7 @@ class StatusTasksViews:
 
                 case 2:
                     try:
-                        result = self.controller.task.get_all_status()
+                        result = self.controller.task_status.get_all()
                         print(result)
 
                     except DataNotFoundError as e:
@@ -186,12 +178,12 @@ class StatusTasksViews:
                         continue
 
                 case 3:
-                    result = self.controller.task.get_all_status()
+                    result = self.controller.task_status.get_all()
                     print(result)
                     data = FormsTask.status_fields(edit=True)
 
                     try:
-                        self.controller.task.edit_status(data)
+                        self.controller.task_status.edit(data)
                         UI.show_message("Task status edited successfully")
                     except (DataEmptyError, ModelsError) as e:
                         UI.show_error(str(e))
@@ -200,12 +192,12 @@ class StatusTasksViews:
                         continue
 
                 case 4:
-                    result = self.controller.task.get_all_status()
+                    result = self.controller.task_status.get_all()
                     print(result)
                     id = FormsTask.status_fields(delete=True)
 
                     try:
-                        self.controller.task.delete_status(id)
+                        self.controller.task_status.delete(id)
                         UI.show_message("Task status deleted successfully")
                     except (DataEmptyError, ModelsError) as e:
                         UI.show_error(str(e))
@@ -220,4 +212,4 @@ class StatusTasksViews:
 
     @staticmethod
     def default_status(controllers):
-        controllers.task.add_default_status()
+        controllers.task_status.add_default()

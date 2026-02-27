@@ -17,6 +17,7 @@ class ProfileViews:
     """
     Class to manage profile views.
     """
+
     def __init__(self, controller):
         """
         Initializes the profile views.
@@ -41,7 +42,7 @@ class ProfileViews:
             match option:
                 case 1:
                     try:
-                        data = self.controller.task.get_all_tasks_of_user(self.session)
+                        data = self.controller.task.get_by_user(self.session)
                         # t.title, t.description, ts.name, p.title
                         UI.show_table_tasks(data)
                     except NotFoundTaskError as e:
@@ -53,10 +54,10 @@ class ProfileViews:
                     # params = id, task_name, task_title, project_title
                     inputs = FormsTask.edit_taskstatus_forms()
                     try:
-                        data = self.controller.task.get_task_by_project_task(inputs[1:])
+                        data = self.controller.task.get_by_project_and_title(inputs[1:])
                         UI.show_table_tasks(data, message="TASK")
 
-                        self.controller.task.edit_task_state(
+                        self.controller.task.edit_status(
                             inputs[0], inputs[1], inputs[2]
                         )
                     except (

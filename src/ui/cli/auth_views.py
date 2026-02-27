@@ -44,17 +44,14 @@ class View:
 
                     try:
                         result = self.controller.auth.login(data)
-                        #biews (1, 'admin')
+                        # biews (1, 'admin')
                         if result:
                             ViewHelper.progress_bar()
                             Session.start(result[0], result[1], data[0])
                             UI.show_message("Login successful")
                             sleep(2)
 
-                            if (
-                                Session.get_role() == "admin"
-                                and Session.get_state() is True
-                            ):
+                            if Session.get_role() == "admin" and Session.get_state() is True:
                                 self.admin.run()
                             else:
                                 self.profile.run()
@@ -99,4 +96,3 @@ class View:
                     break
                 case _:
                     UI.show_message("Invalid option")
-
