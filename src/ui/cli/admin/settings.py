@@ -4,9 +4,11 @@ from src.core.exceptions import (
     ModelsError,
     StatusExistsError,
 )
+from src.ui.cli.base import BaseForms, BaseUI
+from src.ui.cli.form.project import FormsProjects
+from src.ui.cli.form.task import FormsTask
+from src.ui.cli.menu.admin_menu import AdminMenus
 from utils.helpers import ViewHelper
-
-from ..forms import UI, Forms, FormsProjects, FormsTask, UIAdmin
 
 
 class SettingsViews:
@@ -21,10 +23,10 @@ class SettingsViews:
         """Runs the system settings views."""
         while True:
             ViewHelper.clear_screen()
-            UI.banner()
-            UIAdmin.menu_system_setting()
+            BaseUI.banner()
+            AdminMenus.menu_system_setting()
 
-            option = Forms.option_forms()
+            option = BaseForms.option_forms()
             match option:
                 case 1:
                     self.status_projects_views.run()
@@ -33,7 +35,7 @@ class SettingsViews:
                 case 3:
                     break
                 case _:
-                    UI.show_message("Invalid option")
+                    BaseUI.show_message("Invalid option")
 
 
 class StatusProjectsViews:
@@ -46,21 +48,23 @@ class StatusProjectsViews:
         """Runs the project status views."""
         while True:
             ViewHelper.clear_screen()
-            UI.banner()
-            UIAdmin.menu_status_projects()
+            BaseUI.banner()
+            AdminMenus.menu_status_projects()
 
-            option = Forms.option_forms()
+            option = BaseForms.option_forms()
+            print()
             match option:
                 case 1:
                     data = []
-                    UI.show_message("Para terminar 'N'")
-                    UI.show_message(
+                    BaseUI.show_message("Para terminar 'N'")
+                    BaseUI.show_message(
                         "Para que el sistema sepa cómo manejar este estado, elija la categoría que mejor lo describa:"
                     )
                     print("-" * 40)
                     print(" 1. NEW      2. ACTIVE      3. ON HOLD")
                     print(" 4. COMPLETED   5. CANCELLED")
                     print("-" * 40)
+
                     while True:
                         status = FormsProjects.status_fields()
                         if status.upper() == "N":
@@ -71,10 +75,11 @@ class StatusProjectsViews:
 
                     try:
                         self.controller.project_status.add(data)
+                        BaseUI.show_message("\nStatus successfully added")
                     except (StatusExistsError, ModelsError) as e:
-                        UI.show_error(str(e))
+                        BaseUI.show_error(str(e))
 
-                    if Forms.ask_forms() == "Y":
+                    if BaseForms.ask_forms() == "Y":
                         continue
 
                 case 2:
@@ -82,9 +87,9 @@ class StatusProjectsViews:
                         result = self.controller.project_status.get_all()
                         print(result)
                     except DataNotFoundError as e:
-                        UI.show_error(str(e))
+                        BaseUI.show_error(str(e))
 
-                    if Forms.ask_forms() == "Y":
+                    if BaseForms.ask_forms() == "Y":
                         continue
                 case 3:
                     result = self.controller.project_status.get_all()
@@ -93,11 +98,11 @@ class StatusProjectsViews:
 
                     try:
                         self.controller.project_status.edit(data)
-                        UI.show_message("Status successfully edited")
+                        BaseUI.show_message("\nStatus successfully edited")
                     except (DataEmptyError, ModelsError) as e:
-                        UI.show_error(str(e))
+                        BaseUI.show_error(str(e))
 
-                    if Forms.ask_forms() == "Y":
+                    if BaseForms.ask_forms() == "Y":
                         continue
 
                 case 4:
@@ -107,17 +112,17 @@ class StatusProjectsViews:
 
                     try:
                         self.controller.project_status.delete(id)
-                        UI.show_message("Status successfully deleted")
+                        BaseUI.show_message("Status successfully deleted")
                     except (DataEmptyError, ModelsError) as e:
-                        UI.show_error(str(e))
+                        BaseUI.show_error(str(e))
 
-                    if Forms.ask_forms() == "Y":
+                    if BaseForms.ask_forms() == "Y":
                         continue
 
                 case 5:
                     break
                 case _:
-                    UI.show_message("Invalid option")
+                    BaseUI.show_message("Invalid option")
 
     @staticmethod
     def default_status(controllers):
@@ -134,21 +139,23 @@ class StatusTasksViews:
         """Runs the task status views."""
         while True:
             ViewHelper.clear_screen()
-            UI.banner()
-            UIAdmin.menu_status_tasks()
+            BaseUI.banner()
+            AdminMenus.menu_status_tasks()
 
-            option = Forms.option_forms()
+            option = BaseForms.option_forms()
+            print()
             match option:
                 case 1:
                     data = []
-                    UI.show_message("To end 'N'")
-                    UI.show_message(
+                    BaseUI.show_message("To end 'N'")
+                    BaseUI.show_message(
                         "To let the system know how to handle this status, choose the category that best describes it:"
                     )
                     print("-" * 40)
                     print(" 1. PENDING      2. IN PROGRESS      3. REVIEW")
                     print(" 4. COMPLETED   5. BLOCKED")
                     print("-" * 40)
+
                     while True:
                         status = FormsTask.status_fields()
                         if status.upper() == "N":
@@ -159,11 +166,11 @@ class StatusTasksViews:
 
                     try:
                         self.controller.task_status.add(data)
-                        UI.show_message("Task status created successfully")
+                        BaseUI.show_message("\nTask status created successfully")
                     except (StatusExistsError, ModelsError) as e:
-                        UI.show_error(str(e))
+                        BaseUI.show_error(str(e))
 
-                    if Forms.ask_forms() == "Y":
+                    if BaseForms.ask_forms() == "Y":
                         continue
 
                 case 2:
@@ -172,9 +179,9 @@ class StatusTasksViews:
                         print(result)
 
                     except DataNotFoundError as e:
-                        UI.show_error(str(e))
+                        BaseUI.show_error(str(e))
 
-                    if Forms.ask_forms() == "Y":
+                    if BaseForms.ask_forms() == "Y":
                         continue
 
                 case 3:
@@ -184,11 +191,11 @@ class StatusTasksViews:
 
                     try:
                         self.controller.task_status.edit(data)
-                        UI.show_message("Task status edited successfully")
+                        BaseUI.show_message("\nTask status edited successfully")
                     except (DataEmptyError, ModelsError) as e:
-                        UI.show_error(str(e))
+                        BaseUI.show_error(str(e))
 
-                    if Forms.ask_forms() == "Y":
+                    if BaseForms.ask_forms() == "Y":
                         continue
 
                 case 4:
@@ -198,17 +205,17 @@ class StatusTasksViews:
 
                     try:
                         self.controller.task_status.delete(id)
-                        UI.show_message("Task status deleted successfully")
+                        BaseUI.show_message("\nTask status deleted successfully")
                     except (DataEmptyError, ModelsError) as e:
-                        UI.show_error(str(e))
+                        BaseUI.show_error(str(e))
 
-                    if Forms.ask_forms() == "Y":
+                    if BaseForms.ask_forms() == "Y":
                         continue
 
                 case 5:
                     break
                 case _:
-                    UI.show_message("Invalid option")
+                    BaseUI.show_message("\nInvalid option")
 
     @staticmethod
     def default_status(controllers):

@@ -11,14 +11,15 @@ from src.core.exceptions import (
     ProjectsError,
 )
 from src.models.sessions import Session
+from src.ui.cli.admin.admin_view import AdminViews
+from src.ui.cli.base import BaseForms, BaseUI
+from src.ui.cli.form.auth import FormsAuth
+from src.ui.cli.menu.auth_menu import AuthMenus
+from src.ui.cli.user.profile import ProfileViews
 from utils.helpers import ViewHelper
 
-from .admin.admin import AdminViews
-from .forms import UI, Forms
-from .user.profile import ProfileViews
 
-
-class View:
+class AuthView:
     """
     Handles user login and registration and redirects to the appropriate view.
     """
@@ -32,15 +33,15 @@ class View:
     def run(self):
         while True:
             ViewHelper.clear_screen()
-            UI.banner()
-            UI.show_message("\n")
-            UI.menu()
+            BaseUI.banner()
+            BaseUI.show_message("\n")
+            AuthMenus.menu()
 
-            option = Forms.option_forms()
+            option = BaseForms.option_forms()
             print()
             match option:
                 case 1:
-                    data = Forms.login_forms()
+                    data = FormsAuth.login_forms()
 
                     try:
                         result = self.controller.auth.login(data)
@@ -48,7 +49,7 @@ class View:
                         if result:
                             ViewHelper.progress_bar()
                             Session.start(result[0], result[1], data[0])
-                            UI.show_message("Login successful")
+                            BaseUI.show_message("Login successful")
                             sleep(2)
 
                             if Session.get_role() == "admin" and Session.get_state() is True:
@@ -63,20 +64,20 @@ class View:
                         ModelsError,
                         ProjectsError,
                     ) as e:
-                        UI.show_message(str(e))
+                        BaseUI.show_message(str(e))
 
-                        if Forms.ask_forms() == "Y":
+                        if BaseForms.ask_forms() == "Y":
                             continue
                         else:
                             break
 
                 case 2:
-                    data = Forms.register_forms()
+                    data = FormsAuth.register_forms()
 
                     try:
                         if self.controller.auth.register(data):
                             ViewHelper.progress_bar()
-                            UI.show_message("User created successfully")
+                            BaseUI.show_message("User created successfully")
                             sleep(2)
                     except (
                         EmailError,
@@ -85,9 +86,9 @@ class View:
                         ModelsError,
                         ProjectsError,
                     ) as e:
-                        UI.show_message(str(e))
+                        BaseUI.show_message(str(e))
 
-                        if Forms.ask_forms() == "Y":
+                        if BaseForms.ask_forms() == "Y":
                             continue
                         else:
                             break
@@ -95,4 +96,4 @@ class View:
                 case 3:
                     break
                 case _:
-                    UI.show_message("Invalid option")
+                    BaseUI.show_message("Invalid option")

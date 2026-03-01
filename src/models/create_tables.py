@@ -80,6 +80,7 @@ class CreateTables(BaseModels):
             id_status INTEGER NOT NULL,
             id_projects INTEGER NOT NULL,
             id_assigned_to INTEGER,
+            created TEXT DEFAULT (CURRENT_DATE),
 
             FOREIGN key (id_status) REFERENCES task_status(id),
             FOREIGN KEY (id_projects) REFERENCES projects(id) ON DELETE CASCADE,

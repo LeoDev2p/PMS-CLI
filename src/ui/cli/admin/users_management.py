@@ -6,9 +6,10 @@ from src.core.exceptions import (
     NotFoundUserError,
     ProjectsError,
 )
+from src.ui.cli.base import BaseForms, BaseUI
+from src.ui.cli.form.user import FormsUser
+from src.ui.cli.menu.user_menu import UserMenus
 from utils.helpers import ViewHelper
-
-from ..forms import UI, Forms, FormsUser, UIAdmin
 
 
 class UserManagementViews:
@@ -23,17 +24,19 @@ class UserManagementViews:
         """Runs the user management panel."""
         while True:
             ViewHelper.clear_screen()
-            UI.banner()
-            UIAdmin.menu_users()
+            BaseUI.banner()
+            UserMenus.menu_users()
 
-            option = Forms.option_forms()
+            option = BaseForms.option_forms()
+            print()
+
             match option:
                 case 1:
                     while True:
-                        data = Forms.register_forms()
+                        data = FormsUser.add_user_forms()
                         try:
                             self.controller.auth.register(data)
-                            UI.show_message("User registered successfully")
+                            BaseUI.show_message("\nUser registered successfully")
                         except (
                             EmailError,
                             HashCreatingError,
@@ -41,108 +44,174 @@ class UserManagementViews:
                             ModelsError,
                             ProjectsError,
                         ) as e:
-                            UI.show_message(str(e))
+                            BaseUI.show_message(str(e))
 
-                        if Forms.ask_forms() == "Y":
+                        if BaseForms.ask_forms("create more users?") == "Y":
                             continue
                         else:
                             break
 
                 case 2:
                     self.edit_user()
+
                 case 3:
-                    user_email = FormsUser.search_forms()
-                    result = self.controller.user.search_user_or_email(user_email)[0]
-                    print(result)
+                    while True:
+                        user_email = FormsUser.search_forms()
+                        result = self.controller.user.search_user_or_email(user_email)
+                        print(result)
 
-                    id = FormsUser.id_forms()
-                    try:
-                        self.controller.user.delete_user(id)
-                    except (NotFoundUserError, ModelsError) as e:
-                        UI.show_message(str(e))
+                        id_user = BaseForms.id_forms()
+                        try:
+                            self.controller.user.delete_user(id_user)
+                            BaseUI.show_message("\nUser deleted successfully")
+                        except (DataEmptyError, NotFoundUserError) as e:
+                            BaseUI.show_message(str(e))
+                            if BaseForms.ask_forms("Do you want to try again?") == "Y":
+                                continue
+                            else:
+                                break
 
-                    if Forms.ask_forms() == "Y":
-                        continue
+                        except ModelsError as e:
+                            BaseUI.show_message(str(e))
+
+                        if BaseForms.ask_forms() == "Y":
+                            continue
+                        else:
+                            break
 
                 case 4:
-                    result = self.controller.user.get_all_users()
-                    print(result)
+                    try:
+                        result = self.controller.user.get_all_users()
+                        print(result)
+                    except ModelsError as e:
+                        BaseUI.show_message(str(e))
 
-                    if Forms.ask_forms() == "Y":
+                    if BaseForms.ask_forms() == "Y":
                         continue
 
                 case 5:
                     break
                 case _:
-                    UI.show_message("Invalid option")
+                    BaseUI.show_message("Invalid option")
 
     def edit_user(self):
         """Edits a user."""
         while True:
             ViewHelper.clear_screen()
-            UI.banner()
-            UIAdmin.menu_edit_users()
+            BaseUI.banner()
+            UserMenus.menu_edit_users()
 
-            option = Forms.option_forms()
+            option = BaseForms.option_forms()
+            print()
             match option:
                 case 1:
-                    try:
-                        user_email = FormsUser.search_forms()
-                        result = self.controller.user.search_user_or_email(user_email)[
-                            0
-                        ]
-                        print(result)
+                    while True:
+                        try:
+                            user_email = FormsUser.search_forms()
+                            print()
 
-                        data = FormsUser.edit_username_forms()
-                        self.controller.user.edit_username((data, result[0]))
-                        UI.show_message("User updated successfully")
-                    except (DataEmptyError, NotFoundUserError, ModelsError) as e:
-                        UI.show_message(str(e))
+                            result = self.controller.user.search_user_or_email(user_email)
+                            print(result)
+                            id_user = BaseForms.id_forms()
 
-                    if Forms.ask_forms() == "Y":
-                        continue
+                            data = FormsUser.edit_forms("\nNew username")
+                            self.controller.user.edit_username((data, id_user))
+                            BaseUI.show_message("\nUser updated successfully")
+
+                        except (DataEmptyError, NotFoundUserError) as e:
+                            BaseUI.show_message(str(e))
+                            if BaseForms.ask_forms("Do you want to try again?") == "Y":
+                                continue
+                            else:
+                                break
+
+                        except ModelsError as e:
+                            BaseUI.show_message(str(e))
+
+                        if BaseForms.ask_forms() == "Y":
+                            continue
+                        else:
+                            break
 
                 case 2:
-                    user_email = FormsUser.search_forms()
-                    result = self.controller.user.search_user_or_email(user_email)[0]
-                    print(result)
+                    while True:
+                        try:
+                            user_email = FormsUser.search_forms()
+                            print()
+                            result = self.controller.user.search_user_or_email(user_email)
+                            print(result)
+                            id_user = BaseForms.id_forms()
 
-                    data = FormsUser.edit_email_forms()
-                    try:
-                        self.controller.user.edit_email((data, result[0]))
-                    except (DataEmptyError, NotFoundUserError, ModelsError) as e:
-                        UI.show_message(str(e))
+                            data = FormsUser.edit_forms("\nNew email")
+                            self.controller.user.edit_email((data, id_user))
+                            BaseUI.show_message("\nEmail updated successfully")
 
-                    if Forms.ask_forms() == "Y":
-                        continue
+                        except (DataEmptyError, NotFoundUserError) as e:
+                            BaseUI.show_message(str(e))
+                            if BaseForms.ask_forms("Do you want to try again?") == "Y":
+                                continue
+                            else:
+                                break
+
+                        except ModelsError as e:
+                            BaseUI.show_message(str(e))
+
+                        if BaseForms.ask_forms() == "Y":
+                            continue
+                        else:
+                            break
 
                 case 3:
-                    user_email = FormsUser.search_forms()
-                    result = self.controller.user.search_user_or_email(user_email)[0]
-                    print(result)
+                    while True:
+                        user_email = FormsUser.search_forms()
+                        result = self.controller.user.search_user_or_email(user_email)
+                        print(result)
+                        id_user = BaseForms.id_forms()
 
-                    data = FormsUser.edit_password_forms()
-                    try:
-                        self.controller.user.reset_password((result[0], data))
-                    except (DataEmptyError, NotFoundUserError, ModelsError) as e:
-                        UI.show_message(str(e))
+                        data = FormsUser.edit_forms("\nNew password")
+                        try:
+                            self.controller.user.reset_password((id_user, data))
+                            BaseUI.show_message("\nPassword updated successfully")
+                        except (DataEmptyError, NotFoundUserError) as e:
+                            BaseUI.show_message(str(e))
+                            if BaseForms.ask_forms("Do you want to try again?") == "Y":
+                                continue
+                            else:
+                                break
 
-                    if Forms.ask_forms() == "Y":
-                        continue
+                        except ModelsError as e:
+                            BaseUI.show_message(str(e))
+
+                        if BaseForms.ask_forms() == "Y":
+                            continue
+                        else:
+                            break
                 case 4:
-                    user_email = FormsUser.search_forms()
-                    result = self.controller.user.search_user_or_email(user_email)[0]
-                    print(result)
+                    while True:
+                        try:
+                            user_email = FormsUser.search_forms()
+                            result = self.controller.user.search_user_or_email(user_email)
+                            print(result)
+                            id_user = BaseForms.id_forms()
 
-                    data = FormsUser.edit_role_forms()
-                    try:
-                        self.controller.user.change_role((data, result[0]))
-                    except (DataEmptyError, NotFoundUserError, ModelsError) as e:
-                        UI.show_message(str(e))
+                            data = FormsUser.edit_forms("New role")
+                            self.controller.user.change_role((data, id_user))
+                            BaseUI.show_message("\nRole updated successfully")
+                        except (DataEmptyError, NotFoundUserError) as e:
+                            BaseUI.show_message(str(e))
+                            if BaseForms.ask_forms("Do you want to try again?") == "Y":
+                                continue
+                            else:
+                                break
 
-                    if Forms.ask_forms() == "Y":
-                        continue
+                        except ModelsError as e:
+                            BaseUI.show_message(str(e))
+
+                        if BaseForms.ask_forms() == "Y":
+                            continue
+                        else:
+                            break
                 case 5:
                     break
                 case _:
-                    UI.show_message("Invalid option")
+                    BaseUI.show_message("Invalid option")

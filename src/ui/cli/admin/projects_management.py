@@ -5,9 +5,10 @@ from src.core.exceptions import (
     NotFoundStatusProjectError,
     ProjectsExistsError,
 )
-from src.ui.cli.forms import FormsProjects
-
-from ..forms import UI, Forms, UIAdmin, ViewHelper
+from src.ui.cli.base import BaseForms, BaseUI
+from src.ui.cli.form.project import FormsProjects
+from src.ui.cli.menu.admin_menu import AdminMenus
+from utils.helpers import ViewHelper
 
 
 class ManagementProjectViews:
@@ -20,10 +21,11 @@ class ManagementProjectViews:
         """Runs the project management views."""
         while True:
             ViewHelper.clear_screen()
-            UI.banner()
-            UIAdmin.menu_management_project()
+            BaseUI.banner()
+            AdminMenus.menu_management_project()
 
-            option = Forms.option_forms()
+            option = BaseForms.option_forms()
+            print()
             match option:
                 case 1:
                     data = FormsProjects.project_forms()
@@ -31,20 +33,19 @@ class ManagementProjectViews:
                         try:
                             self.controller.project_status.get_all()
                         except NotFoundStatusProjectError:
-                            UI.show_message(
-                                "First you need to create the states in 'system setting' or"
-                            )
-                            if Forms.ask_forms("Create by default") == "Y":
+                            BaseUI.show_message("First you need to create the states in 'system setting' or")
+                            if BaseForms.ask_forms("Create by default") == "Y":
                                 self.controller.project.add(data)
-                                UI.show_message("Project successfully added")
+                                BaseUI.show_message("Project successfully added")
                             else:
-                                UI.show_message("Set status in 'SYSTEM SETTING")
+                                BaseUI.show_message("Set status in 'SYSTEM SETTING")
                         else:
                             self.controller.project.add(data)
+                            BaseUI.show_message("\nProject successfully added")
                     except (DataEmptyError, ProjectsExistsError, ModelsError) as e:
-                        UI.show_error(str(e))
+                        BaseUI.show_error(str(e))
 
-                    if Forms.ask_forms() == "Y":
+                    if BaseForms.ask_forms() == "Y":
                         continue
 
                 case 2:
@@ -52,9 +53,9 @@ class ManagementProjectViews:
                         result = self.controller.project.get_all()
                         print(result)
                     except (NotFoundProjectError, ModelsError) as e:
-                        UI.show_error(str(e))
+                        BaseUI.show_error(str(e))
 
-                    if Forms.ask_forms() == "Y":
+                    if BaseForms.ask_forms() == "Y":
                         continue
 
                 case 3:
@@ -66,64 +67,72 @@ class ManagementProjectViews:
                     try:
                         result = self.controller.project.get_by_title(data)
                         print(result)
-                        id_project = Forms.option_forms()  # cambiar fucion de id universl
-                        if Forms.ask_forms(question="Do you want delete?") == "Y":
-                            self.controller.project.delete(id_project)
-                            UI.show_message("Project successfully deleted")
-                        else:
-                            UI.show_message("Action canceled")
-                    except (DataEmptyError, NotFoundProjectError, ModelsError) as e:
-                        UI.show_error(str(e))
+                        id_project = BaseForms.id_forms()  
 
-                    if Forms.ask_forms() == "Y":
+                        if BaseForms.ask_forms(question="Do you want delete?") == "Y":
+                            self.controller.project.delete(id_project)
+                            BaseUI.show_message("\nProject successfully deleted")
+                        else:
+                            BaseUI.show_message("\nAction canceled")
+                    except (DataEmptyError, NotFoundProjectError, ModelsError) as e:
+                        BaseUI.show_error(str(e))
+
+                    if BaseForms.ask_forms() == "Y":
                         continue
 
                 case 5:
                     break
                 case _:
-                    UI.show_message("Invalid option")
+                    BaseUI.show_message("\nInvalid option")
 
     def edit_project(self):
         """Edits a project."""
         while True:
             ViewHelper.clear_screen()
-            UI.banner()
-            print("""
-            [1] Editing title
-            [2] Editing status
-            [3] Back
-            """)
-            option = Forms.option_forms()
+            BaseUI.banner()
+            AdminMenus.menu_edit_project()
+
+            option = BaseForms.option_forms()
+            print()
+
             match option:
                 case 1:
                     try:
+                        # buscar por like ---------------------
                         result = self.controller.project.get_all()
                         print(result)
-                        data = FormsProjects.edit_project_forms()
-                        self.controller.project.edit_title(data)
-                    except (DataEmptyError, ModelsError) as e:
-                        UI.show_error(str(e))
 
-                    if Forms.ask_forms() == "Y":
+                        data = FormsProjects.edit_project_forms()
+
+                        self.controller.project.edit_title(data)
+                        BaseUI.show_message("\nProject title successfully updated")
+                    except (DataEmptyError, ModelsError) as e:
+                        BaseUI.show_error(str(e))
+
+                    if BaseForms.ask_forms() == "Y":
                         continue
 
                 case 2:
                     try:
+                        # buscar por like ---------------------
                         result = self.controller.project.get_all()
                         print(result)
+                        id_project = BaseForms.option_forms()
+
                         result = self.controller.project_status.get_all()
                         print(result)
-                        # id por separado universalizar ----------------------
-                        data = FormsProjects.edit_project_status_forms()
-                        self.controller.project.edit_status(data)
-                        UI.show_message("Project status successfully updated")
-                    except (DataEmptyError, ModelsError) as e:
-                        UI.show_error(str(e))
+                        id_status = BaseForms.option_forms()
 
-                    if Forms.ask_forms() == "Y":
+                        data = (id_status, id_project)
+                        self.controller.project.edit_status(data)
+                        BaseUI.show_message("Project status successfully updated")
+                    except (DataEmptyError, ModelsError) as e:
+                        BaseUI.show_error(str(e))
+
+                    if BaseForms.ask_forms() == "Y":
                         continue
 
                 case 3:
                     break
                 case _:
-                    UI.show_message("Invalid option")
+                    BaseUI.show_message("\nInvalid option")

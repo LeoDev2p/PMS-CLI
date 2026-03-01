@@ -1,10 +1,10 @@
 from src.core.logging import get_logger
 from src.models.sessions import Session
+from src.ui.cli.admin.projects import ProjectsViews
+from src.ui.cli.admin.users_management import UserManagementViews
+from src.ui.cli.base import BaseForms, BaseUI
+from src.ui.cli.menu.admin_menu import AdminMenus
 from utils.helpers import ViewHelper
-
-from ..forms import UI, Forms, UIAdmin
-from .projects import ProjectsViews
-from .users_management import UserManagementViews
 
 
 class AdminViews:
@@ -24,10 +24,10 @@ class AdminViews:
         """Runs the admin panel."""
         while True:
             ViewHelper.clear_screen()
-            UI.banner()
-            UIAdmin.menu_admin()
+            BaseUI.banner()
+            AdminMenus.menu()
 
-            option = Forms.option_forms()
+            option = BaseForms.option_forms()
             match option:
                 case 1:
                     self.user_views.run()
@@ -38,7 +38,7 @@ class AdminViews:
                 case 4:
                     break
                 case _:
-                    UI.show_message("Invalid option")
+                    BaseUI.show_message("Invalid option")
 
     def statistics_panel(self):
         pass

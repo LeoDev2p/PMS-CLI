@@ -24,7 +24,7 @@ from src.services.project_services import (
 )
 from src.services.task_services import TaskServices, TaskStatusServices
 from src.services.user_services import UserServices
-from src.ui.cli.auth_views import View
+from src.ui.cli.auth.auth_views import AuthView
 
 
 class Main:
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     )
 
     # view
-    view = View(controller)
+    view = AuthView(controller)
     try:
         main = Main(view)
         main.run()

@@ -4,10 +4,11 @@ from src.core.exceptions import (
     ModelsError,
     NotFoundUserError,
 )
-from src.ui.cli.forms import FormsProjects
+from src.ui.cli.base import BaseForms, BaseUI
+from src.ui.cli.form.project import FormsProjects
+from src.ui.cli.form.task import FormsTask
+from src.ui.cli.menu.admin_menu import AdminMenus
 from utils.helpers import ViewHelper
-
-from ..forms import UI, Forms, FormsTask, UIAdmin
 
 
 class OperationalViews:
@@ -22,10 +23,11 @@ class OperationalViews:
     def run(self):
         while True:
             ViewHelper.clear_screen()
-            UI.banner()
-            UIAdmin.menu_operational()
+            BaseUI.banner()
+            AdminMenus.menu_operational()
 
-            option = Forms.option_forms()
+            option = BaseForms.option_forms()
+            print()
             match option:
                 case 1:
                     self.task_assignment.run()
@@ -36,7 +38,7 @@ class OperationalViews:
                 case 4:
                     break
                 case _:
-                    UI.show_message("Invalid option")
+                    BaseUI.show_message("Invalid option")
 
 
 class TaskAssignment:
@@ -49,25 +51,25 @@ class TaskAssignment:
         # Nueva Asignación / Crear Tarea
         while True:
             try:
-                UI.show_message("New projects")
+                BaseUI.show_message("New projects\n")
                 p_result = self.controller.project.get_new()
                 print(p_result)
-                id_project = Forms.id_forms()
+                id_project = BaseForms.id_forms()
 
-                UI.show_message("Free operational users")
+                BaseUI.show_message("Free operational users\n")
                 u_result = self.controller.user.get_free_operational_users()
                 print(u_result)
-                id_user = Forms.id_forms()
+                id_user = BaseForms.id_forms()
 
                 title, description = FormsTask.asigne_task()
 
                 data = (title, description, id_project, id_user)
                 self.controller.task.add(data)
-                UI.show_message("Task added successfully")
+                BaseUI.show_message("\nTask added successfully")
             except (DataEmptyError, ModelsError) as e:
-                UI.show_error(str(e))
+                BaseUI.show_error(str(e))
 
-            if Forms.ask_forms() == "Y":
+            if BaseForms.ask_forms("\nWould you like to assign more tasks?") == "Y":
                 continue
             else:
                 break
@@ -83,40 +85,40 @@ class TeamMonitoring:
         while True:
             # Control de Equipos y Monitoreo
             ViewHelper.clear_screen()
-            UI.banner()
+            BaseUI.banner()
             print("""
                 [1] View Team by Project
                 [2] Change Task Status
                 [3] Back
             """)
 
-            option = Forms.option_forms()
+            option = BaseForms.option_forms()
             match option:
                 case 1:
                     search = FormsProjects.search_project_forms()
                     try:
                         count = self.controller.project.count_by_title(search)
                     except (DataEmptyError, ModelsError) as e:
-                        UI.show_error(str(e))
+                        BaseUI.show_error(str(e))
                         continue
 
                     if count > 10:
-                        UI.show_message("Too many projects found")
-                        UI.show_message("View list of completed projects in settings")
+                        BaseUI.show_message("Too many projects found")
+                        BaseUI.show_message("View list of completed projects in settings")
                         continue
                     else:
-                        UI.show_message(f"{count} projects were found")
+                        BaseUI.show_message(f"\n{count} projects were found\n")
                         try:
                             projects = self.controller.project.get_search_by_title(search)
                             print(projects)
 
-                            id_project = Forms.id_forms()
+                            id_project = BaseForms.id_forms()
                             tasks = self.controller.task.get_all_by_project(id_project)
                             print(tasks)
                         except (DataNotFoundError, ModelsError) as e:
-                            UI.show_error(str(e))
+                            BaseUI.show_error(str(e))
 
-                        if Forms.ask_forms() == "Y":
+                        if BaseForms.ask_forms() == "Y":
                             continue
 
                 case 2:
@@ -125,32 +127,34 @@ class TeamMonitoring:
                         # mostrar proyectos especifico
                         projects = self.controller.project.get_search_by_title(search)
                         print(projects)
-                        id_project = Forms.id_forms()
+
+                        id_project = BaseForms.id_forms()
                     except (DataNotFoundError, ModelsError) as e:
-                        UI.show_error(str(e))
+                        BaseUI.show_error(str(e))
 
                     try:
                         # mostrara tareas del proyecto especifico
                         tasks = self.controller.task.get_details_by_project(id_project)
                         print(tasks)
-                        id_task = Forms.id_forms()
+                        id_task = BaseForms.id_forms()
 
                         # mostrara los estados
                         status = self.controller.task_status.get_all()
                         print(status)
-                        id_status = Forms.id_forms()
+                        id_status = BaseForms.id_forms()
 
                         self.controller.task.edit_status(id_status, id_task, id_project)
+                        BaseUI.show_message("\nTask status edited successfully")
                     except (DataEmptyError, ModelsError) as e:
-                        UI.show_error(str(e))
+                        BaseUI.show_error(str(e))
 
-                    if Forms.ask_forms() == "Y":
+                    if BaseForms.ask_forms() == "Y":
                         continue
 
                 case 3:
                     break
                 case _:
-                    UI.show_message("Invalid option")
+                    BaseUI.show_message("Invalid option")
 
 
 class StaffMaintenance:
@@ -163,36 +167,37 @@ class StaffMaintenance:
         # Mantenimiento de Personal
         while True:
             ViewHelper.clear_screen()
-            UI.banner()
+            BaseUI.banner()
             print("""
                 [1] reassign user
                 [2] remove user
                 [3] Back
             """)
 
-            option = Forms.option_forms()
+            option = BaseForms.option_forms()
+            print()
             match option:
                 case 1:
                     # mover a un usuario de un proyecto A a un proyecto B (limpieza automática)
                     try:
-                        UI.show_message("--- Proyecto Origen ---")
+                        BaseUI.show_message("--- Proyecto Origen ---\n")
                         p_title_source = FormsProjects.search_project_forms()
                         projects_source = self.controller.project.get_by_title(p_title_source)
                         print(projects_source)
                         id_project_source = FormsTask.id_forms()
 
-                        UI.show_message("--- Usuario a Reasignar ---")
+                        BaseUI.show_message("--- Usuario a Reasignar ---\n")
                         users = self.controller.user.get_user_by_project(id_project_source)
                         print(users)
                         id_user = FormsTask.id_forms()
 
-                        UI.show_message("--- Proyecto Destino ---")
+                        BaseUI.show_message("--- Proyecto Destino ---\n")
                         p_title_dest = FormsProjects.search_project_forms()
                         projects_dest = self.controller.project.get_by_title(p_title_dest)
                         print(projects_dest)
                         id_project_dest = FormsTask.id_forms()
 
-                        UI.show_message("Reasignando usuario y actualizando tablas...")
+                        BaseUI.show_message("\nReasignando usuario y actualizando tablas...\n")
 
                         # reasignando usuario a nuevo proyecto, limpiando tareas en origen
                         params = (
@@ -202,9 +207,9 @@ class StaffMaintenance:
                         )
                         self.controller.task.reassign_user_project(params)
 
-                        UI.show_message("Usuario reasignado exitosamente al nuevo proyecto")
+                        BaseUI.show_message("Usuario reasignado exitosamente al nuevo proyecto")
 
-                        if Forms.ask_forms("Agregar tarea en el nuevo proyecto ya?") == "Y":
+                        if BaseForms.ask_forms("Agregar tarea en el nuevo proyecto ya?") == "Y":
                             title, description = FormsTask.asigne_task()
 
                             data = (
@@ -214,39 +219,43 @@ class StaffMaintenance:
                                 id_user,
                             )
                             self.controller.task.add(data)
-                            UI.show_message("Task added successfully")
+                            BaseUI.show_message("\nTask added successfully")
                     except (
                         DataEmptyError,
                         NotFoundUserError,
                         ModelsError,
                     ) as e:
-                        UI.show_error(str(e))
+                        BaseUI.show_error(str(e))
 
-                    if Forms.ask_forms() == "Y":
+                    if BaseForms.ask_forms() == "Y":
                         continue
                 case 2:
                     try:
-                        UI.show_message("--- Buscar proyecto ---")
+                        BaseUI.show_message("--- Buscar proyecto ---\n")
                         p_title_source = FormsProjects.search_project_forms()
                         projects_source = self.controller.project.get_by_title(p_title_source)
                         print(projects_source)
-                        id_project_source = FormsTask.id_forms()
+                        id_project_source = BaseForms.id_forms()
 
-                        UI.show_message("--- Seleccionar usuario ---")
+                        BaseUI.show_message("\n--- Seleccionar usuario ---\n")
                         users = self.controller.user.get_user_by_project(id_project_source)
                         print(users)
-                        id_user = FormsTask.id_forms()
+                        id_user = BaseForms.id_forms()
 
                         params = (id_user, id_project_source)
                         self.controller.task.delete_user_project(params)
-                        UI.show_message("User removed successfully")
+                        BaseUI.show_message("\nUser removed successfully")
                     except (
                         DataEmptyError,
                         NotFoundUserError,
                         ModelsError,
                     ) as e:
-                        UI.show_error(str(e))
+                        BaseUI.show_error(str(e))
+
+                    if BaseForms.ask_forms() == "Y":
+                        continue
+
                 case 3:
                     break
                 case _:
-                    UI.show_message("Invalid option")
+                    BaseUI.show_message("\nInvalid option")

@@ -1,7 +1,9 @@
-from ..forms import UI, Forms, UIAdmin, ViewHelper
-from .operationals import OperationalViews
-from .projects_management import ManagementProjectViews
-from .settings import SettingsViews
+from src.ui.cli.admin.operationals import OperationalViews
+from src.ui.cli.admin.projects_management import ManagementProjectViews
+from src.ui.cli.admin.settings import SettingsViews
+from src.ui.cli.base import BaseForms, BaseUI
+from src.ui.cli.menu.admin_menu import AdminMenus
+from utils.helpers import ViewHelper
 
 
 class ProjectsViews:
@@ -19,10 +21,10 @@ class ProjectsViews:
         """Runs the project management panel."""
         while True:
             ViewHelper.clear_screen()
-            UI.banner()
-            UIAdmin.menu_project()
+            BaseUI.banner()
+            AdminMenus.menu_project()
 
-            option = Forms.option_forms()
+            option = BaseForms.option_forms()
             match option:
                 case 1:
                     self.m_project.run()
@@ -33,4 +35,4 @@ class ProjectsViews:
                 case 4:
                     break
                 case _:
-                    UI.show_message("Invalid option")
+                    BaseUI.show_message("Invalid option")
