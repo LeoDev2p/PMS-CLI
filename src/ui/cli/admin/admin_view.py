@@ -1,6 +1,9 @@
+import time
+
 from src.core.logging import get_logger
 from src.models.sessions import Session
 from src.ui.cli.admin.projects import ProjectsViews
+from src.ui.cli.admin.stats import StatsViews
 from src.ui.cli.admin.users_management import UserManagementViews
 from src.ui.cli.base import BaseForms, BaseUI
 from src.ui.cli.menu.admin_menu import AdminMenus
@@ -14,9 +17,9 @@ class AdminViews:
 
     def __init__(self, controller):
         self.controller = controller
-        self.session = Session.get_id()
         self.user_views = UserManagementViews(controller)
         self.projects_views = ProjectsViews(controller)
+        self.stats_views = StatsViews(controller)
 
         self.log = get_logger("audit", self.__class__.__name__)
 
@@ -34,11 +37,11 @@ class AdminViews:
                 case 2:
                     self.projects_views.run()
                 case 3:
-                    self.statistics_panel()
+                    self.stats_views.run()
                 case 4:
+                    BaseUI.show_message("Logout ............")
+                    time.sleep(1)
+                    Session.stop()
                     break
                 case _:
-                    BaseUI.show_message("Invalid option")
-
-    def statistics_panel(self):
-        pass
+                    BaseUI.show_message("\nInvalid option")

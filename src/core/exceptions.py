@@ -16,8 +16,20 @@ class ModelsError(ProjectsError):
     pass
 
 
+class DataIntegrityError(ModelsError):
+    """Errores causados por datos enviados (el usuario puede corregirlos)"""
+
+    pass
+
+
+class DatabaseSystemError(ModelsError):
+    """Errores técnicos (tablas, bloqueos, sintaxis SQL)"""
+
+    pass
+
+
 # IntegrityError
-class UniqueError(ModelsError):
+class UniqueError(DataIntegrityError):
     """
     Clase para errores de unicidad.
     """
@@ -25,7 +37,7 @@ class UniqueError(ModelsError):
     pass
 
 
-class NotnullError(ModelsError):
+class NotnullError(DataIntegrityError):
     """
     Clase para errores de no nulidad.
     """
@@ -33,7 +45,7 @@ class NotnullError(ModelsError):
     pass
 
 
-class ForeingKeyError(ModelsError):
+class ForeingKeyError(DataIntegrityError):
     """
     Clase para errores de clave foránea.
     """
@@ -41,7 +53,7 @@ class ForeingKeyError(ModelsError):
     pass
 
 
-class CheckError(ModelsError):
+class CheckError(DataIntegrityError):
     """
     Clase para errores de verificación.
     """
@@ -50,44 +62,12 @@ class CheckError(ModelsError):
 
 
 # OperationalError
-class DatabaseLockedError(ModelsError):
+class DatabaseLockedError(DatabaseSystemError):
     """
     Clase para errores de bloqueo de base de datos.
     """
 
     pass
-
-
-def handle_sqlite_error(e, sqlite3):
-    msg = str(e).lower()
-
-    # --- ERRORES DE INTEGRIDAD (El usuario puede corregirlos) ---
-    # -- insert, update
-    if isinstance(e, sqlite3.IntegrityError):
-        if "unique" in msg:
-            raise UniqueError("This record already exists.")
-        if "not null" in msg:
-            raise NotnullError("There are required fields that are empty.")
-        if "foreign key" in msg:
-            raise ForeingKeyError("The related resource does not exist.")
-        if "check" in msg:
-            raise CheckError("The data does not comply with the validation rules.")
-
-        raise ModelsError(f"integrity error: {msg}")
-
-    # --- ERRORES OPERATIVOS Y DE PROGRAMACIÓN (Bugs del desarrollador) ---
-    # -- insert select, delete, update
-    if isinstance(
-        e, (sqlite3.OperationalError, sqlite3.ProgrammingError, sqlite3.DatabaseError)
-    ):
-        if "database is locked" in msg:
-            raise DatabaseLockedError("The file is busy, try again in a moment.")
-
-        # Para todo lo demás (tablas, columnas, sintaxis, bindings)
-        raise ModelsError(msg)
-
-    # --- ERROR DESCONOCIDO ---
-    raise ProjectsError("An unexpected error has occurred.")
 
 
 # Excepcion superior de manejo de errores de logica de negocio
@@ -215,6 +195,7 @@ class ProjectsExistsError(DataExistsError):
 
     pass
 
+
 class StatusExistsError(DataExistsError):
     """
     Clase para error de stados existentes
@@ -238,4 +219,3 @@ class EmptyFieldsError(DataEmptyError):
     """
 
     pass
-

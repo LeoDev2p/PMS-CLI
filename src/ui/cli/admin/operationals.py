@@ -1,10 +1,12 @@
+import time
+
 from src.core.exceptions import (
     DataEmptyError,
     DataNotFoundError,
     ModelsError,
     NotFoundUserError,
 )
-from src.ui.cli.base import BaseForms, BaseUI
+from src.ui.cli.base import BaseForms, BaseTables, BaseUI
 from src.ui.cli.form.project import FormsProjects
 from src.ui.cli.form.task import FormsTask
 from src.ui.cli.menu.admin_menu import AdminMenus
@@ -53,12 +55,12 @@ class TaskAssignment:
             try:
                 BaseUI.show_message("New projects\n")
                 p_result = self.controller.project.get_new()
-                print(p_result)
+                BaseTables.show_table(p_result, title="Operational Results")
                 id_project = BaseForms.id_forms()
 
                 BaseUI.show_message("Free operational users\n")
                 u_result = self.controller.user.get_free_operational_users()
-                print(u_result)
+                BaseTables.show_table(u_result, title="Operational Results")
                 id_user = BaseForms.id_forms()
 
                 title, description = FormsTask.asigne_task()
@@ -86,16 +88,12 @@ class TeamMonitoring:
             # Control de Equipos y Monitoreo
             ViewHelper.clear_screen()
             BaseUI.banner()
-            print("""
-                [1] View Team by Project
-                [2] Change Task Status
-                [3] Back
-            """)
+            AdminMenus.menu_team_monitoring()
 
             option = BaseForms.option_forms()
             match option:
                 case 1:
-                    search = FormsProjects.search_project_forms()
+                    search = BaseForms.search_forms("Search project")
                     try:
                         count = self.controller.project.count_by_title(search)
                     except (DataEmptyError, ModelsError) as e:
@@ -110,11 +108,11 @@ class TeamMonitoring:
                         BaseUI.show_message(f"\n{count} projects were found\n")
                         try:
                             projects = self.controller.project.get_search_by_title(search)
-                            print(projects)
+                            BaseTables.show_table(projects, title="Projects")
 
                             id_project = BaseForms.id_forms()
                             tasks = self.controller.task.get_all_by_project(id_project)
-                            print(tasks)
+                            BaseTables.show_table(tasks, title="Tasks")
                         except (DataNotFoundError, ModelsError) as e:
                             BaseUI.show_error(str(e))
 
@@ -122,11 +120,11 @@ class TeamMonitoring:
                             continue
 
                 case 2:
-                    search = FormsProjects.search_project_forms()
+                    search = BaseForms.search_forms("Search project")
                     try:
                         # mostrar proyectos especifico
                         projects = self.controller.project.get_search_by_title(search)
-                        print(projects)
+                        BaseTables.show_table(projects, title="Projects")
 
                         id_project = BaseForms.id_forms()
                     except (DataNotFoundError, ModelsError) as e:
@@ -135,12 +133,12 @@ class TeamMonitoring:
                     try:
                         # mostrara tareas del proyecto especifico
                         tasks = self.controller.task.get_details_by_project(id_project)
-                        print(tasks)
+                        BaseTables.show_table(tasks, title="Tasks")
                         id_task = BaseForms.id_forms()
 
                         # mostrara los estados
                         status = self.controller.task_status.get_all()
-                        print(status)
+                        BaseTables.show_table(status, title="Status")
                         id_status = BaseForms.id_forms()
 
                         self.controller.task.edit_status(id_status, id_task, id_project)
@@ -148,8 +146,10 @@ class TeamMonitoring:
                     except (DataEmptyError, ModelsError) as e:
                         BaseUI.show_error(str(e))
 
-                    if BaseForms.ask_forms() == "Y":
-                        continue
+                        if BaseForms.ask_forms() == "Y":
+                            continue
+
+                    time.sleep(3.2)
 
                 case 3:
                     break
@@ -168,11 +168,7 @@ class StaffMaintenance:
         while True:
             ViewHelper.clear_screen()
             BaseUI.banner()
-            print("""
-                [1] reassign user
-                [2] remove user
-                [3] Back
-            """)
+            AdminMenus.menu_personnel_maintenance()
 
             option = BaseForms.option_forms()
             print()
@@ -180,24 +176,27 @@ class StaffMaintenance:
                 case 1:
                     # mover a un usuario de un proyecto A a un proyecto B (limpieza automática)
                     try:
-                        BaseUI.show_message("--- Proyecto Origen ---\n")
+                        BaseUI.show_message("--- Origin Project ---\n")
                         p_title_source = FormsProjects.search_project_forms()
                         projects_source = self.controller.project.get_by_title(p_title_source)
-                        print(projects_source)
-                        id_project_source = FormsTask.id_forms()
 
-                        BaseUI.show_message("--- Usuario a Reasignar ---\n")
+                        BaseTables.show_table(projects_source, title="Projects")
+                        id_project_source = BaseForms.id_forms()
+
+                        BaseUI.show_message("--- User to be Reassigned---\n")
                         users = self.controller.user.get_user_by_project(id_project_source)
-                        print(users)
-                        id_user = FormsTask.id_forms()
 
-                        BaseUI.show_message("--- Proyecto Destino ---\n")
+                        BaseTables.show_table(users, title="Users")
+                        id_user = BaseForms.id_forms()
+
+                        BaseUI.show_message("--- Destiny Project---\n")
                         p_title_dest = FormsProjects.search_project_forms()
                         projects_dest = self.controller.project.get_by_title(p_title_dest)
-                        print(projects_dest)
-                        id_project_dest = FormsTask.id_forms()
 
-                        BaseUI.show_message("\nReasignando usuario y actualizando tablas...\n")
+                        BaseTables.show_table(projects_dest, title="Projects")
+                        id_project_dest = BaseForms.id_forms()
+
+                        BaseUI.show_message("\nReassigning user and updating tables...\n")
 
                         # reasignando usuario a nuevo proyecto, limpiando tareas en origen
                         params = (
@@ -207,9 +206,9 @@ class StaffMaintenance:
                         )
                         self.controller.task.reassign_user_project(params)
 
-                        BaseUI.show_message("Usuario reasignado exitosamente al nuevo proyecto")
+                        BaseUI.show_message("User successfully reassigned to the new project")
 
-                        if BaseForms.ask_forms("Agregar tarea en el nuevo proyecto ya?") == "Y":
+                        if BaseForms.ask_forms("Add task in the new project now?") == "Y":
                             title, description = FormsTask.asigne_task()
 
                             data = (
@@ -227,19 +226,22 @@ class StaffMaintenance:
                     ) as e:
                         BaseUI.show_error(str(e))
 
-                    if BaseForms.ask_forms() == "Y":
-                        continue
+                        if BaseForms.ask_forms() == "Y":
+                            continue
+
+                    time.sleep(3.2)
+
                 case 2:
                     try:
-                        BaseUI.show_message("--- Buscar proyecto ---\n")
+                        BaseUI.show_message("--- Search project ---\n")
                         p_title_source = FormsProjects.search_project_forms()
                         projects_source = self.controller.project.get_by_title(p_title_source)
-                        print(projects_source)
+                        BaseTables.show_table(projects_source, title="Projects")
                         id_project_source = BaseForms.id_forms()
 
-                        BaseUI.show_message("\n--- Seleccionar usuario ---\n")
+                        BaseUI.show_message("\n--- Select user ---\n")
                         users = self.controller.user.get_user_by_project(id_project_source)
-                        print(users)
+                        BaseTables.show_table(users, title="Users")
                         id_user = BaseForms.id_forms()
 
                         params = (id_user, id_project_source)
@@ -252,8 +254,10 @@ class StaffMaintenance:
                     ) as e:
                         BaseUI.show_error(str(e))
 
-                    if BaseForms.ask_forms() == "Y":
-                        continue
+                        if BaseForms.ask_forms() == "Y":
+                            continue
+
+                    time.sleep(3.2)
 
                 case 3:
                     break

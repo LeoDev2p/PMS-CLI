@@ -1,5 +1,7 @@
 from src.core.exceptions import (
     AuthenticactionError,
+    DatabaseLockedError,
+    DatabaseSystemError,
     EmailError,
     ModelsError,
 )
@@ -26,16 +28,18 @@ class AuthService:
             params (tuple): user credentials (email and password).
 
         Returns:
-            (tuple): returns (id, role) of the logged in user
+            (tuple): returns (id, role, email) of the logged in user
 
         Raises:
             AuthenticationError: If email or password are invalid
-
         """
-
-        # email , password
         normalized = TextHelper.normalize(params[0])
-        user = self.model.select_by_email(normalized)
+        try:
+            user = self.model.select_by_email(normalized)
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+
         if not user:
             raise AuthenticactionError("Email not found")
 
@@ -43,7 +47,7 @@ class AuthService:
             raise AuthenticactionError("Password not found")
 
         self.log_security.info("Successful login")
-        return user[0], user[4]
+        return user[0], user[4], user[2]
 
     def create_user(self, params: tuple) -> bool:
         """register user data in the database.
@@ -58,21 +62,25 @@ class AuthService:
             EmailError: if the email is already registered, it throws an email error
         """
 
-        #  email, password, username
         normalized = TextHelper.normalize((params[2], params[0]))
-        user = self.model.select_by_email(normalized[1])
+        try:
+            user = self.model.select_by_email(normalized[1])
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+
         role = "user" if self.model.select_all() else "admin"
 
         if user:
             raise EmailError("Email already exists")
 
-        # por solucionar orden
         params = (normalized[0], normalized[1], Hasher.hash_password(params[1]), role)
 
         try:
             result = self.model.insert(params)
             self.log_audit.info("User register successfully")
             return result
-        except ModelsError as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.critical(f"Error: {e}")
-            raise e
+            raise ModelsError("Technical error in the data server. Contact support.")
+

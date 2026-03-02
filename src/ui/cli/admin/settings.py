@@ -1,10 +1,12 @@
+import time
+
 from src.core.exceptions import (
     DataEmptyError,
     DataNotFoundError,
     ModelsError,
     StatusExistsError,
 )
-from src.ui.cli.base import BaseForms, BaseUI
+from src.ui.cli.base import BaseForms, BaseTables, BaseUI
 from src.ui.cli.form.project import FormsProjects
 from src.ui.cli.form.task import FormsTask
 from src.ui.cli.menu.admin_menu import AdminMenus
@@ -52,21 +54,24 @@ class StatusProjectsViews:
             AdminMenus.menu_status_projects()
 
             option = BaseForms.option_forms()
-            print()
+            BaseUI.show_message("\n")
+
             match option:
                 case 1:
                     data = []
-                    BaseUI.show_message("Para terminar 'N'")
                     BaseUI.show_message(
                         "Para que el sistema sepa cómo manejar este estado, elija la categoría que mejor lo describa:"
                     )
+                    BaseUI.show_message("\n")
                     print("-" * 40)
                     print(" 1. NEW      2. ACTIVE      3. ON HOLD")
                     print(" 4. COMPLETED   5. CANCELLED")
                     print("-" * 40)
 
+                    BaseUI.show_message("\nPara terminar 'N'\n")
+
                     while True:
-                        status = FormsProjects.status_fields()
+                        status = BaseForms.str_forms("New status name")
                         if status.upper() == "N":
                             break
 
@@ -79,13 +84,15 @@ class StatusProjectsViews:
                     except (StatusExistsError, ModelsError) as e:
                         BaseUI.show_error(str(e))
 
-                    if BaseForms.ask_forms() == "Y":
-                        continue
+                        if BaseForms.ask_forms() == "Y":
+                            continue
+
+                    time.sleep(3.2)
 
                 case 2:
                     try:
                         result = self.controller.project_status.get_all()
-                        print(result)
+                        BaseTables.show_table(result, title="Settings")
                     except DataNotFoundError as e:
                         BaseUI.show_error(str(e))
 
@@ -93,8 +100,8 @@ class StatusProjectsViews:
                         continue
                 case 3:
                     result = self.controller.project_status.get_all()
-                    print(result)
-                    data = FormsProjects.status_fields(edit=True)
+                    BaseTables.show_table(result, title="Settings")
+                    data = FormsProjects.edit_status()
 
                     try:
                         self.controller.project_status.edit(data)
@@ -102,22 +109,26 @@ class StatusProjectsViews:
                     except (DataEmptyError, ModelsError) as e:
                         BaseUI.show_error(str(e))
 
-                    if BaseForms.ask_forms() == "Y":
-                        continue
+                        if BaseForms.ask_forms() == "Y":
+                            continue
+
+                    time.sleep(3.2)
 
                 case 4:
                     result = self.controller.project_status.get_all()
-                    print(result)
-                    id = FormsProjects.status_fields(delete=True)
+                    BaseTables.show_table(result, title="Settings")
+                    id = BaseForms.id_forms()
 
                     try:
                         self.controller.project_status.delete(id)
-                        BaseUI.show_message("Status successfully deleted")
+                        BaseUI.show_message("\nStatus successfully deleted")
                     except (DataEmptyError, ModelsError) as e:
                         BaseUI.show_error(str(e))
 
-                    if BaseForms.ask_forms() == "Y":
-                        continue
+                        if BaseForms.ask_forms() == "Y":
+                            continue
+
+                    time.sleep(3.2)
 
                 case 5:
                     break
@@ -147,7 +158,6 @@ class StatusTasksViews:
             match option:
                 case 1:
                     data = []
-                    BaseUI.show_message("To end 'N'")
                     BaseUI.show_message(
                         "To let the system know how to handle this status, choose the category that best describes it:"
                     )
@@ -156,8 +166,10 @@ class StatusTasksViews:
                     print(" 4. COMPLETED   5. BLOCKED")
                     print("-" * 40)
 
+                    BaseUI.show_message("\nTo end 'N'\n")
+
                     while True:
-                        status = FormsTask.status_fields()
+                        status = BaseForms.str_forms("New status name")
                         if status.upper() == "N":
                             break
 
@@ -170,13 +182,15 @@ class StatusTasksViews:
                     except (StatusExistsError, ModelsError) as e:
                         BaseUI.show_error(str(e))
 
-                    if BaseForms.ask_forms() == "Y":
-                        continue
+                        if BaseForms.ask_forms() == "Y":
+                            continue
+
+                    time.sleep(3.2)
 
                 case 2:
                     try:
                         result = self.controller.task_status.get_all()
-                        print(result)
+                        BaseTables.show_table(result, title="Settings")
 
                     except DataNotFoundError as e:
                         BaseUI.show_error(str(e))
@@ -186,8 +200,8 @@ class StatusTasksViews:
 
                 case 3:
                     result = self.controller.task_status.get_all()
-                    print(result)
-                    data = FormsTask.status_fields(edit=True)
+                    BaseTables.show_table(result, title="Settings")
+                    data = FormsTask.status_fields()
 
                     try:
                         self.controller.task_status.edit(data)
@@ -195,13 +209,15 @@ class StatusTasksViews:
                     except (DataEmptyError, ModelsError) as e:
                         BaseUI.show_error(str(e))
 
-                    if BaseForms.ask_forms() == "Y":
-                        continue
+                        if BaseForms.ask_forms() == "Y":
+                            continue
+
+                    time.sleep(3.2)
 
                 case 4:
                     result = self.controller.task_status.get_all()
-                    print(result)
-                    id = FormsTask.status_fields(delete=True)
+                    BaseTables.show_table(result, title="Settings")
+                    id = BaseForms.id_forms()
 
                     try:
                         self.controller.task_status.delete(id)
@@ -209,8 +225,10 @@ class StatusTasksViews:
                     except (DataEmptyError, ModelsError) as e:
                         BaseUI.show_error(str(e))
 
-                    if BaseForms.ask_forms() == "Y":
-                        continue
+                        if BaseForms.ask_forms() == "Y":
+                            continue
+
+                    time.sleep(3.2)
 
                 case 5:
                     break

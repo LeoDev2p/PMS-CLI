@@ -45,10 +45,8 @@ class AuthView:
 
                     try:
                         result = self.controller.auth.login(data)
-                        # biews (1, 'admin')
                         if result:
                             ViewHelper.progress_bar()
-                            Session.start(result[0], result[1], data[0])
                             BaseUI.show_message("Login successful")
                             sleep(2)
 
@@ -81,6 +79,7 @@ class AuthView:
                             sleep(2)
                     except (
                         EmailError,
+                        PasswordError,
                         HashCreatingError,
                         DataEmptyError,
                         ModelsError,
@@ -96,4 +95,4 @@ class AuthView:
                 case 3:
                     break
                 case _:
-                    BaseUI.show_message("Invalid option")
+                    BaseUI.show_message("\nInvalid option")

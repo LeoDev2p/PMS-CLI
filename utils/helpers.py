@@ -31,9 +31,7 @@ class TextHelper:
         return data
 
     @staticmethod
-    def normalize_data_models(
-        headers: tuple, data: list[tuple | tuple]
-    ) -> list[tuple] | tuple:
+    def normalize_data_models(headers: tuple, data: list[tuple | tuple]) -> list[tuple] | tuple:
         pass
 
 
@@ -63,19 +61,25 @@ class ViewHelper:
         """Calculate the length of the text in a collection.
 
         Args:
-            data (tuple | list): Collection of data.
+            data (tuple | list | dict): Collection of data.
 
         Returns:
             list | int: Length of the text in the collection.
         """
-        # [(), ()]
+        if not data:
+            return 0
+
         if isinstance(data, (list, tuple)):
+            if len(data) == 0:
+                return []
+
             if isinstance(data[0], (list, tuple)):
-                lenght = []
-                for index in range(len(data)):
-                    lenght.append(max(list(map(lambda x: len(str(x[index])), data))))
+                return [max(len(str(row[idx])) for row in data if idx < len(row)) for idx in range(len(data[0]))]
 
-                return lenght
+            if isinstance(data[0], dict):
+                keys = list(data[0].keys())
+                return [max(len(str(row.get(k, ""))) for row in data) for k in keys]
 
-            for _ in range(len(data)):
-                return list(map(lambda x: len(str(x)), data))
+            return [len(str(x)) for x in data]
+
+        return len(str(data))

@@ -17,9 +17,9 @@ class TaskController:
         self.log = get_logger("audit", self.__class__.__name__)
 
     # ── get ─────────────────────────────────────────────────
-    def get_by_user(self, id: int) -> list[dict]:
+    def get_by_user(self) -> list[dict]:
         """Returns all tasks assigned to a user."""
-        return self.service.fetch_by_user(id)
+        return self.service.fetch_by_user()
 
     def get_by_project_and_title(self, params: tuple) -> dict:
         """Returns a task by project title and task title."""
@@ -50,11 +50,14 @@ class TaskController:
             params: (title, description, id_projects, id_assigned_to)
         """
         params_list = list(params)
-        params_list.pop(1)
+        if params_list[1] == "" or params_list[1].isspace():
+            params_list.pop(1)
+
         if not validation_data_empty(params_list):
             raise DataEmptyError("All fields are required")
 
-        params_list.insert(1, None)
+        if len(params_list) == 3:
+            params_list.insert(1, None)
         self.service.create(tuple(params_list))
 
     # ── edit ────────────────────────────────────────────────
@@ -63,14 +66,8 @@ class TaskController:
         if not validation_data_empty((id_status, task_id, project_id)):
             raise DataEmptyError("All fields are required")
 
-        try:
-            self.service.modify_status(id_status, task_id, project_id)
-        except (NotFoundTaskError, NotFoundTaskStatusError, NotFoundProjectError) as e:
-            self.log.info(
-                f"User {Session.get_id()} attempted update task {task_id} "
-                f"in project {project_id} but failed"
-            )
-            raise e
+        self.service.modify_status(id_status, task_id, project_id)
+
 
     def edit_assigned_user(self, params: tuple):
         """Reassigns a user on a task."""
@@ -90,7 +87,7 @@ class TaskController:
             raise DataEmptyError("Source and destination project cannot be the same")
 
         self.service.reassign_user_project(params)
-    
+
     # -- delete ----------------------------------------------
     def delete_user_project(self, params: tuple):
         """Delete a user from one project."""
@@ -98,6 +95,11 @@ class TaskController:
             raise DataEmptyError("All fields are required")
 
         self.service.remove_user_project(params)
+
+    # -- stats ----------------------------------------------
+    def get_completion_efficiency(self) -> list[dict]:
+        """Completion Efficiency: Tasks completed per week/month."""
+        return self.service.fetch_completion_efficiency()
 
 
 class TaskStatusController:
@@ -143,3 +145,12 @@ class TaskStatusController:
             raise DataEmptyError("Se require el id del estado")
 
         self.service.remove(id)
+
+    # ── stats ──────────────────────────────────────────────
+    def get_state_distribution(self) -> list[dict]:
+        """State Distribution: How many tasks are in each global state."""
+        return self.service.fetch_state_distribution()
+
+    def get_blocking_rate(self) -> list[dict]:
+        """Blocking Rate: Number of tasks paused or blocked."""
+        return self.service.fetch_blocking_rate()

@@ -33,9 +33,7 @@ def validation_password(func):
     def wrapper(*args, **kwargs):
         data = args[1] if len(args) > 1 else args[0]
         password = data[1]
-        patron = (
-            r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
-        )
+        patron = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
         if not password:
             log.warning("Password is required")
             raise PasswordError("Password is required")
@@ -89,9 +87,7 @@ def textvalidator(data: str) -> bool:
 
 
 # funcion invalida eliminar
-def validation_match_status(
-    result: list[tuple], data: tuple | list | list[tuple]
-) -> list:
+def validation_match_status(result: list[tuple], data: tuple | list | list[tuple]) -> list:
     """Validate if the data matches the result.
 
     Args:

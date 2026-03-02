@@ -12,25 +12,12 @@ class UserMenus:
         [3] My profile
         [4] Logout
         """)
-
-    @staticmethod
-    def menu_users():
+    
+    def menu_edit_profile():
         print("""
-                      USER MANAGEMENT\n
-        [1] Create user
-        [2] Edit user
-        [3] Delete user
-        [4] View users
-        [5] Back
+              EDIT PROFILE\n
+        [1] Edit username
+        [2] Edit password
+        [3] Back
         """)
 
-    @staticmethod
-    def menu_edit_users():
-        print("""
-                      EDIT USER\n
-        [1] change username
-        [2] change email
-        [3] reset password
-        [4] change role
-        [5] Back
-        """)

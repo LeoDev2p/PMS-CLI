@@ -1,3 +1,5 @@
+import time
+
 from src.core.exceptions import (
     DataEmptyError,
     ModelsError,
@@ -5,7 +7,7 @@ from src.core.exceptions import (
     NotFoundStatusProjectError,
     ProjectsExistsError,
 )
-from src.ui.cli.base import BaseForms, BaseUI
+from src.ui.cli.base import BaseForms, BaseTables, BaseUI
 from src.ui.cli.form.project import FormsProjects
 from src.ui.cli.menu.admin_menu import AdminMenus
 from utils.helpers import ViewHelper
@@ -42,16 +44,20 @@ class ManagementProjectViews:
                         else:
                             self.controller.project.add(data)
                             BaseUI.show_message("\nProject successfully added")
+
+                        time.sleep(3.2)
                     except (DataEmptyError, ProjectsExistsError, ModelsError) as e:
                         BaseUI.show_error(str(e))
 
-                    if BaseForms.ask_forms() == "Y":
-                        continue
+                        if BaseForms.ask_forms("Try again?") == "Y":
+                            continue
+
+                    time.sleep(3.2)
 
                 case 2:
                     try:
                         result = self.controller.project.get_all()
-                        print(result)
+                        BaseTables.show_table(result, title="Projects")
                     except (NotFoundProjectError, ModelsError) as e:
                         BaseUI.show_error(str(e))
 
@@ -66,8 +72,8 @@ class ManagementProjectViews:
                     # hacerlo global esa funcion
                     try:
                         result = self.controller.project.get_by_title(data)
-                        print(result)
-                        id_project = BaseForms.id_forms()  
+                        BaseTables.show_table(result, title="Projects")
+                        id_project = BaseForms.id_forms()
 
                         if BaseForms.ask_forms(question="Do you want delete?") == "Y":
                             self.controller.project.delete(id_project)
@@ -98,9 +104,9 @@ class ManagementProjectViews:
             match option:
                 case 1:
                     try:
-                        # buscar por like ---------------------
-                        result = self.controller.project.get_all()
-                        print(result)
+                        search = BaseForms.search_forms("Search project")
+                        result = self.controller.project.get_all(search)
+                        BaseTables.show_table(result, title="Projects")
 
                         data = FormsProjects.edit_project_forms()
 
@@ -109,19 +115,20 @@ class ManagementProjectViews:
                     except (DataEmptyError, ModelsError) as e:
                         BaseUI.show_error(str(e))
 
-                    if BaseForms.ask_forms() == "Y":
-                        continue
+                        if BaseForms.ask_forms() == "Y":
+                            continue
+                    time.sleep(3.2)
 
                 case 2:
                     try:
-                        # buscar por like ---------------------
-                        result = self.controller.project.get_all()
-                        print(result)
-                        id_project = BaseForms.option_forms()
+                        search = BaseForms.search_forms("Search project")
+                        result = self.controller.project.get_all(search)
+                        BaseTables.show_table(result, title="Projects")
+                        id_project = BaseForms.id_forms()
 
                         result = self.controller.project_status.get_all()
-                        print(result)
-                        id_status = BaseForms.option_forms()
+                        BaseTables.show_table(result, title="Projects")
+                        id_status = BaseForms.id_forms()
 
                         data = (id_status, id_project)
                         self.controller.project.edit_status(data)
@@ -129,8 +136,10 @@ class ManagementProjectViews:
                     except (DataEmptyError, ModelsError) as e:
                         BaseUI.show_error(str(e))
 
-                    if BaseForms.ask_forms() == "Y":
-                        continue
+                        if BaseForms.ask_forms() == "Y":
+                            continue
+
+                    time.sleep(3.2)
 
                 case 3:
                     break

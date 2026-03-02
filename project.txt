@@ -1,0 +1,81 @@
+==========================================================================
+       ESPECIFICACIÓN DE REQUERIMIENTOS: SISTEMA DE GESTIÓN (SGP)
+==========================================================================
+
+1. DICCIONARIO DE ESTADOS
+--------------------------------------------------------------------------
+A. ESTADOS DE PROYECTO (Category Project Status):
+   1. NEW       - Proyecto nuevo sin tareas.
+   2. ACTIVE    - El equipo está trabajando en las tareas.
+   3. ON HOLD   - Detenido (Presupuesto, cliente o materiales).
+   4. COMPLETED - Tareas completadas y proyecto entregado.
+   5. CANCELLED - El proyecto se descartó antes de terminar.
+
+B. ESTADOS DE TAREA (Category Task Status):
+   1. PENDING   - Tarea creada pero nadie la ha tomado.
+   2. PROGRESS  - Trabajo activo en la tarea.
+   3. REVIEW    - Tarea lista para validación.
+   4. COMPLETED - Tarea pasada por revisión y cerrada.
+   5. BLOCKED   - Detenida por error técnico o dependencia.
+
+
+2. MÓDULO ADMINISTRADOR (ADMIN)
+--------------------------------------------------------------------------
+
+1. GESTIÓN DE USUARIOS
+   - CRUD de usuarios.
+
+2. GESTIÓN DE PROYECTOS (CREAR/ASIGNAR)
+   A. Menú Proyectos:
+      - Nuevo Proyecto (Nombre, Descripción).
+      - Listar Proyectos (Ver IDs y Estados).
+      - Editar Proyecto (Cambiar nombre o estado actual).
+      - Eliminar Proyecto.
+
+   B. Menú Configuración de Sistema:
+      - Gestionar Estados de Proyecto (CRUD).
+      - Gestionar Estados de Tarea (CRUD).
+
+   C. Gestión Operativa:
+      - Nueva Asignación / Crear Tarea:
+        - Datos: Título y descripción detallada.
+        - Vínculo: Seleccionar en qué proyecto nace la tarea.
+        - Responsable: Check de disponibilidad (muestra primero usuarios libres).
+        - Estado Inicial: Cómo arranca la tarea.
+      - Control de Equipos y Monitoreo:
+        - Ver Equipo por Proyecto: Quién es quién y sus tareas actuales.
+        - Cambiar Estado: Poder de actualizar flujo (ej: de Revisión a Hecho).
+      - Mantenimiento de Personal:
+        - Reasignar Usuario: Mover de Proyecto A a Proyecto B (+ crear tarea inicial).
+        - Remover Usuario: Quitar acceso al proyecto.
+
+3. PANEL DE ESTADÍSTICAS (CARGA DE TRABAJO)
+   Nivel 1: Gestión de Talento (Usuarios)
+     - Contador de Disponibilidad: Libres vs. Asignados.
+     - Carga de Trabajo: Conteo de tareas por estado por usuario.
+     - Ranking Productividad: Top 3 usuarios con más tareas finalizadas.
+
+   Nivel 2: Estado de Salud (Proyectos)
+     - Progreso de Proyectos: % de avance (Finalizadas / Total).
+     - Distribución de Estados: Cuántas tareas hay en cada estado global.
+     - Usuarios por Proyecto: Conteo de personas para ver si falta personal.
+
+   Nivel 3: Rendimiento y Promedios (Métricas)
+     - Promedio de Tareas por Proyecto.
+     - Tasa de Bloqueo: Cantidad de tareas en Pausa o Bloqueado.
+     - Eficiencia de Finalización: Tareas terminadas por semana/mes.
+
+   Alertas Premium:
+     - Tareas Huérfanas: Tareas en NULL por borrar usuarios.
+     - Proyectos Críticos: Más tareas pausadas que en proceso.
+
+
+3. MÓDULO DE USUARIO (USER)
+--------------------------------------------------------------------------
+1. Mis Tareas: Listar solo las mías.
+2. Actualizar Estado: Pasar a 'En curso' o 'Terminada'.
+3. Mi Perfil: Editar mis datos personales.
+
+==========================================================================
+Generado para documentación de proyecto - [Fecha actual]
+==========================================================================

@@ -1,4 +1,4 @@
-from .sqlite import BaseModels
+from .base import BaseModels
 
 
 class CreateTables(BaseModels):

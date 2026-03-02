@@ -4,24 +4,14 @@ class FormsProjects:
     """
 
     @staticmethod
-    def status_fields(edit=False, delete=False):
-        if edit:
-            try:
-                id = int(input("[Id]: "))
-                status = input("[New status]: ")
-                return id, status
-            except ValueError as e:
-                print(str(e))
+    def edit_status():
+        try:
+            id = int(input("\n[Id]: "))
+            status = input("[New name status]: ")
+            return id, status
+        except ValueError as e:
+            print(str(e))
 
-        elif delete:
-            try:
-                id = int(input("[Id]: "))
-                return id
-            except ValueError as e:
-                print(str(e))
-
-        status = input("[New status]: ")
-        return status
 
     @staticmethod
     def system_key_status():

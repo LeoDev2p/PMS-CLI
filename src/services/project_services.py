@@ -1,5 +1,6 @@
 from src.core.exceptions import (
     DatabaseLockedError,
+    DatabaseSystemError,
     ModelsError,
     NotFoundProjectError,
     NotFoundStatusProjectError,
@@ -21,12 +22,17 @@ class ProjectServices:
         self.log_error = get_logger("error", self.__class__.__name__)
 
     # ── fetch ───────────────────────────────────────────────
-    def fetch_all(self) -> list[dict]:
+    def fetch_all(self, search: str = None) -> list[dict]:
         """Returns all projects as list of dicts.
 
         Keys: id, title, status
         """
-        result = self.model.get_all()
+        try:
+            result = self.model.get_all(search)
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+
         if not result:
             raise NotFoundProjectError("No proyectos registrados")
 
@@ -38,7 +44,12 @@ class ProjectServices:
         Keys: id, title
         """
         normalized = TextHelper.normalize(title)
-        result = self.model.get_by_title(normalized)
+        try:
+            result = self.model.get_by_title(normalized)
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+
         if not result:
             raise NotFoundProjectError(f"No existe {title}")
 
@@ -50,7 +61,12 @@ class ProjectServices:
         Keys: id, title, description
         """
         normalized = TextHelper.normalize(title)
-        result = self.model.search_by_title(normalized)
+        try:
+            result = self.model.search_by_title(normalized)
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+
         if not result:
             raise NotFoundProjectError(f"Not exists {title}")
 
@@ -59,7 +75,12 @@ class ProjectServices:
     def fetch_count_by_title(self, title: str) -> int:
         """Returns count of projects matching title."""
         normalized = TextHelper.normalize(title)
-        result = self.model.count_by_title(normalized)
+        try:
+            result = self.model.count_by_title(normalized)
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+
         return result[0] if result else 0
 
     def fetch_new(self) -> list[dict]:
@@ -67,9 +88,14 @@ class ProjectServices:
 
         Keys: id, title, system_key
         """
-        result = self.model.get_new()
+        try:
+            result = self.model.get_new()
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+
         if not result:
-            raise NotFoundProjectError("No hay proyectos nuevos")
+            raise NotFoundProjectError("There are no new projects")
 
         return [{"id": r[0], "title": r[1], "system_key": r[2]} for r in result]
 
@@ -78,7 +104,12 @@ class ProjectServices:
 
         Keys: id, title
         """
-        result = self.model.get_new_active()
+        try:
+            result = self.model.get_new_active()
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+
         if not result:
             raise NotFoundProjectError("No project available")
 
@@ -93,16 +124,18 @@ class ProjectServices:
         """
         id_admin = Session.get_id()
         normalize = TextHelper.normalize(params)
-        if self.model.get_by_title(normalize[0]):
-            raise ProjectsExistsError(
-                f"The project '{normalize[0]}' is already registered."
-            )
+        try:
+            if self.model.get_by_title(normalize[0]):
+                raise ProjectsExistsError(f"The project '{normalize[0]}' is already registered.")
 
-        status = self.status_model.get_all()
-        if not status:
-            self._create_default_status()
+            status = self.status_model.get_all()
+            if not status:
+                self._create_default_status()
 
-        id_status_default = self.status_model.get_default_id()
+            id_status_default = self.status_model.get_default_id()
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
 
         full_params = (
             normalize[0],
@@ -113,7 +146,7 @@ class ProjectServices:
 
         try:
             self.model.create(full_params)
-        except (DatabaseLockedError, ModelsError) as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.error(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
 
@@ -130,7 +163,7 @@ class ProjectServices:
         ]
         try:
             self.status_model.create(params, is_many=True)
-        except DatabaseLockedError as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.error(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
         else:
@@ -147,12 +180,11 @@ class ProjectServices:
         normalized = TextHelper.normalize(title)
         try:
             self.model.update_title((normalized, id))
-            self.log_audit.info(
-                f"Admin {Session.get_id()}: Project {title} updated successfully"
-            )
-        except DatabaseLockedError as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
+        else:
+            self.log_audit.info(f"Title of project {title} updated successfully")
 
     def modify_status(self, params: tuple):
         """Updates a project's status.
@@ -162,19 +194,64 @@ class ProjectServices:
         """
         try:
             self.model.update_status(params)
-        except (DatabaseLockedError, ModelsError) as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
+        else:
+            self.log_audit.info(f"Status of project {params[1]} updated successfully")
 
     # ── remove ──────────────────────────────────────────────
     def remove(self, id: int):
         """Deletes a project."""
         try:
             self.model.delete(id)
-            self.log_audit.info(f"Admin {Session.get_id()}: deleted project {id}")
-        except DatabaseLockedError as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
+        else:
+            self.log_audit.info(f"Project {id} deleted successfully")
+
+    # ── stats ──────────────────────────────────────────────
+    def fetch_project_progress(self) -> list[dict]:
+        """Returns project progress."""
+        try:
+            result = self.model.project_progress()
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+        else:
+            if not result:
+                raise NotFoundProjectError("No projects available")
+
+        return [
+            {
+                "project": r[0],
+                "completed": r[1],
+                "total_tasks": r[2],
+                "advance": r[3],
+            }
+            for r in result
+        ]
+
+    def fetch_count_users_by_project(self) -> list[dict]:
+        """Returns users by project."""
+        try:
+            result = self.model.count_users_by_project()
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+
+        else:
+            if not result:
+                raise NotFoundProjectError("No projects available")
+
+        return [
+            {
+                "project": r[0],
+                "count_users": r[1],
+            }
+            for r in result
+        ]
 
 
 class ProjectStatusServices:
@@ -191,12 +268,22 @@ class ProjectStatusServices:
 
         Keys: id, name, system_key, is_active
         """
-        result = self.model.get_all()
-        if not result:
-            raise NotFoundStatusProjectError("No hay estados definidos")
+        try:
+            result = self.model.get_all()
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+        else:
+            if not result:
+                raise NotFoundStatusProjectError("No hay estados definidos")
 
         return [
-            {"id": r[0], "name": r[1], "system_key": r[2], "is_active": r[3]}
+            {
+                "id": r[0],
+                "name": r[1],
+                "system_key": r[2],
+                "is_active": r[3],
+            }
             for r in result
         ]
 
@@ -209,6 +296,13 @@ class ProjectStatusServices:
         """
         try:
             result_status = self.model.get_all()
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+        else:
+            if not result_status:
+                raise NotFoundStatusProjectError("There are no defined states")
+
             normalized = TextHelper.normalize(params)
 
             existing_names = {state[1] for state in result_status}
@@ -229,10 +323,10 @@ class ProjectStatusServices:
             new_params = []
             for status, key in normalized:
                 new_params.append((status, system_key[key], 1))
-
+        try:
             self.model.create(new_params, is_many=True)
-        except DatabaseLockedError as e:
-            self.log_error.error(f"Error: {e}")
+        except (DatabaseLockedError, DatabaseSystemError) as e:
+            self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
         else:
             self.log_audit.info("Project statuses created successfully")
@@ -248,7 +342,7 @@ class ProjectStatusServices:
         ]
         try:
             self.model.create(params, is_many=True)
-        except DatabaseLockedError as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.error(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
         else:
@@ -265,7 +359,7 @@ class ProjectStatusServices:
         normalized = TextHelper.normalize(name)
         try:
             self.model.update((normalized, id))
-        except (DatabaseLockedError, ModelsError) as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
 
@@ -274,7 +368,7 @@ class ProjectStatusServices:
         """Deletes a project status."""
         try:
             self.model.delete(id)
-        except DatabaseLockedError as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
 
@@ -295,10 +389,8 @@ class UserProjectServices:
         """
         try:
             self.model.create_many([params])
-        except DatabaseLockedError as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.error(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
         else:
-            self.log_audit.info(
-                f"User {params[0]} linked to project {params[1]} successfully"
-            )
+            self.log_audit.info(f"User {params[0]} linked to project {params[1]} successfully")

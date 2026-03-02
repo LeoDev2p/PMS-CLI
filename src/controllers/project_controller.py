@@ -11,9 +11,9 @@ class ProjectController:
         self.log = get_logger("audit", self.__class__.__name__)
 
     # ── get ─────────────────────────────────────────────────
-    def get_all(self) -> list[dict]:
+    def get_all(self, search: str = None) -> list[dict]:
         """Returns all projects."""
-        return self.service.fetch_all()
+        return self.service.fetch_all(search)
 
     def get_by_title(self, title: str) -> list[dict]:
         """Returns projects matching title."""
@@ -87,6 +87,15 @@ class ProjectController:
 
         self.service.remove(id)
 
+    # ── stats ──────────────────────────────────────────────
+    def get_project_progress(self) -> list[dict]:
+        """Returns project progress."""
+        return self.service.fetch_project_progress()
+
+    def get_count_users_by_project(self) -> list[dict]:
+        """Returns users by project."""
+        return self.service.fetch_count_users_by_project()
+
 
 class ProjectStatusController:
     """Controller for project status operations."""
@@ -103,7 +112,7 @@ class ProjectStatusController:
     def add(self, params: tuple | list[tuple]):
         """Adds custom project statuses."""
         if not validation_data_empty(params):
-            raise DataEmptyError("Se require estados del proyecto")
+            raise DataEmptyError("Project statuses are required")
 
         self.service.create(params)
 
@@ -120,7 +129,7 @@ class ProjectStatusController:
         """
         id, status = params
         if not validation_data_empty(status):
-            raise DataEmptyError("Se requiere el nuevo nombre de estado del proyecto")
+            raise DataEmptyError("The new project status name is required")
 
         self.service.modify((status, id))
 
@@ -128,9 +137,11 @@ class ProjectStatusController:
     def delete(self, id: int):
         """Deletes a project status."""
         if not validation_data_empty(id):
-            raise DataEmptyError("Se require el id del estado")
+            raise DataEmptyError("The project status id is required")
 
         self.service.remove(id)
+
+    # ── stats ──────────────────────────────────────────────
 
 
 class UserProjectController:
@@ -146,6 +157,6 @@ class UserProjectController:
             params: (id_user, id_project)
         """
         if not validation_data_empty(params):
-            raise DataEmptyError("Se requieren los datos de usuario y proyecto")
+            raise DataEmptyError("User and project data are required")
 
         self.service.create(params)

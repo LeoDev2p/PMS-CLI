@@ -1,4 +1,8 @@
-from src.core.exceptions import DataEmptyError, HashCreatingError, PasswordMatchError
+from src.core.exceptions import (
+    DataEmptyError,
+    HashCreatingError,
+    PasswordMatchError,
+)
 from src.core.logging import get_logger
 from utils.validators import (
     validation_data_empty,
@@ -17,22 +21,22 @@ class UserController:
         self.log = get_logger("security", self.__class__.__name__)
 
     # get
-    def get_profile(self) -> tuple:
+    def get_profile(self) -> dict:
         """
         Returns the profile of the current user.
         """
         return self.service.fetch_profile()
-    
-    def get_all_users(self) -> list[tuple]:
+
+    def get_all_users(self) -> list[dict]:
         """
         Returns all users.
 
         Returns:
-            list[tuple]: List of id, username, email, role, create_by
+            list[dict]: List of id, username, email, role, create_by
         """
         return self.service.fetch_all_users()
 
-    def search_user_or_email(self, user_or_email: str) -> list[tuple]:
+    def search_user_or_email(self, user_or_email: str) -> list[dict]:
         """
         Searches for a user or email.
 
@@ -46,26 +50,32 @@ class UserController:
             raise DataEmptyError("Email o username requerido")
 
         return self.service.fetch_user_or_email(user_or_email)
-    
-    def get_free_operational_users(self) -> list[tuple]:
+
+    def get_free_operational_users(self) -> list[dict]:
         """
         Gets all free operational users.
 
         Returns:
-            list[tuple]: List of id, username and title_task.
+            list[dict]: List of id, username and title_task.
         """
         return self.service.fetch_free_operational_users()
 
-    def get_users_without_active_task(self) -> list[tuple]:
+    def get_users_without_active_task(self) -> list[dict]:
         """
         Gets all users without active task.
 
         Returns:
-            list[tuple]: List of id, username and title_task.
+            list[dict]: List of id, username and title_task.
         """
         return self.service.fetch_users_without_active_task()
-    
-    def get_user_by_project(self, id_project):
+
+    def get_user_by_project(self, id_project: int) -> list[dict]:
+        """
+        Gets all users by project.
+
+        Returns:
+            list[dict]: List of id, username and title_task.
+        """
         return self.service.fetch_user_by_project(id_project)
 
     # edit
@@ -153,9 +163,24 @@ class UserController:
     def delete_user(self, id_user: int):
         """
         Deletes a user.
-
-        Args:
-            id_user (int): Id of the user to delete.
         """
         self.service.remove_user(id_user)
 
+    # stats
+    def get_free_vs_assigned_users(self) -> list[dict]:
+        """
+        Gets all free vs assigned users.
+        """
+        return self.service.fetch_free_vs_assigned_users()
+
+    def get_count_tasks_by_user(self) -> list[dict]:
+        """
+        Gets all count tasks by user.
+        """
+        return self.service.fetch_count_tasks_by_user()
+
+    def get_top_users(self) -> list[dict]:
+        """
+        Gets all top users.
+        """
+        return self.service.fetch_top_users()

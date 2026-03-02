@@ -1,4 +1,4 @@
-from src.models.sqlite import BaseModels
+from src.models.base import BaseModels
 
 
 class UsersModels(BaseModels):
@@ -6,14 +6,22 @@ class UsersModels(BaseModels):
     Handles user models.
     """
 
-    def select_all(self):
+    def select_all(self) -> list[tuple]:
         """
         Selects all users.
 
         Returns:
             list[tuple]: List of id, username, email, role and create_by.
         """
-        query = "SELECT id, username, email, role, create_by FROM users"
+        query = """
+            SELECT
+                id,
+                username,
+                email,
+                role,
+                create_by
+            FROM users
+        """
 
         return self._execute_query(query, select=True)
 
@@ -31,7 +39,7 @@ class UsersModels(BaseModels):
 
         return self._execute_query(query, params)
 
-    def update_profile(self, params):
+    def update_profile(self, params: tuple):
         """
         Updates the profile of a user.
         """
@@ -125,7 +133,11 @@ class UsersModels(BaseModels):
             tuple: User data.
         """
         query = """
-            SELECT username, email, password_hash FROM users
+            SELECT
+                username,
+                email,
+                password_hash
+            FROM users
             WHERE id = ?
         """
 
@@ -133,7 +145,9 @@ class UsersModels(BaseModels):
 
     def select_users_without_active_tasks(self) -> list[tuple]:
         query = """
-            SELECT u.id, u.username
+            SELECT
+                u.id,
+                u.username
             FROM users u
             WHERE u.id NOT IN (
                 SELECT t.id_assigned_to
@@ -154,7 +168,11 @@ class UsersModels(BaseModels):
             list[tuple]: List of id, username and email.
         """
         query = """
-            SELECT u.id, u.username, t.title FROM users u
+            SELECT
+                u.id,
+                u.username,
+                t.title
+            FROM users u
             LEFT JOIN task t ON u.id = t.id_assigned_to
             WHERE u.role <> 'admin' AND t.title is NULL
         """
@@ -165,7 +183,11 @@ class UsersModels(BaseModels):
         """selecionar usuarios por proyecto y tareas"""
 
         query = """
-        SELECT u.id, u.username, p.title FROM users u
+        SELECT
+            u.id,
+            u.username,
+            p.title
+        FROM users u
         JOIN users_projects up ON u.id = up.id_users
         JOIN projects p ON up.id_projects = p.id
         WHERE p.id = ?
@@ -173,7 +195,7 @@ class UsersModels(BaseModels):
         
         return self._execute_query(query, (id_project,), select=True)
 
-    def like_by_username(self, username):
+    def like_by_username(self, username) -> list[tuple]:
         """
         Selects a user by username.
 
@@ -181,13 +203,17 @@ class UsersModels(BaseModels):
             list[tuple]: List of id, username and email.
         """
         query = """
-            SELECT id, username, email FROM users
+            SELECT
+                id,
+                username,
+                email
+            FROM users
             WHERE username LIKE ?
         """
 
         return self._execute_query(query, (f"%{username}%",), select=True)
 
-    def like_by_email(self, email):
+    def like_by_email(self, email) -> list[tuple]:
         """
         Selects a user by email.
 
@@ -195,8 +221,86 @@ class UsersModels(BaseModels):
             list[tuple]: List of id, username and email.
         """
         query = """
-            SELECT id, username, email FROM users
+            SELECT
+                id,
+                username,
+                email
+            FROM users
             WHERE email LIKE ?
         """
 
         return self._execute_query(query, (f"%{email}%",), select=True)
+
+    # stats
+    def count_free_vs_assigned_users(self):
+        """
+        Count free users versus assigned users.
+
+        Returns:
+            list[tuple]: List of free users and assigned users.
+        """
+        query = """
+            WITH AssignedCount AS (
+                SELECT COUNT(DISTINCT id_users) as assigned
+                FROM users_projects
+            ),
+            FreeCount AS (
+                SELECT COUNT(id) as free
+                FROM users
+                WHERE role <> 'admin'
+                AND id NOT IN (SELECT id_users FROM users_projects)
+            )
+            SELECT
+                (SELECT free FROM FreeCount) as free_users,
+                (SELECT assigned FROM AssignedCount) as assigned_users;
+        """
+
+        return self._execute_query(query, select=True)
+
+    def count_tasks_by_user(self):
+        """
+        Workload: Count of tasks by status by user.
+
+        Returns:
+            list[tuple]: List of user and count.
+        """
+        query = """
+            SELECT
+                u.username,
+                SUM(CASE WHEN ts.system_key = 'PENDING' THEN 1 ELSE 0 END) AS pending,
+                SUM(CASE WHEN ts.system_key = 'IN_PROGRESS' THEN 1 ELSE 0 END) AS in_progress,
+                SUM(CASE WHEN ts.system_key = 'REVIEW' THEN 1 ELSE 0 END) AS in_review,
+                SUM(CASE WHEN ts.system_key = 'COMPLETED' THEN 1 ELSE 0 END) AS completed,
+                SUM(CASE WHEN ts.system_key = 'CANCELLED' THEN 1 ELSE 0 END) AS cancelled,
+                COUNT(t.id) AS total_tasks
+            FROM users u
+            INNER JOIN task t ON u.id = t.id_assigned_to
+            INNER JOIN task_status ts ON t.id_status = ts.id
+            GROUP BY u.id, u.username;
+        """
+
+        return self._execute_query(query, select=True)
+    
+    def productivity_ranking(self):
+        """
+        Productivity Ranking Top 3 users with the most completed tasks.
+
+        Returns:
+            list[tuple]: List of user and count.
+        """
+        query = """
+            SELECT
+                u.username,
+                COUNT(t.id) AS amount
+            FROM users u
+            JOIN task t ON u.id = t.id_assigned_to
+            JOIN task_status ts ON t.id_status = ts.id
+            WHERE ts.system_key = 'COMPLETED'
+            AND strftime('%m', t.created) = strftime('%m', 'now', '-1 month')
+            AND strftime('%Y', t.created) = strftime('%Y', 'now', '-1 month')
+            GROUP BY u.username
+            ORDER BY amount DESC
+            LIMIT 3;
+        """
+
+        return self._execute_query(query, select=True)

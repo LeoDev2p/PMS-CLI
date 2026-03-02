@@ -6,9 +6,9 @@ from src.core.exceptions import (
     NotFoundUserError,
     ProjectsError,
 )
-from src.ui.cli.base import BaseForms, BaseUI
+from src.ui.cli.base import BaseForms, BaseTables, BaseUI
 from src.ui.cli.form.user import FormsUser
-from src.ui.cli.menu.user_menu import UserMenus
+from src.ui.cli.menu.admin_menu import AdminMenus
 from utils.helpers import ViewHelper
 
 
@@ -25,7 +25,7 @@ class UserManagementViews:
         while True:
             ViewHelper.clear_screen()
             BaseUI.banner()
-            UserMenus.menu_users()
+            AdminMenus.menu_users()
 
             option = BaseForms.option_forms()
             print()
@@ -58,7 +58,7 @@ class UserManagementViews:
                     while True:
                         user_email = FormsUser.search_forms()
                         result = self.controller.user.search_user_or_email(user_email)
-                        print(result)
+                        BaseTables.show_table(result, title="User Details")
 
                         id_user = BaseForms.id_forms()
                         try:
@@ -74,7 +74,7 @@ class UserManagementViews:
                         except ModelsError as e:
                             BaseUI.show_message(str(e))
 
-                        if BaseForms.ask_forms() == "Y":
+                        if BaseForms.ask_forms("Delete more users?") == "Y":
                             continue
                         else:
                             break
@@ -82,7 +82,7 @@ class UserManagementViews:
                 case 4:
                     try:
                         result = self.controller.user.get_all_users()
-                        print(result)
+                        BaseTables.show_table(result, title="All Users")
                     except ModelsError as e:
                         BaseUI.show_message(str(e))
 
@@ -99,7 +99,7 @@ class UserManagementViews:
         while True:
             ViewHelper.clear_screen()
             BaseUI.banner()
-            UserMenus.menu_edit_users()
+            AdminMenus.menu_edit_users()
 
             option = BaseForms.option_forms()
             print()
@@ -111,10 +111,10 @@ class UserManagementViews:
                             print()
 
                             result = self.controller.user.search_user_or_email(user_email)
-                            print(result)
+                            BaseTables.show_table(result, title="User Details")
                             id_user = BaseForms.id_forms()
 
-                            data = FormsUser.edit_forms("\nNew username")
+                            data = FormsUser.edit_forms("New username")
                             self.controller.user.edit_username((data, id_user))
                             BaseUI.show_message("\nUser updated successfully")
 
@@ -128,7 +128,7 @@ class UserManagementViews:
                         except ModelsError as e:
                             BaseUI.show_message(str(e))
 
-                        if BaseForms.ask_forms() == "Y":
+                        if BaseForms.ask_forms("Continue editing users?") == "Y":
                             continue
                         else:
                             break
@@ -139,7 +139,7 @@ class UserManagementViews:
                             user_email = FormsUser.search_forms()
                             print()
                             result = self.controller.user.search_user_or_email(user_email)
-                            print(result)
+                            BaseTables.show_table(result, title="User Details")
                             id_user = BaseForms.id_forms()
 
                             data = FormsUser.edit_forms("\nNew email")
@@ -156,7 +156,7 @@ class UserManagementViews:
                         except ModelsError as e:
                             BaseUI.show_message(str(e))
 
-                        if BaseForms.ask_forms() == "Y":
+                        if BaseForms.ask_forms("Continue editing users?") == "Y":
                             continue
                         else:
                             break
@@ -165,7 +165,7 @@ class UserManagementViews:
                     while True:
                         user_email = FormsUser.search_forms()
                         result = self.controller.user.search_user_or_email(user_email)
-                        print(result)
+                        BaseTables.show_table(result, title="User Details")
                         id_user = BaseForms.id_forms()
 
                         data = FormsUser.edit_forms("\nNew password")
@@ -182,7 +182,7 @@ class UserManagementViews:
                         except ModelsError as e:
                             BaseUI.show_message(str(e))
 
-                        if BaseForms.ask_forms() == "Y":
+                        if BaseForms.ask_forms("Continue editing users?") == "Y":
                             continue
                         else:
                             break
@@ -191,13 +191,13 @@ class UserManagementViews:
                         try:
                             user_email = FormsUser.search_forms()
                             result = self.controller.user.search_user_or_email(user_email)
-                            print(result)
+                            BaseTables.show_table(result, title="User Details")
                             id_user = BaseForms.id_forms()
 
                             data = FormsUser.edit_forms("New role")
                             self.controller.user.change_role((data, id_user))
                             BaseUI.show_message("\nRole updated successfully")
-                        except (DataEmptyError, NotFoundUserError) as e:
+                        except (DataEmptyError, NotFoundUserError, ValueError) as e:
                             BaseUI.show_message(str(e))
                             if BaseForms.ask_forms("Do you want to try again?") == "Y":
                                 continue
@@ -207,7 +207,7 @@ class UserManagementViews:
                         except ModelsError as e:
                             BaseUI.show_message(str(e))
 
-                        if BaseForms.ask_forms() == "Y":
+                        if BaseForms.ask_forms("Continue editing users?") == "Y":
                             continue
                         else:
                             break

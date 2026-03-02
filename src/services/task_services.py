@@ -1,7 +1,9 @@
 from src.core.exceptions import (
     DatabaseLockedError,
+    DatabaseSystemError,
     ModelsError,
     NotFoundTaskError,
+    NotFoundTaskStatusError,
     StatusExistsError,
 )
 from src.core.logging import get_logger
@@ -19,19 +21,30 @@ class TaskServices:
         self.log_error = get_logger("error", self.__class__.__name__)
 
     # ── fetch ───────────────────────────────────────────────
-    def fetch_by_user(self, id: int) -> list[dict]:
+    def fetch_by_user(self) -> list[dict]:
         """Returns all tasks assigned to a user as list of dicts.
 
         Keys: title, description, status, project
         """
-        result = self.model.get_all_by_user(id)
-        if not result:
-            raise NotFoundTaskError("No tasks found for this user.")
+        try:
+            result = self.model.get_all_by_user(Session.get_id())
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
 
-        return [
-            {"title": r[0], "description": r[1], "status": r[2], "project": r[3]}
-            for r in result
-        ]
+        else:
+            if not result:
+                raise NotFoundTaskError("No tasks found for this user.")
+
+            return [
+                {
+                    "title": r[0],
+                    "description": r[1],
+                    "status": r[2],
+                    "project": r[3],
+                }
+                for r in result
+            ]
 
     def fetch_by_project_and_title(self, params: tuple) -> dict:
         """Returns a task matched by project title and task title.
@@ -39,52 +52,69 @@ class TaskServices:
         Keys: title, description, status, project
         """
         normalized = TextHelper.normalize(params)
-        result = self.model.get_by_project_and_title(normalized)
-        if not result:
-            raise NotFoundTaskError("No tasks found for this project.")
+        try:
+            result = self.model.get_by_project_and_title(normalized)
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+        else:
+            if not result:
+                raise NotFoundTaskError("No tasks found for this project.")
 
-        return {
-            "title": result[0],
-            "description": result[1],
-            "status": result[2],
-            "project": result[3],
-        }
+            return {
+                "title": result[0],
+                "description": result[1],
+                "status": result[2],
+                "project": result[3],
+            }
 
     def fetch_details_by_project(self, id_project: int) -> list[dict]:
         """Returns task details for a project.
 
         Keys: id, title, status, project, assigned_to
         """
-        result = self.model.get_details_by_project(id_project)
-        if not result:
-            raise NotFoundTaskError("No tasks found for this project.")
+        try:
+            params = (id_project, Session.get_id())
+            result = self.model.get_details_by_project(params)
+            print(f"[DEBUG] {params}")
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+        else:
+            if not result:
+                raise NotFoundTaskError("No tasks found for this project.")
 
-        return [
-            {
-                "id": r[0],
-                "title": r[1],
-                "status": r[2],
-                "project": r[3],
-                "assigned_to": r[4],
-            }
-            for r in result
-        ]
+            return [
+                {
+                    "id": r[0],
+                    "title": r[1],
+                    "status": r[2],
+                    "project": r[3],
+                    "assigned_to": r[4],
+                }
+                for r in result
+            ]
 
     def fetch_all_by_project(self, id_project: int) -> list[dict]:
         """Returns all tasks of a project with assignment info."""
-        result = self.model.get_all_by_project(id_project)
-        if not result:
-            raise NotFoundTaskError("No tasks found for this project.")
+        try:
+            result = self.model.get_all_by_project(id_project)
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+        else:
+            if not result:
+                raise NotFoundTaskError("No tasks found for this project.")
 
-        return [
-            {
-                "project": r[0],
-                "responsible": r[1],
-                "task_": r[2],
-                "progress": r[3],
-            }
-            for r in result
-        ]
+            return [
+                {
+                    "project": r[0],
+                    "responsible": r[1],
+                    "task_": r[2],
+                    "progress": r[3],
+                }
+                for r in result
+            ]
 
     # ── create ──────────────────────────────────────────────
     def create(self, params: tuple):
@@ -94,14 +124,25 @@ class TaskServices:
             params: (title, description, id_projects, id_assigned_to)
         """
         id_user, id_project = params[3], params[2]
-        is_member = self.up_model.exists(id_user, id_project)
-        if not is_member:
-            self.up_model.create(id_user, id_project)
+        try:
+            is_member = self.up_model.exists(id_user, id_project)
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+        else:
+            if not is_member:
+                try:
+                    self.up_model.create(id_user, id_project)
+                except (DatabaseLockedError, DatabaseSystemError) as e:
+                    self.log_error.critical(f"Error: {e}")
+                    raise ModelsError("Technical error in the data server. Contact support.")
+                else:
+                    self.log_audit.info("Project Status added successfully")
 
         normalized = TextHelper.normalize(params)
         try:
             self.model.create(normalized)
-        except DatabaseLockedError as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.error(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
         else:
@@ -113,13 +154,11 @@ class TaskServices:
         try:
             params = (id_status, task_id, project_id)
             self.model.update_status(params)
-        except DatabaseLockedError as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
-
-        self.log_audit.info(
-            f"User {Session.get_id()} updated state task of the {task_id}"
-        )
+        else:
+            self.log_audit.info(f"User {Session.get_id()} updated state task of the {task_id}")
 
     def modify_assigned_user(self, params: tuple):
         """Unassigns a user from a task and removes project membership.
@@ -130,13 +169,11 @@ class TaskServices:
         try:
             self.up_model.delete(params[1:])
             self.model.update_assigned_user((None, params[0]))
-        except DatabaseLockedError as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
         else:
-            self.log_audit.info(
-                f"User removed from project {params[2]} and task {params[0]}"
-            )
+            self.log_audit.info(f"User removed from project {params[2]} and task {params[0]}")
 
     def reassign_user_project(self, params: tuple):
         """Reassigns a user from one project to another, clearing their tasks in the origin project.
@@ -154,14 +191,12 @@ class TaskServices:
             # Solo insertar si el usuario no es ya miembro del proyecto destino
             if not self.up_model.exists(id_user, id_project_dest):
                 self.up_model.create(id_user, id_project_dest)
-        except DatabaseLockedError as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
         else:
-            self.log_audit.info(
-                f"User {id_user} reassigned from project {id_project_source} to {id_project_dest}"
-            )
-    
+            self.log_audit.info(f"User {id_user} reassigned from project {id_project_source} to {id_project_dest}")
+
     # -- remove -------------------------------------------------
 
     def remove_user_project(self, params: tuple):
@@ -176,13 +211,25 @@ class TaskServices:
             self.model.unassign_tasks_by_user_project((id_user, id_project_source))
             # 2. Ruptura de Vínculo: eliminar la fila en users_projects del project_source
             self.up_model.delete((id_user, id_project_source))
-        except DatabaseLockedError as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
         else:
-            self.log_audit.info(
-                f"User {id_user} removed from project {id_project_source}"
-            )
+            self.log_audit.info(f"User {id_user} removed from project {id_project_source}")
+
+    # ── stats ──────────────────────────────────────────────
+    def fetch_completion_efficiency(self) -> list[dict]:
+        """Completion Efficiency: Tasks completed per week/month."""
+        try:
+            result = self.model.completion_efficiency()
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+        else:
+            if not result:
+                raise NotFoundTaskError("No tasks were found.")
+
+            return [{"month": r[0], "total_tasks": r[1]} for r in result]
 
 
 class TaskStatusServices:
@@ -201,14 +248,16 @@ class TaskStatusServices:
         """
         from src.core.exceptions import NotFoundStatusProjectError
 
-        result = self.model.get_all()
-        if not result:
-            raise NotFoundStatusProjectError("No hay estados definidos")
+        try:
+            result = self.model.get_all()
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+        else:
+            if not result:
+                raise NotFoundStatusProjectError("There are no defined states")
 
-        return [
-            {"id": r[0], "name": r[1], "system_key": r[2], "is_active": r[3]}
-            for r in result
-        ]
+            return [{"id": r[0], "name": r[1], "system_key": r[2], "is_active": r[3]} for r in result]
 
     # ── create ──────────────────────────────────────────────
     def create(self, params: list[tuple]):
@@ -219,29 +268,34 @@ class TaskStatusServices:
         """
         try:
             result_status = self.model.get_all()
-            normalized = TextHelper.normalize(params)
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
 
-            existing_names = {state[1] for state in result_status}
-            new_names = {state[0] for state in normalized}
+        normalized = TextHelper.normalize(params)
 
-            duplicates = new_names.intersection(existing_names)
-            if duplicates:
-                raise StatusExistsError(f"States already exist {duplicates}")
+        existing_names = {state[1] for state in result_status}
+        new_names = {state[0] for state in normalized}
 
-            system_key = {
-                1: "PENDING",
-                2: "IN_PROGRESS",
-                3: "REVIEW",
-                4: "COMPLETED",
-                5: "BLOCKED",
-            }
+        duplicates = new_names.intersection(existing_names)
+        if duplicates:
+            raise StatusExistsError(f"States already exist {duplicates}")
 
-            new_params = []
-            for status, key in normalized:
-                new_params.append((status, system_key[key], 1))
+        system_key = {
+            1: "PENDING",
+            2: "IN_PROGRESS",
+            3: "REVIEW",
+            4: "COMPLETED",
+            5: "BLOCKED",
+        }
 
+        new_params = []
+        for status, key in normalized:
+            new_params.append((status, system_key[key], 1))
+
+        try:
             self.model.create(new_params, is_many=True)
-        except (DatabaseLockedError, ModelsError) as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.error(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
         else:
@@ -258,7 +312,7 @@ class TaskStatusServices:
         ]
         try:
             self.model.create(params, is_many=True)
-        except DatabaseLockedError as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.error(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
         else:
@@ -270,7 +324,7 @@ class TaskStatusServices:
         normalized = TextHelper.normalize(status)
         try:
             self.model.update((normalized, id))
-        except DatabaseLockedError as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
         else:
@@ -281,8 +335,35 @@ class TaskStatusServices:
         """Deletes a task status."""
         try:
             self.model.delete(id)
-        except DatabaseLockedError as e:
+        except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
         else:
             self.log_audit.info(f"Task status {id} deleted successfully")
+
+    # ── stats ──────────────────────────────────────────────
+    def fetch_state_distribution(self) -> list[dict]:
+        """State Distribution: How many tasks are in each global state."""
+        try:
+            result = self.model.state_distribution()
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+        else:
+            if not result:
+                raise NotFoundTaskStatusError("No states were found for the tasks.")
+
+            return [{"status": r[0], "system_key": r[1], "total_tasks": r[2]} for r in result]
+
+    def fetch_blocking_rate(self) -> list[dict]:
+        """Blocking Rate: Number of tasks paused or blocked."""
+        try:
+            result = self.model.blocking_rate()
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+        else:
+            if not result:
+                raise NotFoundTaskStatusError("No states were found for the tasks.")
+
+            return [{"status": r[0], "total_locked": r[1]} for r in result]

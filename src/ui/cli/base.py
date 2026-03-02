@@ -37,70 +37,54 @@ class BaseUI:
 
 class BaseTables:
     """
-    Class to manage tables.
+    Class to manage tables dynamically.
     """
-    @staticmethod
-    def show_table_tasks(data, message="Results"):
-        len_data = ViewHelper.length_text_collection(data)
-        headers = ViewHelper.length_text_collection(["title", "description", "state", "project"])
-
-        # Compara pares de (ancho_dato, ancho_cabecera) y elige el máximo de cada uno
-        length_finally = [max(d, h) for d, h in zip(len_data, headers)]
-
-        print("*" * sum(length_finally))
-        print(f"| {message:^{sum(length_finally)}} |")
-        print("*" * sum(length_finally))
-
-        print(
-            f"| {'title':^{length_finally[0]}} | {'description':^{length_finally[1]}} | {'state':^{length_finally[2]}} | {'project':^{length_finally[3]}} |"
-        )
-
-        for i in data:
-            print(
-                f"|{i[0]:^{length_finally[0]}}|{i[1]:^{length_finally[1]}}|{i[2]:^{length_finally[2]}} {i[3]:^{length_finally[3]}}|"
-            )
-
-        print("-" * sum(length_finally))
 
     @staticmethod
-    def show_table_profile(data, message="Result"):
-        len_data = ViewHelper.length_text_collection(data[:2])
-        headers = ViewHelper.length_text_collection(["username", "email"])
+    def show_table(data, headers=None, title="Results"):
+        """Displays a dynamic table for list of tuples or dicts."""
+        if not data:
+            print(f"\n--- No {title} available ---\n")
+            return
 
-        length_finally = [max(d, h) for d, h in zip(len_data, headers)]
+        if not isinstance(data, list):
+            data = [data]
 
-        print("*" * sum(length_finally))
-        print(f"| {message:^{sum(length_finally)}} |")
-        print("*" * sum(length_finally))
+        first_item = data[0]
 
-        print(f"| {'username':^{length_finally[0]}} | {'email':^{length_finally[1]}} |")
+        # Determine headers and extract rows
+        if isinstance(first_item, dict):
+            if headers is None:
+                headers = list(first_item.keys())
+            rows = [[str(item.get(h, "")) for h in headers] for item in data]
+        elif isinstance(first_item, (list, tuple)):
+            if headers is None:
+                headers = [f"Col {i + 1}" for i in range(len(first_item))]
+            rows = [[str(val) for val in item] for item in data]
+        else:
+            if headers is None:
+                headers = ["Value"]
+            rows = [[str(item)] for item in data]
 
-        print(f"|{data[0]:^{length_finally[0]}}|{data[1]:^{length_finally[1]}}|")
+        len_data = ViewHelper.length_text_collection(rows)
+        len_headers = ViewHelper.length_text_collection(headers)
 
-        print("-" * sum(length_finally))
+        length_finally = [max(d, h) for d, h in zip(len_data, len_headers)]
 
-    @staticmethod
-    def show_table_users(data, message="Users"):
-        len_data = ViewHelper.length_text_collection(data)
-        headers = ViewHelper.length_text_collection(["id", "username", "email", "role", "created_by"])
+        sum_length = sum(length_finally) + len(headers) * 3 + 1
 
-        # Compara pares de (ancho_dato, ancho_cabecera) y elige el máximo de cada uno
-        length_finally = [max(d, h) for d, h in zip(len_data, headers)]
+        print("*" * sum_length)
+        print(f"| {title:^{sum_length - 4}} |")
+        print("*" * sum_length)
 
-        print("*" * sum(length_finally))
-        print(f"| {message:^{sum(length_finally)}} |")
-        print("*" * sum(length_finally))
+        header_row = "| " + " | ".join(f"{str(h):^{length}}" for h, length in zip(headers, length_finally)) + " |"
+        print(header_row)
 
-        print(
-            f"| {'id':^{length_finally[0]}} | {'username':^{length_finally[1]}} | {'email':^{length_finally[2]}} | {'role':^{length_finally[3]}} | {'create_by':^{length_finally[4]}} |"
-        )
+        for row in rows:
+            row_str = "| " + " | ".join(f"{val:^{length}}" for val, length in zip(row, length_finally)) + " |"
+            print(row_str)
 
-        for i in data:
-            print(
-                f"|{i[0]:^{length_finally[0]}}|{i[1]:^{length_finally[1]}}|{i[2]:^{length_finally[2]}} {i[3]:^{length_finally[3]}} {i[4]:^{length_finally[4]}}|"
-            )
-
-        print("-" * sum(length_finally))
+        print("-" * sum_length)
 
 
 class BaseForms:
@@ -132,3 +116,20 @@ class BaseForms:
             print(f"Error: {e}")
             return None
         return ask
+
+    @staticmethod
+    def search_forms(title_name="Search"):
+        try:
+            title = input(f"[{title_name}]: ")
+            return title
+        except ValueError as e:
+            print(f"Error: {e}")
+    
+    @staticmethod
+    def str_forms(message = 'new value'):
+        try:
+            value = input(f"\n[{message}]: ")
+            return value
+        except ValueError as e:
+            print(f"Error: {e}")
+            return None

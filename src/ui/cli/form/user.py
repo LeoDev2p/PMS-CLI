@@ -10,18 +10,6 @@ class FormsUser:
         return email, password, username
 
     @staticmethod
-    def edit_profile_forms():
-        try:
-            username = input("[New username]: ")
-            password = input("[New password]: ")
-            confirm_password = input("[Confirm password]: ")
-
-            return username, password, confirm_password
-        except Exception as e:
-            print(f"Error: {e}")
-            return None
-
-    @staticmethod
     def edit_forms(message = 'new value'):
         try:
             value = input(f"[{message}]: ")

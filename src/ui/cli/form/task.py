@@ -22,24 +22,14 @@ class FormsTask:
         return title, description
 
     @staticmethod
-    def status_fields(edit=False, delete=False):
-        if edit:
-            try:
-                id = int(input("[Id]: "))
-                status = input("[New status]: ")
-                return id, status
-            except ValueError as e:
-                print(str(e))
+    def edit_status():
+        try:
+            id = int(input("[Id]: "))
+            status = input("[New status]: ")
+            return id, status
+        except ValueError as e:
+            print(str(e))
 
-        elif delete:
-            try:
-                id = int(input("[Id]: "))
-                return id
-            except ValueError as e:
-                print(str(e))
-
-        status = input("[New status]: ")
-        return status
 
     @staticmethod
     def system_key_status():
@@ -49,18 +39,3 @@ class FormsTask:
         except ValueError as e:
             print(str(e))
 
-    @staticmethod
-    def search_task_forms():
-        try:
-            title = input("[Task title]: ")
-            return title
-        except ValueError as e:
-            print(str(e))
-
-    @staticmethod
-    def id_forms():
-        try:
-            id = int(input("[Selecy id]: "))
-            return id
-        except ValueError as e:
-            print(str(e))

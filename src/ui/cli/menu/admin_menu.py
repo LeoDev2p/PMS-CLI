@@ -2,6 +2,7 @@ class AdminMenus:
     """
     Class to manage admin menus.
     """
+
     @staticmethod
     def menu():
         print("""
@@ -12,6 +13,30 @@ class AdminMenus:
         [4] Logout
         """)
 
+    # User management
+    @staticmethod
+    def menu_users():
+        print("""
+                      USER MANAGEMENT\n
+        [1] Create user
+        [2] Edit user
+        [3] Delete user
+        [4] View users
+        [5] Back
+        """)
+
+    @staticmethod
+    def menu_edit_users():
+        print("""
+                      EDIT USER\n
+        [1] change username
+        [2] change email
+        [3] reset password
+        [4] change role
+        [5] Back
+        """)
+
+    # ManagementProjectViews
     @staticmethod
     def menu_project():
         print("""
@@ -22,8 +47,7 @@ class AdminMenus:
         [4] Back
         """)
 
-    #ManagementProjectViews
-
+    # Projects
     @staticmethod
     def menu_management_project():
         print("""
@@ -34,7 +58,7 @@ class AdminMenus:
         [4] eliminar proyecto
         [5] Back
         """)
-    
+
     @staticmethod
     def menu_edit_project():
         print("""
@@ -44,8 +68,7 @@ class AdminMenus:
         [3] Back
         """)
 
-    #SettingsViews
-
+    # system setting
     @staticmethod
     def menu_system_setting():
         print("""
@@ -77,8 +100,7 @@ class AdminMenus:
         [5] Back
         """)
 
-    #OperationalViews
-    
+    # Gestion operativa
     @staticmethod
     def menu_operational():
         print("""
@@ -87,4 +109,66 @@ class AdminMenus:
         [2] team control / monitoring
         [3] personnel maintenance
         [4] Back
+        """)
+
+    @staticmethod
+    def menu_team_monitoring():
+        print("""
+                      TEAM MONITORING
+        [1] View Team by Project
+        [2] Change Task Status
+        [3] Back
+        """)
+
+    @staticmethod
+    def menu_personnel_maintenance():
+        print("""
+                      PERSONNEL MAINTENANCE
+        [1] Reassign User
+        [2] Remove User
+        [3] Back
+        """)
+
+    # Statistics panel
+    @staticmethod
+    def menu_statistics():
+        print("""
+                      STATISTICS
+
+        [1] Talent Management (users)
+        [2] Health Status (projects)
+        [3] Performance and Averages (metrics)
+        [4] Back
+        """)
+
+    @staticmethod
+    def menu_talent_management():
+        print("""
+                      TALENT MANAGEMENT
+
+        [1] Availability counter
+        [2] Workload per user
+        [3] Productivity ranking
+        [4] Back
+        """)
+
+    @staticmethod
+    def menu_health_status():
+        print("""
+                      HEALTH STATUS
+
+        [1] Project progress
+        [2] Distribution of states
+        [3] Users per project
+        [4] Back
+        """)
+
+    @staticmethod
+    def menu_performance_metrics():
+        print("""
+                      PERFORMANCE METRICS
+
+        [1] Blocking rate
+        [2] Completion Efficiency
+        [3] Back
         """)
