@@ -15,7 +15,7 @@ class ProjectModels(BaseModels):
             FROM projects p
             JOIN projects_status ps ON p.id_status = ps.id
         """
-
+        params = ()
         if search:
             query += " WHERE p.title LIKE ?"
             params = (f"%{search}%",)
@@ -143,6 +143,21 @@ class ProjectModels(BaseModels):
             FROM projects p
             LEFT JOIN users_projects up ON p.id = up.id_projects
             GROUP BY p.id, p.title
+        """
+        return self._execute_query(query, select=True)
+    
+    def critical_projects(self) -> list[tuple]:
+        """Returns projects that are not assigned to any user."""
+        query = """
+            SELECT
+                p.title AS proyecto,
+                COUNT(CASE WHEN ts.system_key = 'BLOCKED' THEN 1 END) AS tasks_paused,
+                COUNT(CASE WHEN ts.system_key = 'IN_PROGRESS' THEN 1 END) AS tasks_in_progress
+            FROM projects p
+            JOIN task t ON p.id = t.id_projects
+            JOIN task_status ts ON t.id_status = ts.id
+            GROUP BY p.id
+            HAVING tasks_paused > tasks_in_progress;
         """
         return self._execute_query(query, select=True)
 

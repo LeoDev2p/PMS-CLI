@@ -18,7 +18,7 @@ class ProjectController:
     def get_by_title(self, title: str) -> list[dict]:
         """Returns projects matching title."""
         if not validation_data_empty(title):
-            raise DataEmptyError("Se require el titulo del proyecto")
+            raise DataEmptyError("Project title is required")
 
         return self.service.fetch_by_title(title)
 
@@ -83,7 +83,7 @@ class ProjectController:
     def delete(self, id: int):
         """Deletes a project."""
         if not validation_data_empty(id):
-            raise DataEmptyError("Se require el id del proyecto")
+            raise DataEmptyError("Project ID is required")
 
         self.service.remove(id)
 
@@ -95,6 +95,10 @@ class ProjectController:
     def get_count_users_by_project(self) -> list[dict]:
         """Returns users by project."""
         return self.service.fetch_count_users_by_project()
+
+    def get_critical_projects(self) -> list[dict]:
+        """Returns projects that are not assigned to any user."""
+        return self.service.fetch_critical_projects()
 
 
 class ProjectStatusController:

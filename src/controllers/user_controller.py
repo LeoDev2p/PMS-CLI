@@ -47,7 +47,7 @@ class UserController:
             list[tuple]: List of id, username and email.
         """
         if not validation_data_empty(user_or_email):
-            raise DataEmptyError("Email o username requerido")
+            raise DataEmptyError("Email or username is required")
 
         return self.service.fetch_user_or_email(user_or_email)
 

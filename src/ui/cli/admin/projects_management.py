@@ -1,3 +1,4 @@
+
 import time
 
 from src.core.exceptions import (
@@ -27,28 +28,36 @@ class ManagementProjectViews:
             AdminMenus.menu_management_project()
 
             option = BaseForms.option_forms()
-            print()
+            BaseUI.show_message("\n")
             match option:
                 case 1:
                     data = FormsProjects.project_forms()
                     try:
+                        self.controller.project_status.get_all()
+
                         try:
-                            self.controller.project_status.get_all()
-                        except NotFoundStatusProjectError:
-                            BaseUI.show_message("First you need to create the states in 'system setting' or")
-                            if BaseForms.ask_forms("Create by default") == "Y":
-                                self.controller.project.add(data)
-                                BaseUI.show_message("Project successfully added")
-                            else:
-                                BaseUI.show_message("Set status in 'SYSTEM SETTING")
-                        else:
                             self.controller.project.add(data)
                             BaseUI.show_message("\nProject successfully added")
+                        except (DataEmptyError, ProjectsExistsError, ModelsError) as e:
+                            BaseUI.show_error(str(e))
+                            if BaseForms.ask_forms("Try again?") == "Y":
+                                continue
 
-                        time.sleep(3.2)
-                    except (DataEmptyError, ProjectsExistsError, ModelsError) as e:
+                    except NotFoundStatusProjectError:
+                        BaseUI.show_message("First you need to create the states in 'system setting' or")
+                        if BaseForms.ask_forms("Create by default") == "Y":
+                            try:
+                                self.controller.project.add(data)
+                                BaseUI.show_message("Project successfully added")
+                            except (DataEmptyError, ProjectsExistsError, ModelsError) as e:
+                                BaseUI.show_error(str(e))
+                                if BaseForms.ask_forms("Try again?") == "Y":
+                                    continue
+                        else:
+                            BaseUI.show_message("Set status in 'SYSTEM SETTING")
+
+                    except (DataEmptyError, ModelsError) as e:
                         BaseUI.show_error(str(e))
-
                         if BaseForms.ask_forms("Try again?") == "Y":
                             continue
 
@@ -76,15 +85,21 @@ class ManagementProjectViews:
                         id_project = BaseForms.id_forms()
 
                         if BaseForms.ask_forms(question="Do you want delete?") == "Y":
-                            self.controller.project.delete(id_project)
-                            BaseUI.show_message("\nProject successfully deleted")
+                            try:
+                                self.controller.project.delete(id_project)
+                                BaseUI.show_message("\nProject successfully deleted")
+                            except (DataEmptyError, ModelsError) as e:
+                                BaseUI.show_error(str(e))
+                                if BaseForms.ask_forms() == "Y":
+                                    continue
                         else:
                             BaseUI.show_message("\nAction canceled")
                     except (DataEmptyError, NotFoundProjectError, ModelsError) as e:
                         BaseUI.show_error(str(e))
-
-                    if BaseForms.ask_forms() == "Y":
-                        continue
+                        if BaseForms.ask_forms() == "Y":
+                            continue
+                    
+                    time.sleep(3.2)
 
                 case 5:
                     break
@@ -99,7 +114,7 @@ class ManagementProjectViews:
             AdminMenus.menu_edit_project()
 
             option = BaseForms.option_forms()
-            print()
+            BaseUI.show_message("\n")
 
             match option:
                 case 1:
@@ -108,15 +123,24 @@ class ManagementProjectViews:
                         result = self.controller.project.get_all(search)
                         BaseTables.show_table(result, title="Projects")
 
-                        data = FormsProjects.edit_project_forms()
+                        try:
+                            data = FormsProjects.edit_project_forms()
 
-                        self.controller.project.edit_title(data)
-                        BaseUI.show_message("\nProject title successfully updated")
-                    except (DataEmptyError, ModelsError) as e:
+                            if BaseForms.ask_forms(question="Do you want edit?") == "Y":
+                                self.controller.project.edit_title(data)
+                                BaseUI.show_message("\nProject title successfully updated")
+                            else:
+                                BaseUI.show_message("\nAction canceled")
+                        except (DataEmptyError, ModelsError) as e:
+                            BaseUI.show_error(str(e))
+                            if BaseForms.ask_forms() == "Y":
+                                continue
+
+                    except (DataEmptyError, NotFoundProjectError, ModelsError) as e:
                         BaseUI.show_error(str(e))
-
                         if BaseForms.ask_forms() == "Y":
                             continue
+
                     time.sleep(3.2)
 
                 case 2:
@@ -126,16 +150,30 @@ class ManagementProjectViews:
                         BaseTables.show_table(result, title="Projects")
                         id_project = BaseForms.id_forms()
 
-                        result = self.controller.project_status.get_all()
-                        BaseTables.show_table(result, title="Projects")
-                        id_status = BaseForms.id_forms()
+                        try:
+                            result = self.controller.project_status.get_all()
+                            BaseTables.show_table(result, title="Projects")
+                            id_status = BaseForms.id_forms()
 
-                        data = (id_status, id_project)
-                        self.controller.project.edit_status(data)
-                        BaseUI.show_message("Project status successfully updated")
-                    except (DataEmptyError, ModelsError) as e:
+                            try:
+                                data = (id_status, id_project)
+                                if BaseForms.ask_forms(question="Do you want edit?") == "Y":
+                                    self.controller.project.edit_status(data)
+                                    BaseUI.show_message("Project status successfully updated")
+                                else:
+                                    BaseUI.show_message("\nAction canceled")
+                            except (DataEmptyError, ModelsError) as e:
+                                BaseUI.show_error(str(e))
+                                if BaseForms.ask_forms() == "Y":
+                                    continue
+
+                        except (DataEmptyError, NotFoundStatusProjectError, ModelsError) as e:
+                            BaseUI.show_error(str(e))
+                            if BaseForms.ask_forms() == "Y":
+                                continue
+
+                    except (DataEmptyError, NotFoundProjectError, ModelsError) as e:
                         BaseUI.show_error(str(e))
-
                         if BaseForms.ask_forms() == "Y":
                             continue
 

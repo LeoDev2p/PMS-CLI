@@ -38,7 +38,8 @@ class AuthView:
             AuthMenus.menu()
 
             option = BaseForms.option_forms()
-            print()
+            BaseUI.show_message("\n")
+
             match option:
                 case 1:
                     data = FormsAuth.login_forms()

@@ -70,8 +70,11 @@ class TaskModels(BaseModels):
             LEFT JOIN task_status ts ON t.id_status = ts.id
             LEFT JOIN projects p ON t.id_projects = p.id
             LEFT JOIN users u ON t.id_assigned_to = u.id
-            WHERE t.id_projects = ? AND t.id_assigned_to = ?
+            WHERE t.id_projects = ?
         """
+        if len(params) >= 2:
+            query += " AND t.id_assigned_to = ?"
+        
         return self._execute_query(query, params, select=True)
 
     # ── insert ──────────────────────────────────────────────
@@ -126,6 +129,22 @@ class TaskModels(BaseModels):
             WHERE strftime('%Y', created) = '2025'
             GROUP BY strftime('%m', created)
             ORDER BY month ASC
+        """
+        return self._execute_query(query, select=True)
+    
+    def orphan_task_alerts(self) -> list[tuple]:
+        """Returns tasks that are not assigned to any user."""
+        query = """
+            SELECT
+                t.id,
+                t.title, 
+                ts.name AS status,
+                p.title AS project
+            FROM task t
+            LEFT JOIN projects p ON t.id_projects = p.id
+            LEFT JOIN task_status ts ON t.id_status = ts.id
+            WHERE t.id_assigned_to IS NULL;
+
         """
         return self._execute_query(query, select=True)
 

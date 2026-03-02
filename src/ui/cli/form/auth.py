@@ -1,3 +1,7 @@
+from rich.console import Console
+
+console = Console()
+
 
 class FormsAuth:
     """
@@ -6,13 +10,13 @@ class FormsAuth:
 
     @staticmethod
     def login_forms() -> tuple:
-        email = input("[email]: ")
-        password = input("[password]: ")
+        email = console.input(r"[bold bright_black]\[email]: [/bold bright_black]")
+        password = console.input(r"[bold bright_black]\[password]: [/bold bright_black]")
         return email, password
 
     @staticmethod
     def register_forms() -> tuple:
-        username = input("[username]: ")
-        email = input("[email]: ")
-        password = input("[password]: ")
+        username = console.input(r"[bold bright_black]\[username]: [/bold bright_black]")
+        email = console.input(r"[bold bright_black]\[email]: [/bold bright_black]")
+        password = console.input(r"[bold bright_black]\[password]: [/bold bright_black]")
         return email, password, username

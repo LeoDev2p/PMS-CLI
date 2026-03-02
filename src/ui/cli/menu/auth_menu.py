@@ -1,3 +1,8 @@
+from rich.console import Console
+
+console = Console()
+
+
 class AuthMenus:
     """
     Class to manage auth menus.
@@ -5,8 +10,8 @@ class AuthMenus:
 
     @staticmethod
     def menu():
-        print("""
-                      AUTHENTICATION
+        console.print("""
+            [bold sky_blue3]────────────── AUTHENTICATION ──────────────[/bold sky_blue3]
 
-        [1] Login    [2] Register     [3] Back
+            [bold sky_blue3][1][/bold sky_blue3] Login      [bold sky_blue3][2][/bold sky_blue3] Register      [bold grey50][3] Back[/bold grey50]
         """)

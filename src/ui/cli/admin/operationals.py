@@ -4,7 +4,6 @@ from src.core.exceptions import (
     DataEmptyError,
     DataNotFoundError,
     ModelsError,
-    NotFoundUserError,
 )
 from src.ui.cli.base import BaseForms, BaseTables, BaseUI
 from src.ui.cli.form.project import FormsProjects
@@ -58,17 +57,25 @@ class TaskAssignment:
                 BaseTables.show_table(p_result, title="Operational Results")
                 id_project = BaseForms.id_forms()
 
-                BaseUI.show_message("Free operational users\n")
-                u_result = self.controller.user.get_free_operational_users()
-                BaseTables.show_table(u_result, title="Operational Results")
-                id_user = BaseForms.id_forms()
+                try:
+                    BaseUI.show_message("Free operational users\n")
+                    u_result = self.controller.user.get_free_operational_users()
+                    BaseTables.show_table(u_result, title="Operational Results")
+                    id_user = BaseForms.id_forms()
 
-                title, description = FormsTask.asigne_task()
+                    try:
+                        title, description = FormsTask.asigne_task()
 
-                data = (title, description, id_project, id_user)
-                self.controller.task.add(data)
-                BaseUI.show_message("\nTask added successfully")
-            except (DataEmptyError, ModelsError) as e:
+                        data = (title, description, id_project, id_user)
+                        self.controller.task.add(data)
+                        BaseUI.show_message("\nTask added successfully")
+                    except (DataEmptyError, DataNotFoundError, ModelsError) as e:
+                        BaseUI.show_error(str(e))
+
+                except (DataEmptyError, DataNotFoundError, ModelsError) as e:
+                    BaseUI.show_error(str(e))
+
+            except (DataEmptyError, DataNotFoundError, ModelsError) as e:
                 BaseUI.show_error(str(e))
 
             if BaseForms.ask_forms("\nWould you like to assign more tasks?") == "Y":
@@ -127,25 +134,33 @@ class TeamMonitoring:
                         BaseTables.show_table(projects, title="Projects")
 
                         id_project = BaseForms.id_forms()
-                    except (DataNotFoundError, ModelsError) as e:
+
+                        try:
+                            # mostrara tareas del proyecto especifico
+                            tasks = self.controller.task.get_details_by_project(id_project)
+                            BaseTables.show_table(tasks, title="Tasks")
+                            id_task = BaseForms.id_forms()
+
+                            try:
+                                # mostrara los estados
+                                status = self.controller.task_status.get_all()
+                                BaseTables.show_table(status, title="Status")
+                                id_status = BaseForms.id_forms()
+
+                                self.controller.task.edit_status(id_status, id_task, id_project)
+                                BaseUI.show_message("\nTask status edited successfully")
+                            except (DataEmptyError, DataNotFoundError, ModelsError) as e:
+                                BaseUI.show_error(str(e))
+                                if BaseForms.ask_forms() == "Y":
+                                    continue
+
+                        except (DataEmptyError, DataNotFoundError, ModelsError) as e:
+                            BaseUI.show_error(str(e))
+                            if BaseForms.ask_forms() == "Y":
+                                continue
+
+                    except (DataEmptyError, DataNotFoundError, ModelsError) as e:
                         BaseUI.show_error(str(e))
-
-                    try:
-                        # mostrara tareas del proyecto especifico
-                        tasks = self.controller.task.get_details_by_project(id_project)
-                        BaseTables.show_table(tasks, title="Tasks")
-                        id_task = BaseForms.id_forms()
-
-                        # mostrara los estados
-                        status = self.controller.task_status.get_all()
-                        BaseTables.show_table(status, title="Status")
-                        id_status = BaseForms.id_forms()
-
-                        self.controller.task.edit_status(id_status, id_task, id_project)
-                        BaseUI.show_message("\nTask status edited successfully")
-                    except (DataEmptyError, ModelsError) as e:
-                        BaseUI.show_error(str(e))
-
                         if BaseForms.ask_forms() == "Y":
                             continue
 
@@ -183,49 +198,63 @@ class StaffMaintenance:
                         BaseTables.show_table(projects_source, title="Projects")
                         id_project_source = BaseForms.id_forms()
 
-                        BaseUI.show_message("--- User to be Reassigned---\n")
-                        users = self.controller.user.get_user_by_project(id_project_source)
+                        try:
+                            BaseUI.show_message("--- User to be Reassigned---\n")
+                            users = self.controller.user.get_user_by_project(id_project_source)
 
-                        BaseTables.show_table(users, title="Users")
-                        id_user = BaseForms.id_forms()
+                            BaseTables.show_table(users, title="Users")
+                            id_user = BaseForms.id_forms()
 
-                        BaseUI.show_message("--- Destiny Project---\n")
-                        p_title_dest = FormsProjects.search_project_forms()
-                        projects_dest = self.controller.project.get_by_title(p_title_dest)
+                            try:
+                                BaseUI.show_message("--- Destiny Project---\n")
+                                p_title_dest = FormsProjects.search_project_forms()
+                                projects_dest = self.controller.project.get_by_title(p_title_dest)
 
-                        BaseTables.show_table(projects_dest, title="Projects")
-                        id_project_dest = BaseForms.id_forms()
+                                BaseTables.show_table(projects_dest, title="Projects")
+                                id_project_dest = BaseForms.id_forms()
 
-                        BaseUI.show_message("\nReassigning user and updating tables...\n")
+                                try:
+                                    BaseUI.show_message("\nReassigning user and updating tables...\n")
 
-                        # reasignando usuario a nuevo proyecto, limpiando tareas en origen
-                        params = (
-                            id_user,
-                            id_project_source,
-                            id_project_dest,
-                        )
-                        self.controller.task.reassign_user_project(params)
+                                    # reasignando usuario a nuevo proyecto, limpiando tareas en origen
+                                    params = (
+                                        id_user,
+                                        id_project_source,
+                                        id_project_dest,
+                                    )
+                                    self.controller.task.reassign_user_project(params)
 
-                        BaseUI.show_message("User successfully reassigned to the new project")
+                                    BaseUI.show_message("User successfully reassigned to the new project")
 
-                        if BaseForms.ask_forms("Add task in the new project now?") == "Y":
-                            title, description = FormsTask.asigne_task()
+                                    if BaseForms.ask_forms("Add task in the new project now?") == "Y":
+                                        title, description = FormsTask.asigne_task()
 
-                            data = (
-                                title,
-                                description,
-                                id_project_dest,
-                                id_user,
-                            )
-                            self.controller.task.add(data)
-                            BaseUI.show_message("\nTask added successfully")
-                    except (
-                        DataEmptyError,
-                        NotFoundUserError,
-                        ModelsError,
-                    ) as e:
+                                        data = (
+                                            title,
+                                            description,
+                                            id_project_dest,
+                                            id_user,
+                                        )
+                                        self.controller.task.add(data)
+                                        BaseUI.show_message("\nTask added successfully")
+
+                                except (DataEmptyError, DataNotFoundError, ModelsError) as e:
+                                    BaseUI.show_error(str(e))
+                                    if BaseForms.ask_forms() == "Y":
+                                        continue
+
+                            except (DataEmptyError, DataNotFoundError, ModelsError) as e:
+                                BaseUI.show_error(str(e))
+                                if BaseForms.ask_forms() == "Y":
+                                    continue
+
+                        except (DataEmptyError, DataNotFoundError, ModelsError) as e:
+                            BaseUI.show_error(str(e))
+                            if BaseForms.ask_forms() == "Y":
+                                continue
+
+                    except (DataEmptyError, DataNotFoundError, ModelsError) as e:
                         BaseUI.show_error(str(e))
-
                         if BaseForms.ask_forms() == "Y":
                             continue
 
@@ -239,21 +268,28 @@ class StaffMaintenance:
                         BaseTables.show_table(projects_source, title="Projects")
                         id_project_source = BaseForms.id_forms()
 
-                        BaseUI.show_message("\n--- Select user ---\n")
-                        users = self.controller.user.get_user_by_project(id_project_source)
-                        BaseTables.show_table(users, title="Users")
-                        id_user = BaseForms.id_forms()
+                        try:
+                            BaseUI.show_message("\n--- Select user ---\n")
+                            users = self.controller.user.get_user_by_project(id_project_source)
+                            BaseTables.show_table(users, title="Users")
+                            id_user = BaseForms.id_forms()
 
-                        params = (id_user, id_project_source)
-                        self.controller.task.delete_user_project(params)
-                        BaseUI.show_message("\nUser removed successfully")
-                    except (
-                        DataEmptyError,
-                        NotFoundUserError,
-                        ModelsError,
-                    ) as e:
+                            try:
+                                params = (id_user, id_project_source)
+                                self.controller.task.delete_user_project(params)
+                                BaseUI.show_message("\nUser removed successfully")
+                            except (DataEmptyError, DataNotFoundError, ModelsError) as e:
+                                BaseUI.show_error(str(e))
+                                if BaseForms.ask_forms() == "Y":
+                                    continue
+
+                        except (DataEmptyError, DataNotFoundError, ModelsError) as e:
+                            BaseUI.show_error(str(e))
+                            if BaseForms.ask_forms() == "Y":
+                                continue
+
+                    except (DataEmptyError, DataNotFoundError, ModelsError) as e:
                         BaseUI.show_error(str(e))
-
                         if BaseForms.ask_forms() == "Y":
                             continue
 

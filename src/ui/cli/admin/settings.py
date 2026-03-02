@@ -29,6 +29,8 @@ class SettingsViews:
             AdminMenus.menu_system_setting()
 
             option = BaseForms.option_forms()
+            BaseUI.show_message("\n")
+
             match option:
                 case 1:
                     self.status_projects_views.run()
@@ -53,14 +55,18 @@ class StatusProjectsViews:
             BaseUI.banner()
             AdminMenus.menu_status_projects()
 
-            option = BaseForms.option_forms()
+            try:
+                option = BaseForms.option_forms()
+            except ValueError as e:
+                BaseUI.show_error(str(e))
+                continue
             BaseUI.show_message("\n")
 
             match option:
                 case 1:
                     data = []
                     BaseUI.show_message(
-                        "Para que el sistema sepa cómo manejar este estado, elija la categoría que mejor lo describa:"
+                        "To let the system know how to handle this status, choose the category that best describes it:"
                     )
                     BaseUI.show_message("\n")
                     print("-" * 40)
@@ -99,32 +105,48 @@ class StatusProjectsViews:
                     if BaseForms.ask_forms() == "Y":
                         continue
                 case 3:
-                    result = self.controller.project_status.get_all()
-                    BaseTables.show_table(result, title="Settings")
-                    data = FormsProjects.edit_status()
-
                     try:
-                        self.controller.project_status.edit(data)
-                        BaseUI.show_message("\nStatus successfully edited")
-                    except (DataEmptyError, ModelsError) as e:
-                        BaseUI.show_error(str(e))
+                        result = self.controller.project_status.get_all()
+                        BaseTables.show_table(result, title="Settings")
+                        data = FormsProjects.edit_status()
 
+                        try:
+                            if BaseForms.ask_forms(question="Do you want edit?") == "Y":
+                                self.controller.project_status.edit(data)
+                                BaseUI.show_message("\nStatus successfully edited")
+                            else:
+                                BaseUI.show_message("\nAction canceled")
+                        except (DataEmptyError, ModelsError) as e:
+                            BaseUI.show_error(str(e))
+                            if BaseForms.ask_forms() == "Y":
+                                continue
+
+                    except (DataNotFoundError, ModelsError) as e:
+                        BaseUI.show_error(str(e))
                         if BaseForms.ask_forms() == "Y":
                             continue
 
                     time.sleep(3.2)
 
                 case 4:
-                    result = self.controller.project_status.get_all()
-                    BaseTables.show_table(result, title="Settings")
-                    id = BaseForms.id_forms()
-
                     try:
-                        self.controller.project_status.delete(id)
-                        BaseUI.show_message("\nStatus successfully deleted")
-                    except (DataEmptyError, ModelsError) as e:
-                        BaseUI.show_error(str(e))
+                        result = self.controller.project_status.get_all()
+                        BaseTables.show_table(result, title="Settings")
+                        id = BaseForms.id_forms()
 
+                        try:
+                            if BaseForms.ask_forms(question="Do you want delete?") == "Y":
+                                self.controller.project_status.delete(id)
+                                BaseUI.show_message("\nStatus successfully deleted")
+                            else:
+                                BaseUI.show_message("\nAction canceled")
+                        except (DataEmptyError, ModelsError) as e:
+                            BaseUI.show_error(str(e))
+                            if BaseForms.ask_forms() == "Y":
+                                continue
+
+                    except (DataNotFoundError, ModelsError) as e:
+                        BaseUI.show_error(str(e))
                         if BaseForms.ask_forms() == "Y":
                             continue
 
@@ -137,7 +159,10 @@ class StatusProjectsViews:
 
     @staticmethod
     def default_status(controllers):
-        controllers.project_status.add_default()
+        try:
+            controllers.project_status.add_default()
+        except ModelsError as e:
+            print(f"Error creating default status: {e}")
 
 
 class StatusTasksViews:
@@ -154,7 +179,8 @@ class StatusTasksViews:
             AdminMenus.menu_status_tasks()
 
             option = BaseForms.option_forms()
-            print()
+            BaseUI.show_message("\n")
+
             match option:
                 case 1:
                     data = []
@@ -199,32 +225,48 @@ class StatusTasksViews:
                         continue
 
                 case 3:
-                    result = self.controller.task_status.get_all()
-                    BaseTables.show_table(result, title="Settings")
-                    data = FormsTask.status_fields()
-
                     try:
-                        self.controller.task_status.edit(data)
-                        BaseUI.show_message("\nTask status edited successfully")
-                    except (DataEmptyError, ModelsError) as e:
-                        BaseUI.show_error(str(e))
+                        result = self.controller.task_status.get_all()
+                        BaseTables.show_table(result, title="Settings")
+                        data = FormsTask.edit_status()
 
+                        try:
+                            if BaseForms.ask_forms(question="Do you want edit?") == "Y":
+                                self.controller.task_status.edit(data)
+                                BaseUI.show_message("\nTask status edited successfully")
+                            else:
+                                BaseUI.show_message("\nAction canceled")
+                        except (DataEmptyError, ModelsError) as e:
+                            BaseUI.show_error(str(e))
+                            if BaseForms.ask_forms() == "Y":
+                                continue
+
+                    except (DataNotFoundError, ModelsError) as e:
+                        BaseUI.show_error(str(e))
                         if BaseForms.ask_forms() == "Y":
                             continue
 
                     time.sleep(3.2)
 
                 case 4:
-                    result = self.controller.task_status.get_all()
-                    BaseTables.show_table(result, title="Settings")
-                    id = BaseForms.id_forms()
-
                     try:
-                        self.controller.task_status.delete(id)
-                        BaseUI.show_message("\nTask status deleted successfully")
-                    except (DataEmptyError, ModelsError) as e:
-                        BaseUI.show_error(str(e))
+                        result = self.controller.task_status.get_all()
+                        BaseTables.show_table(result, title="Settings")
+                        id = BaseForms.id_forms()
 
+                        try:
+                            if BaseForms.ask_forms(question="Do you want delete?") == "Y":
+                                self.controller.task_status.delete(id)
+                                BaseUI.show_message("\nTask status deleted successfully")
+                            else:
+                                BaseUI.show_message("\nAction canceled")
+                        except (DataEmptyError, ModelsError) as e:
+                            BaseUI.show_error(str(e))
+                            if BaseForms.ask_forms() == "Y":
+                                continue
+
+                    except (DataNotFoundError, ModelsError) as e:
+                        BaseUI.show_error(str(e))
                         if BaseForms.ask_forms() == "Y":
                             continue
 
@@ -237,4 +279,7 @@ class StatusTasksViews:
 
     @staticmethod
     def default_status(controllers):
-        controllers.task_status.add_default()
+        try:
+            controllers.task_status.add_default()
+        except ModelsError as e:
+            print(f"Error creating default status: {e}")

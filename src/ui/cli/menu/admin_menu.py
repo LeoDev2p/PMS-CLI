@@ -1,174 +1,216 @@
+from rich.console import Console
+
+console = Console()
+
 class AdminMenus:
     """
     Class to manage admin menus.
     """
 
+
     @staticmethod
     def menu():
-        print("""
-                      ADMIN PANEL\n
-        [1] User management
-        [2] Project management
-        [3] Statistics panel
-        [4] Logout
-        """)
+        """Dibuja el menú con márgenes para que no esté pegado al borde."""
+
+        console.print("\n") 
+    
+        margin = " " * 10
+        console.print(f"{margin}[bold sky_blue3]──── ADMIN PANEL ────[/bold sky_blue3]")
+
+        console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] User management")
+        console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] Project management")
+        console.print(f"{margin} [bold sky_blue3][3][/bold sky_blue3] Statistics panel")
+        console.print(f"{margin} [bold grey50][4] Logout[/bold grey50]")
+
+        console.print("\n") 
 
     # User management
     @staticmethod
     def menu_users():
-        print("""
-                      USER MANAGEMENT\n
-        [1] Create user
-        [2] Edit user
-        [3] Delete user
-        [4] View users
-        [5] Back
-        """)
+        console.print("\n") 
+        margin = " " * 10
+        console.print(f"{margin}[bold sky_blue3]──── USER MANAGEMENT ────[/bold sky_blue3]")
+        console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Create user")
+        console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] Edit user")
+        console.print(f"{margin} [bold sky_blue3][3][/bold sky_blue3] Delete user")
+        console.print(f"{margin} [bold sky_blue3][4][/bold sky_blue3] View users")
+        console.print(f"{margin} [bold grey50][5] Back[/bold grey50]")
+        console.print("\n")
 
     @staticmethod
     def menu_edit_users():
-        print("""
-                      EDIT USER\n
-        [1] change username
-        [2] change email
-        [3] reset password
-        [4] change role
-        [5] Back
-        """)
+        console.print("\n") 
+        margin = " " * 10
+        console.print(f"{margin}[bold sky_blue3]──── EDIT USER ────[/bold sky_blue3]")
+        console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Edit username")
+        console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] Edit email")
+        console.print(f"{margin} [bold sky_blue3][3][/bold sky_blue3] Reset password")
+        console.print(f"{margin} [bold sky_blue3][4][/bold sky_blue3] Change role")
+        console.print(f"{margin} [bold grey50][5] Back[/bold grey50]")
+        console.print("\n")
 
     # ManagementProjectViews
     @staticmethod
     def menu_project():
-        print("""
-                      ADMIN MANAGEMENT\n
-        [1] projects
-        [2] system setting
-        [3] Gestion operativa
-        [4] Back
-        """)
+        console.print("\n") 
+        margin = " " * 10
+        console.print(f"{margin}[bold sky_blue3]──── ADMIN MANAGEMENT ────[/bold sky_blue3]")
+        console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Projects")
+        console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] System setting")
+        console.print(f"{margin} [bold sky_blue3][3][/bold sky_blue3] Operational management")
+        console.print(f"{margin} [bold grey50][4] Back[/bold grey50]")
+        console.print("\n")
+
 
     # Projects
     @staticmethod
     def menu_management_project():
-        print("""
-                      PROJECTS MANAGEMENT\n
-        [1] nuevo proyecto
-        [2] listar proyecto
-        [3] editar proyecto
-        [4] eliminar proyecto
-        [5] Back
-        """)
+        console.print("\n") 
+        margin = " " * 10
+        console.print(f"{margin}[bold sky_blue3]──── PROJECT MANAGEMENT ────[/bold sky_blue3]")
+        console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] New project")
+        console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] List projects")
+        console.print(f"{margin} [bold sky_blue3][3][/bold sky_blue3] Edit project")
+        console.print(f"{margin} [bold sky_blue3][4][/bold sky_blue3] Delete project")
+        console.print(f"{margin} [bold grey50][5] Back[/bold grey50]")
+        console.print("\n")
 
     @staticmethod
     def menu_edit_project():
-        print("""
-                      EDIT PROJECT\n
-        [1] Editing title
-        [2] Editing status
-        [3] Back
-        """)
+        console.print("\n") 
+        margin = " " * 10
+        console.print(f"{margin}[bold sky_blue3]──── EDIT PROJECT ────[/bold sky_blue3]")
+        console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Editing title")
+        console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] Editing status")
+        console.print(f"{margin} [bold grey50][3] Back[/bold grey50]")
+        console.print("\n")
 
     # system setting
     @staticmethod
     def menu_system_setting():
-        print("""
-                      SYSTEM SETTING\n
-        [1] gestionar estados de proyectos
-        [2] gestionar estados de tareas
-        [3] Back
-        """)
+        console.print("\n") 
+        margin = " " * 10
+        console.print(f"{margin}[bold sky_blue3]──── SYSTEM SETTING ────[/bold sky_blue3]")
+        console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Managing project states")
+        console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] Managing task states")
+        console.print(f"{margin} [bold grey50][3] Back[/bold grey50]")
+        console.print("\n")
 
     @staticmethod
     def menu_status_projects():
-        print("""
-                      STATUS PROJECTS
-        [1] crear estado
-        [2] listar estados
-        [3] editar estado
-        [4] eliminar estado
-        [5] Back
-        """)
+        console.print("\n") 
+        margin = " " * 10
+        console.print(f"{margin}[bold sky_blue3]──── STATUS PROJECTS ────[/bold sky_blue3]")
+        console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Create state")
+        console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] List states")
+        console.print(f"{margin} [bold sky_blue3][3][/bold sky_blue3] Edit state")
+        console.print(f"{margin} [bold sky_blue3][4][/bold sky_blue3] Delete state")
+        console.print(f"{margin} [bold grey50][5] Back[/bold grey50]")
+        console.print("\n")
 
     @staticmethod
     def menu_status_tasks():
-        print("""
-                      STATUS TASKS
-        [1] crear estado
-        [2] listar estados
-        [3] editar estado
-        [4] eliminar estado
-        [5] Back
-        """)
+        console.print("\n") 
+        margin = " " * 10
+        console.print(f"{margin}[bold sky_blue3]──── STATUS TASKS ────[/bold sky_blue3]")
+        console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Create state")
+        console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] List states")
+        console.print(f"{margin} [bold sky_blue3][3][/bold sky_blue3] Edit state")
+        console.print(f"{margin} [bold sky_blue3][4][/bold sky_blue3] Delete state")
+        console.print(f"{margin} [bold grey50][5] Back[/bold grey50]")
+        console.print("\n")
+
 
     # Gestion operativa
     @staticmethod
     def menu_operational():
-        print("""
-                      OPERATIONAL
-        [1] new assignment / create task
-        [2] team control / monitoring
-        [3] personnel maintenance
-        [4] Back
-        """)
+        console.print("\n") 
+        margin = " " * 10
+        console.print(f"{margin}[bold sky_blue3]──── OPERATIONAL ────[/bold sky_blue3]")
+        console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] New assignment / create task")
+        console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] Team control / monitoring")
+        console.print(f"{margin} [bold sky_blue3][3][/bold sky_blue3] Personnel maintenance")
+        console.print(f"{margin} [bold grey50][4] Back[/bold grey50]")
+        console.print("\n")
+
 
     @staticmethod
     def menu_team_monitoring():
-        print("""
-                      TEAM MONITORING
-        [1] View Team by Project
-        [2] Change Task Status
-        [3] Back
-        """)
+        console.print("\n") 
+        margin = " " * 10
+        console.print(f"{margin}[bold sky_blue3]──── TEAM MONITORING ────[/bold sky_blue3]")
+        console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] View Team by Project")
+        console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] Change Task Status")
+        console.print(f"{margin} [bold grey50][3] Back[/bold grey50]")
+        console.print("\n")
+
 
     @staticmethod
     def menu_personnel_maintenance():
-        print("""
-                      PERSONNEL MAINTENANCE
-        [1] Reassign User
-        [2] Remove User
-        [3] Back
-        """)
+        console.print("\n") 
+        margin = " " * 10
+        console.print(f"{margin}[bold sky_blue3]──── PERSONNEL MAINTENANCE ────[/bold sky_blue3]")
+        console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Reassign User")
+        console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] Remove User")
+        console.print(f"{margin} [bold grey50][3] Back[/bold grey50]")
+        console.print("\n")
+
 
     # Statistics panel
     @staticmethod
     def menu_statistics():
-        print("""
-                      STATISTICS
+        console.print("\n") 
+        margin = " " * 10
+        console.print(f"{margin}[bold sky_blue3]──── STATISTICS ────[/bold sky_blue3]")
+        console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Talent Management (users)")
+        console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] Health Status (projects)")
+        console.print(f"{margin} [bold sky_blue3][3][/bold sky_blue3] Performance and Averages (metrics)")
+        console.print(f"{margin} [bold sky_blue3][4][/bold sky_blue3] Critical Control Panel")
+        console.print(f"{margin} [bold grey50][5] Back[/bold grey50]")
+        console.print("\n")
 
-        [1] Talent Management (users)
-        [2] Health Status (projects)
-        [3] Performance and Averages (metrics)
-        [4] Back
-        """)
 
     @staticmethod
     def menu_talent_management():
-        print("""
-                      TALENT MANAGEMENT
+        console.print("\n") 
+        margin = " " * 10
+        console.print(f"{margin}[bold sky_blue3]──── TALENT MANAGEMENT ────[/bold sky_blue3]")
+        console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Availability counter")
+        console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] Workload per user")
+        console.print(f"{margin} [bold sky_blue3][3][/bold sky_blue3] Productivity ranking")
+        console.print(f"{margin} [bold grey50][4] Back[/bold grey50]")
+        console.print("\n")
 
-        [1] Availability counter
-        [2] Workload per user
-        [3] Productivity ranking
-        [4] Back
-        """)
 
     @staticmethod
     def menu_health_status():
-        print("""
-                      HEALTH STATUS
+        console.print("\n") 
+        margin = " " * 10
+        console.print(f"{margin}[bold sky_blue3]──── HEALTH STATUS ────[/bold sky_blue3]")
+        console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Project progress")
+        console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] Distribution of states")
+        console.print(f"{margin} [bold sky_blue3][3][/bold sky_blue3] Users per project")
+        console.print(f"{margin} [bold grey50][4] Back[/bold grey50]")
+        console.print("\n")
 
-        [1] Project progress
-        [2] Distribution of states
-        [3] Users per project
-        [4] Back
-        """)
 
     @staticmethod
     def menu_performance_metrics():
-        print("""
-                      PERFORMANCE METRICS
+        console.print("\n") 
+        margin = " " * 10
+        console.print(f"{margin}[bold sky_blue3]──── PERFORMANCE METRICS ────[/bold sky_blue3]")
+        console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Blocking rate")
+        console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] Completion Efficiency")
+        console.print(f"{margin} [bold grey50][3] Back[/bold grey50]")
+        console.print("\n")
+    
+    @staticmethod
+    def menu_critical_control_panel():
+        console.print("\n") 
+        margin = " " * 10
+        console.print(f"{margin}[bold sky_blue3]──── CRITICAL CONTROL PANEL ────[/bold sky_blue3]")
+        console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Orphan Task Alerts")
+        console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] Critical Projects")
+        console.print(f"{margin} [bold grey50][3] Back[/bold grey50]")
+        console.print("\n")
 
-        [1] Blocking rate
-        [2] Completion Efficiency
-        [3] Back
-        """)

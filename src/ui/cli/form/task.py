@@ -1,3 +1,7 @@
+from rich.console import Console
+
+console = Console()
+
 
 class FormsTask:
     """
@@ -7,35 +11,33 @@ class FormsTask:
     @staticmethod
     def edit_taskstatus_forms():
         try:
-            project_title = input("[project title]: ")
-            task_title = input("[task title]: ")
-            state_name = input("[New task status name]: ")
+            project_title = console.input(r"[bold bright_black]\[project title]: [/bold bright_black]")
+            task_title = console.input(r"[bold bright_black]\[task title]: [/bold bright_black]")
+            state_name = console.input(r"[bold bright_black]\[New task status name]: [/bold bright_black]")
             return state_name, task_title, project_title
         except Exception as e:
-            print(f"Error: {e}")
+            console.print(f"Error: {e}", style="bold indian_red")
             return None
 
     @staticmethod
     def asigne_task():
-        title = input("[New task]: ")
-        description = input("[Description]: ")
+        title = console.input(r"[bold bright_black]\[New task]: [/bold bright_black]")
+        description = console.input(r"[bold bright_black]\[Description]: [/bold bright_black]")
         return title, description
 
     @staticmethod
     def edit_status():
         try:
-            id = int(input("[Id]: "))
-            status = input("[New status]: ")
+            id = int(console.input(r"[bold bright_black]\[Id]: [/bold bright_black]"))
+            status = console.input(r"[bold bright_black]\[New status]: [/bold bright_black]")
             return id, status
         except ValueError as e:
-            print(str(e))
-
+            console.print(str(e), style="bold indian_red")
 
     @staticmethod
     def system_key_status():
         try:
-            key = int(input("[Id type]: "))
+            key = int(console.input(r"[bold bright_black]\[Id type]: [/bold bright_black]"))
             return key
         except ValueError as e:
-            print(str(e))
-
+            console.print(str(e), style="bold indian_red")

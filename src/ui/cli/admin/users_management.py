@@ -4,6 +4,7 @@ from src.core.exceptions import (
     HashCreatingError,
     ModelsError,
     NotFoundUserError,
+    PasswordMatchError,
     ProjectsError,
 )
 from src.ui.cli.base import BaseForms, BaseTables, BaseUI
@@ -28,7 +29,7 @@ class UserManagementViews:
             AdminMenus.menu_users()
 
             option = BaseForms.option_forms()
-            print()
+            BaseUI.show_message("\n")
 
             match option:
                 case 1:
@@ -56,23 +57,29 @@ class UserManagementViews:
 
                 case 3:
                     while True:
-                        user_email = FormsUser.search_forms()
-                        result = self.controller.user.search_user_or_email(user_email)
-                        BaseTables.show_table(result, title="User Details")
-
-                        id_user = BaseForms.id_forms()
                         try:
-                            self.controller.user.delete_user(id_user)
-                            BaseUI.show_message("\nUser deleted successfully")
-                        except (DataEmptyError, NotFoundUserError) as e:
+                            user_email = FormsUser.search_forms()
+                            result = self.controller.user.search_user_or_email(user_email)
+                            BaseTables.show_table(result, title="User Details")
+
+                            try:
+                                id_user = BaseForms.id_forms()
+
+                                self.controller.user.delete_user(id_user)
+                                BaseUI.show_message("\nUser deleted successfully")
+                            except (DataEmptyError, NotFoundUserError, ModelsError) as e:
+                                BaseUI.show_message(str(e))
+                                if BaseForms.ask_forms("Do you want to try again?") == "Y":
+                                    continue
+                                else:
+                                    break
+
+                        except (DataEmptyError, NotFoundUserError, ModelsError) as e:
                             BaseUI.show_message(str(e))
                             if BaseForms.ask_forms("Do you want to try again?") == "Y":
                                 continue
                             else:
                                 break
-
-                        except ModelsError as e:
-                            BaseUI.show_message(str(e))
 
                         if BaseForms.ask_forms("Delete more users?") == "Y":
                             continue
@@ -102,31 +109,38 @@ class UserManagementViews:
             AdminMenus.menu_edit_users()
 
             option = BaseForms.option_forms()
-            print()
+            BaseUI.show_message("\n")
+
             match option:
                 case 1:
                     while True:
                         try:
                             user_email = FormsUser.search_forms()
-                            print()
+                            BaseUI.show_message("\n")
 
                             result = self.controller.user.search_user_or_email(user_email)
                             BaseTables.show_table(result, title="User Details")
-                            id_user = BaseForms.id_forms()
 
-                            data = FormsUser.edit_forms("New username")
-                            self.controller.user.edit_username((data, id_user))
-                            BaseUI.show_message("\nUser updated successfully")
+                            try:
+                                id_user = BaseForms.id_forms()
 
-                        except (DataEmptyError, NotFoundUserError) as e:
+                                data = FormsUser.edit_forms("New username")
+                                self.controller.user.edit_username((data, id_user))
+                                BaseUI.show_message("\nUser updated successfully")
+
+                            except (DataEmptyError, NotFoundUserError, ModelsError) as e:
+                                BaseUI.show_message(str(e))
+                                if BaseForms.ask_forms("Do you want to try again?") == "Y":
+                                    continue
+                                else:
+                                    break
+
+                        except (DataEmptyError, NotFoundUserError, ModelsError) as e:
                             BaseUI.show_message(str(e))
                             if BaseForms.ask_forms("Do you want to try again?") == "Y":
                                 continue
                             else:
                                 break
-
-                        except ModelsError as e:
-                            BaseUI.show_message(str(e))
 
                         if BaseForms.ask_forms("Continue editing users?") == "Y":
                             continue
@@ -137,24 +151,31 @@ class UserManagementViews:
                     while True:
                         try:
                             user_email = FormsUser.search_forms()
-                            print()
+                            BaseUI.show_message("\n")
                             result = self.controller.user.search_user_or_email(user_email)
                             BaseTables.show_table(result, title="User Details")
-                            id_user = BaseForms.id_forms()
 
-                            data = FormsUser.edit_forms("\nNew email")
-                            self.controller.user.edit_email((data, id_user))
-                            BaseUI.show_message("\nEmail updated successfully")
+                            try:
+                                id_user = BaseForms.id_forms()
+                                BaseUI.show_message("\n")
 
-                        except (DataEmptyError, NotFoundUserError) as e:
+                                data = FormsUser.edit_forms("New email")
+                                self.controller.user.edit_email((data, id_user))
+                                BaseUI.show_message("\nEmail updated successfully")
+
+                            except (DataEmptyError, NotFoundUserError, ModelsError) as e:
+                                BaseUI.show_message(str(e))
+                                if BaseForms.ask_forms("Do you want to try again?") == "Y":
+                                    continue
+                                else:
+                                    break
+
+                        except (DataEmptyError, NotFoundUserError, ModelsError) as e:
                             BaseUI.show_message(str(e))
                             if BaseForms.ask_forms("Do you want to try again?") == "Y":
                                 continue
                             else:
                                 break
-
-                        except ModelsError as e:
-                            BaseUI.show_message(str(e))
 
                         if BaseForms.ask_forms("Continue editing users?") == "Y":
                             continue
@@ -163,24 +184,31 @@ class UserManagementViews:
 
                 case 3:
                     while True:
-                        user_email = FormsUser.search_forms()
-                        result = self.controller.user.search_user_or_email(user_email)
-                        BaseTables.show_table(result, title="User Details")
-                        id_user = BaseForms.id_forms()
-
-                        data = FormsUser.edit_forms("\nNew password")
                         try:
-                            self.controller.user.reset_password((id_user, data))
-                            BaseUI.show_message("\nPassword updated successfully")
-                        except (DataEmptyError, NotFoundUserError) as e:
+                            user_email = FormsUser.search_forms()
+                            BaseUI.show_message("\n")
+                            result = self.controller.user.search_user_or_email(user_email)
+                            BaseTables.show_table(result, title="User Details")
+
+                            try:
+                                id_user = BaseForms.id_forms()
+                                BaseUI.show_message("\n")
+
+                                data = FormsUser.edit_forms("New password")
+                                self.controller.user.reset_password((id_user, data))
+                                BaseUI.show_message("\nPassword updated successfully")
+                            except (DataEmptyError, PasswordMatchError, HashCreatingError, NotFoundUserError, ModelsError) as e:
+                                BaseUI.show_message(str(e))
+                                if BaseForms.ask_forms("Do you want to try again?") == "Y":
+                                    continue
+                                else:
+                                    break
+                        except (DataEmptyError, NotFoundUserError, ModelsError) as e:
                             BaseUI.show_message(str(e))
                             if BaseForms.ask_forms("Do you want to try again?") == "Y":
                                 continue
                             else:
                                 break
-
-                        except ModelsError as e:
-                            BaseUI.show_message(str(e))
 
                         if BaseForms.ask_forms("Continue editing users?") == "Y":
                             continue
@@ -192,20 +220,27 @@ class UserManagementViews:
                             user_email = FormsUser.search_forms()
                             result = self.controller.user.search_user_or_email(user_email)
                             BaseTables.show_table(result, title="User Details")
-                            id_user = BaseForms.id_forms()
 
-                            data = FormsUser.edit_forms("New role")
-                            self.controller.user.change_role((data, id_user))
-                            BaseUI.show_message("\nRole updated successfully")
-                        except (DataEmptyError, NotFoundUserError, ValueError) as e:
+                            try:
+                                id_user = BaseForms.id_forms()
+                                BaseUI.show_message("\n")
+
+                                data = FormsUser.edit_forms("New role")
+                                self.controller.user.change_role((data, id_user))
+                                BaseUI.show_message("\nRole updated successfully")
+                            except (DataEmptyError, NotFoundUserError, ValueError, ModelsError) as e:
+                                BaseUI.show_message(str(e))
+                                if BaseForms.ask_forms("Do you want to try again?") == "Y":
+                                    continue
+                                else:
+                                    break
+
+                        except (DataEmptyError, NotFoundUserError, ValueError, ModelsError) as e:
                             BaseUI.show_message(str(e))
                             if BaseForms.ask_forms("Do you want to try again?") == "Y":
                                 continue
                             else:
                                 break
-
-                        except ModelsError as e:
-                            BaseUI.show_message(str(e))
 
                         if BaseForms.ask_forms("Continue editing users?") == "Y":
                             continue

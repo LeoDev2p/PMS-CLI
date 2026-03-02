@@ -40,8 +40,8 @@ class ProfileViews:
             ViewHelper.clear_screen()
             BaseUI.banner()
             UserMenus.menu()
-
             option = BaseForms.option_forms()
+            BaseUI.show_message("\n")
             BaseUI.show_message("\n")
 
             match option:
@@ -56,39 +56,48 @@ class ProfileViews:
                         continue
 
                 case 2:
-                    # params = id, task_name, task_title, project_title
                     search = BaseForms.search_forms("Search project")
+
                     try:
-                        # mostrar proyectos especifico
+                        # --- Buscar Proyectos ---
                         projects = self.controller.project.get_search_by_title(search)
                         BaseTables.show_table(projects, title="Found Projects")
-
                         id_project = BaseForms.id_forms()
-                    except (DataNotFoundError, ModelsError) as e:
-                        BaseUI.show_error(str(e))
 
-                    try:
-                        # mostrara tareas del proyecto especifico
-                        project = next((k["title"] for k in projects if k["id"] == id_project), None)
+                        try:
+                            # --- Mostrar Tareas ---
+                            # Buscamos el nombre del proyecto en la lista obtenida anteriormente
+                            project_name = next((k["title"] for k in projects if k["id"] == id_project), "Unknown")
 
-                        BaseUI.show_message(f"\nTasks of the project {project}\n")
-                        tasks = self.controller.task.get_details_by_project(id_project)
-                        BaseTables.show_table(tasks, title="Project Tasks")
-                        id_task = BaseForms.id_forms()
+                            BaseUI.show_message(f"\nTasks of the project {project_name}\n")
+                            tasks = self.controller.task.get_details_by_project(id_project)
+                            BaseTables.show_table(tasks, title="Project Tasks")
+                            id_task = BaseForms.id_forms()
 
-                        # mostrara los estados
-                        BaseUI.show_message("\nList of Status\n")
-                        status = self.controller.task_status.get_all()
-                        BaseTables.show_table(status, title="Task Status")
-                        id_status = BaseForms.id_forms()
+                            try:
+                                # --- Editar Estado ---
+                                BaseUI.show_message("\nList of Status\n")
+                                status = self.controller.task_status.get_all()
+                                BaseTables.show_table(status, title="Task Status")
+                                id_status = BaseForms.id_forms()
 
-                        # editar estado
-                        self.controller.task.edit_status(id_status, id_task, id_project)
-                        BaseUI.show_message("\nTask status edited successfully")
-                    except (DataEmptyError, ModelsError) as e:
-                        BaseUI.show_error(str(e))
+                                # edición
+                                self.controller.task.edit_status(id_status, id_task, id_project)
+                                BaseUI.show_message("\nTask status edited successfully")
 
-                        if BaseForms.ask_forms() == "Y":
+                            except (DataEmptyError, DataNotFoundError, ModelsError) as e:
+                                BaseUI.show_error(f"Error en estados: {e}")
+                                if BaseForms.ask_forms("Do you want to try again?") == "Y":
+                                    continue
+
+                        except (DataEmptyError, DataNotFoundError, ModelsError) as e:
+                            BaseUI.show_error(f"Error en tareas: {e}")
+                            if BaseForms.ask_forms("Do you want to try again?") == "Y":
+                                continue
+
+                    except (DataEmptyError, DataNotFoundError, ModelsError) as e:
+                        BaseUI.show_error(f"Error en proyecto: {e}")
+                        if BaseForms.ask_forms("Do you want to try again?") == "Y":
                             continue
 
                     time.sleep(3.2)

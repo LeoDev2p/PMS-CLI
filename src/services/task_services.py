@@ -74,9 +74,12 @@ class TaskServices:
         Keys: id, title, status, project, assigned_to
         """
         try:
-            params = (id_project, Session.get_id())
+            if Session.get_role() == "admin":
+                params = (id_project,)
+            else:
+                params = (id_project, Session.get_id())
+
             result = self.model.get_details_by_project(params)
-            print(f"[DEBUG] {params}")
         except DatabaseSystemError as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
@@ -230,6 +233,25 @@ class TaskServices:
                 raise NotFoundTaskError("No tasks were found.")
 
             return [{"month": r[0], "total_tasks": r[1]} for r in result]
+    
+    def fetch_orphan_task_alerts(self) -> list[tuple]:
+        """Returns tasks that are not assigned to any user."""
+        try:
+            result = self.model.orphan_task_alerts()
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+        else:
+            if not result:
+                raise NotFoundTaskError("No tasks were found.")
+
+            return [
+                {
+                    "id": r[0], 
+                    "title": r[1], 
+                    "status": r[2], 
+                    "project": r[3]
+                } for r in result]
 
 
 class TaskStatusServices:

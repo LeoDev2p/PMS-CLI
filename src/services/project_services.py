@@ -34,7 +34,7 @@ class ProjectServices:
             raise ModelsError("Technical error in the data server. Contact support.")
 
         if not result:
-            raise NotFoundProjectError("No proyectos registrados")
+            raise NotFoundProjectError("No projects found")
 
         return [{"id": r[0], "title": r[1], "status": r[2]} for r in result]
 
@@ -51,7 +51,7 @@ class ProjectServices:
             raise ModelsError("Technical error in the data server. Contact support.")
 
         if not result:
-            raise NotFoundProjectError(f"No existe {title}")
+            raise NotFoundProjectError(f"Project '{title}' not found")
 
         return [{"id": r[0], "title": r[1]} for r in result]
 
@@ -126,7 +126,9 @@ class ProjectServices:
         normalize = TextHelper.normalize(params)
         try:
             if self.model.get_by_title(normalize[0]):
-                raise ProjectsExistsError(f"The project '{normalize[0]}' is already registered.")
+                raise ProjectsExistsError(
+                    f"The project '{normalize[0]}' is already registered."
+                )
 
             status = self.status_model.get_all()
             if not status:
@@ -249,6 +251,26 @@ class ProjectServices:
             {
                 "project": r[0],
                 "count_users": r[1],
+            }
+            for r in result
+        ]
+
+    def fetch_critical_projects(self) -> list[dict]:
+        """Returns projects that are not assigned to any user."""
+        try:
+            result = self.model.critical_projects()
+        except DatabaseSystemError as e:
+            self.log_error.critical(f"Error: {e}")
+            raise ModelsError("Technical error in the data server. Contact support.")
+        else:
+            if not result:
+                raise NotFoundProjectError("No projects available")
+
+        return [
+            {
+                "project": r[0],
+                "tasks_paused": r[1],
+                "tasks_in_progress": r[2],
             }
             for r in result
         ]
@@ -393,4 +415,6 @@ class UserProjectServices:
             self.log_error.error(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
         else:
-            self.log_audit.info(f"User {params[0]} linked to project {params[1]} successfully")
+            self.log_audit.info(
+                f"User {params[0]} linked to project {params[1]} successfully"
+            )

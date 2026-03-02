@@ -25,6 +25,8 @@ class ProjectsViews:
             AdminMenus.menu_project()
 
             option = BaseForms.option_forms()
+            BaseUI.show_message("\n")
+
             match option:
                 case 1:
                     self.m_project.run()

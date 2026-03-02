@@ -1,11 +1,7 @@
 from src.core.exceptions import (
     DataEmptyError,
-    NotFoundProjectError,
-    NotFoundTaskError,
-    NotFoundTaskStatusError,
 )
 from src.core.logging import get_logger
-from src.models.sessions import Session
 from utils.validators import validation_data_empty
 
 
@@ -68,7 +64,6 @@ class TaskController:
 
         self.service.modify_status(id_status, task_id, project_id)
 
-
     def edit_assigned_user(self, params: tuple):
         """Reassigns a user on a task."""
         if not validation_data_empty(params):
@@ -100,6 +95,10 @@ class TaskController:
     def get_completion_efficiency(self) -> list[dict]:
         """Completion Efficiency: Tasks completed per week/month."""
         return self.service.fetch_completion_efficiency()
+    
+    def get_orphan_task_alerts(self) -> list[dict]:
+        """Returns tasks that are not assigned to any user."""
+        return self.service.fetch_orphan_task_alerts()
 
 
 class TaskStatusController:

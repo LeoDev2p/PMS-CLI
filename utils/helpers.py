@@ -49,11 +49,11 @@ class ViewHelper:
     @staticmethod
     def progress_bar():
         """Display a progress bar in the console."""
-        # El '\r' y el 'end=""' son los que fuerzan la actualización en la misma línea
+        from rich.progress import track
+
         print()
-        for i in range(101):
-            print(f"\r[{'#' * (i // 2):<50}] {i}%", end="", flush=True)
-            time.sleep(0.03)
+        for _ in track(range(101), description="[bold sky_blue3]Processing...[/bold sky_blue3]"):
+            time.sleep(0.01)  # Faster for better UX during tests
         print("\n")
 
     @staticmethod
