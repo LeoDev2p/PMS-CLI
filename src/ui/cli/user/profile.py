@@ -11,7 +11,6 @@ from src.core.exceptions import (
 from src.core.logging import get_logger
 from src.models.sessions import Session
 from src.ui.cli.base import BaseForms, BaseTables, BaseUI
-from src.ui.cli.form.user import FormsUser
 from src.ui.cli.menu.user_menu import UserMenus
 from utils.helpers import ViewHelper
 
@@ -41,7 +40,6 @@ class ProfileViews:
             BaseUI.banner()
             UserMenus.menu()
             option = BaseForms.option_forms()
-            BaseUI.show_message("\n")
             BaseUI.show_message("\n")
 
             match option:
@@ -134,7 +132,7 @@ class ProfileViews:
             match option:
                 case 1:
                     try:
-                        username = FormsUser.str_forms("New username")
+                        username = BaseForms.str_forms("New username")
 
                         if BaseForms.ask_forms(question="Want to update username?") == "Y":
                             self.controller.user.edit_username((username, Session.get_id()))
@@ -154,7 +152,7 @@ class ProfileViews:
                     time.sleep(3.2)
                 case 2:
                     try:
-                        password = FormsUser.str_forms("New Password")
+                        password = BaseForms.str_forms("New Password")
 
                         if BaseForms.ask_forms(question="Want to update password?") == "Y":
                             self.controller.user.reset_password((Session.get_id(), password))

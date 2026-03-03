@@ -35,9 +35,9 @@ def get_logger(tipo: str, modulo: str) -> object:
         logger.addHandler(file_handler)
 
         # 3. EL ESCRIBIENTE DE CONSOLA (StreamHandler)
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
+        # console_handler = logging.StreamHandler()
+        # console_handler.setFormatter(formatter)
+        # logger.addHandler(console_handler)
 
         # 4. NIVEL DE ESCUCHA
         logger.setLevel(logging.INFO)
