@@ -2,32 +2,33 @@ from rich.console import Console
 
 console = Console()
 
+
 class AdminMenus:
     """
     Class to manage admin menus.
     """
 
-
     @staticmethod
     def menu():
         """Dibuja el menú con márgenes para que no esté pegado al borde."""
 
-        console.print("\n") 
-    
+        console.print("\n")
+
         margin = " " * 10
         console.print(f"{margin}[bold sky_blue3]──── ADMIN PANEL ────[/bold sky_blue3]")
 
         console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] User management")
         console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] Project management")
         console.print(f"{margin} [bold sky_blue3][3][/bold sky_blue3] Statistics panel")
-        console.print(f"{margin} [bold grey50][4] Logout[/bold grey50]")
+        console.print(f"{margin} [bold sky_blue3][4][/bold sky_blue3] My Profile")
+        console.print(f"{margin} [bold grey50][5] Logout[/bold grey50]")
 
-        console.print("\n") 
+        console.print("\n")
 
     # User management
     @staticmethod
     def menu_users():
-        console.print("\n") 
+        console.print("\n")
         margin = " " * 10
         console.print(f"{margin}[bold sky_blue3]──── USER MANAGEMENT ────[/bold sky_blue3]")
         console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Create user")
@@ -39,7 +40,7 @@ class AdminMenus:
 
     @staticmethod
     def menu_edit_users():
-        console.print("\n") 
+        console.print("\n")
         margin = " " * 10
         console.print(f"{margin}[bold sky_blue3]──── EDIT USER ────[/bold sky_blue3]")
         console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Edit username")
@@ -52,7 +53,7 @@ class AdminMenus:
     # ManagementProjectViews
     @staticmethod
     def menu_project():
-        console.print("\n") 
+        console.print("\n")
         margin = " " * 10
         console.print(f"{margin}[bold sky_blue3]──── ADMIN MANAGEMENT ────[/bold sky_blue3]")
         console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Projects")
@@ -61,11 +62,10 @@ class AdminMenus:
         console.print(f"{margin} [bold grey50][4] Back[/bold grey50]")
         console.print("\n")
 
-
     # Projects
     @staticmethod
     def menu_management_project():
-        console.print("\n") 
+        console.print("\n")
         margin = " " * 10
         console.print(f"{margin}[bold sky_blue3]──── PROJECT MANAGEMENT ────[/bold sky_blue3]")
         console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] New project")
@@ -77,7 +77,7 @@ class AdminMenus:
 
     @staticmethod
     def menu_edit_project():
-        console.print("\n") 
+        console.print("\n")
         margin = " " * 10
         console.print(f"{margin}[bold sky_blue3]──── EDIT PROJECT ────[/bold sky_blue3]")
         console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Editing title")
@@ -88,7 +88,7 @@ class AdminMenus:
     # system setting
     @staticmethod
     def menu_system_setting():
-        console.print("\n") 
+        console.print("\n")
         margin = " " * 10
         console.print(f"{margin}[bold sky_blue3]──── SYSTEM SETTING ────[/bold sky_blue3]")
         console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Managing project states")
@@ -98,7 +98,7 @@ class AdminMenus:
 
     @staticmethod
     def menu_status_projects():
-        console.print("\n") 
+        console.print("\n")
         margin = " " * 10
         console.print(f"{margin}[bold sky_blue3]──── STATUS PROJECTS ────[/bold sky_blue3]")
         console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Create state")
@@ -110,7 +110,7 @@ class AdminMenus:
 
     @staticmethod
     def menu_status_tasks():
-        console.print("\n") 
+        console.print("\n")
         margin = " " * 10
         console.print(f"{margin}[bold sky_blue3]──── STATUS TASKS ────[/bold sky_blue3]")
         console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Create state")
@@ -120,11 +120,10 @@ class AdminMenus:
         console.print(f"{margin} [bold grey50][5] Back[/bold grey50]")
         console.print("\n")
 
-
     # Gestion operativa
     @staticmethod
     def menu_operational():
-        console.print("\n") 
+        console.print("\n")
         margin = " " * 10
         console.print(f"{margin}[bold sky_blue3]──── OPERATIONAL ────[/bold sky_blue3]")
         console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] New assignment / create task")
@@ -133,10 +132,9 @@ class AdminMenus:
         console.print(f"{margin} [bold grey50][4] Back[/bold grey50]")
         console.print("\n")
 
-
     @staticmethod
     def menu_team_monitoring():
-        console.print("\n") 
+        console.print("\n")
         margin = " " * 10
         console.print(f"{margin}[bold sky_blue3]──── TEAM MONITORING ────[/bold sky_blue3]")
         console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] View Team by Project")
@@ -144,10 +142,9 @@ class AdminMenus:
         console.print(f"{margin} [bold grey50][3] Back[/bold grey50]")
         console.print("\n")
 
-
     @staticmethod
     def menu_personnel_maintenance():
-        console.print("\n") 
+        console.print("\n")
         margin = " " * 10
         console.print(f"{margin}[bold sky_blue3]──── PERSONNEL MAINTENANCE ────[/bold sky_blue3]")
         console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Reassign User")
@@ -155,11 +152,10 @@ class AdminMenus:
         console.print(f"{margin} [bold grey50][3] Back[/bold grey50]")
         console.print("\n")
 
-
     # Statistics panel
     @staticmethod
     def menu_statistics():
-        console.print("\n") 
+        console.print("\n")
         margin = " " * 10
         console.print(f"{margin}[bold sky_blue3]──── STATISTICS ────[/bold sky_blue3]")
         console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Talent Management (users)")
@@ -169,10 +165,9 @@ class AdminMenus:
         console.print(f"{margin} [bold grey50][5] Back[/bold grey50]")
         console.print("\n")
 
-
     @staticmethod
     def menu_talent_management():
-        console.print("\n") 
+        console.print("\n")
         margin = " " * 10
         console.print(f"{margin}[bold sky_blue3]──── TALENT MANAGEMENT ────[/bold sky_blue3]")
         console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Availability counter")
@@ -181,10 +176,9 @@ class AdminMenus:
         console.print(f"{margin} [bold grey50][4] Back[/bold grey50]")
         console.print("\n")
 
-
     @staticmethod
     def menu_health_status():
-        console.print("\n") 
+        console.print("\n")
         margin = " " * 10
         console.print(f"{margin}[bold sky_blue3]──── HEALTH STATUS ────[/bold sky_blue3]")
         console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Project progress")
@@ -193,24 +187,22 @@ class AdminMenus:
         console.print(f"{margin} [bold grey50][4] Back[/bold grey50]")
         console.print("\n")
 
-
     @staticmethod
     def menu_performance_metrics():
-        console.print("\n") 
+        console.print("\n")
         margin = " " * 10
         console.print(f"{margin}[bold sky_blue3]──── PERFORMANCE METRICS ────[/bold sky_blue3]")
         console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Blocking rate")
         console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] Completion Efficiency")
         console.print(f"{margin} [bold grey50][3] Back[/bold grey50]")
         console.print("\n")
-    
+
     @staticmethod
     def menu_critical_control_panel():
-        console.print("\n") 
+        console.print("\n")
         margin = " " * 10
         console.print(f"{margin}[bold sky_blue3]──── CRITICAL CONTROL PANEL ────[/bold sky_blue3]")
         console.print(f"{margin} [bold sky_blue3][1][/bold sky_blue3] Orphan Task Alerts")
         console.print(f"{margin} [bold sky_blue3][2][/bold sky_blue3] Critical Projects")
         console.print(f"{margin} [bold grey50][3] Back[/bold grey50]")
         console.print("\n")
-

@@ -15,7 +15,7 @@ from src.ui.cli.admin.admin_view import AdminViews
 from src.ui.cli.base import BaseForms, BaseUI
 from src.ui.cli.form.auth import FormsAuth
 from src.ui.cli.menu.auth_menu import AuthMenus
-from src.ui.cli.user.profile import ProfileViews
+from src.ui.cli.user.user_views import UserViews
 from utils.helpers import ViewHelper
 
 
@@ -28,7 +28,7 @@ class AuthView:
         self.controller = controller
 
         self.admin = AdminViews(controller)
-        self.profile = ProfileViews(controller)
+        self.profile = UserViews(controller)
 
     def run(self):
         while True:

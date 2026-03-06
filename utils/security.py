@@ -24,6 +24,7 @@ class Hasher:
             HashCreatingError: If the password cannot be hashed.
         """
         try:
+            print (f"[DEBUG] {password}")
             return PH.hash(password)
         except HashingError as e:
             raise HashCreatingError(str(e))

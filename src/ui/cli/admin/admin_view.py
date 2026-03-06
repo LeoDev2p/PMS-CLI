@@ -7,6 +7,7 @@ from src.ui.cli.admin.stats import StatsViews
 from src.ui.cli.admin.users_management import UserManagementViews
 from src.ui.cli.base import BaseForms, BaseUI
 from src.ui.cli.menu.admin_menu import AdminMenus
+from src.ui.cli.user.profile import MyProfile
 from utils.helpers import ViewHelper
 
 
@@ -20,6 +21,7 @@ class AdminViews:
         self.user_views = UserManagementViews(controller)
         self.projects_views = ProjectsViews(controller)
         self.stats_views = StatsViews(controller)
+        self.my_profile = MyProfile(controller)
 
         self.log = get_logger("audit", self.__class__.__name__)
 
@@ -39,6 +41,8 @@ class AdminViews:
                 case 3:
                     self.stats_views.run()
                 case 4:
+                    self.my_profile.run()
+                case 5:
                     BaseUI.show_message("Logout ............")
                     time.sleep(1)
                     Session.stop()

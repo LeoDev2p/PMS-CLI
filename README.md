@@ -48,6 +48,22 @@
    pip install -r requirements.txt
    ```
 
+4. **Configure Environment Variables**
+
+    Create or edit the `.env` file in the project root:
+
+    ```env
+    # Authentication Credentials
+    ADMIN_USERNAME = "admin"
+    ADMIN_EMAIL = "admin@admin.com"
+    ADMIN_PASSWORD = "admin"
+
+    # Database Name
+    DATABASE = "project_management.db"
+    ```
+
+    > **⚠️ IMPORTANT**: Never share your `.env` file. It's already included in `.gitignore`
+
 ## � Core Business Features
 
 ### Admin Capabilities

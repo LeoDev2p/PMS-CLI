@@ -178,7 +178,7 @@ class UsersModels(BaseModels):
         """
 
         return self._execute_query(query, select=True)
-    
+
     def select_user_by_project(self, id_project):
         """selecionar usuarios por proyecto y tareas"""
 
@@ -192,7 +192,7 @@ class UsersModels(BaseModels):
         JOIN projects p ON up.id_projects = p.id
         WHERE p.id = ?
         """
-        
+
         return self._execute_query(query, (id_project,), select=True)
 
     def like_by_username(self, username) -> list[tuple]:
@@ -280,7 +280,7 @@ class UsersModels(BaseModels):
         """
 
         return self._execute_query(query, select=True)
-    
+
     def productivity_ranking(self):
         """
         Productivity Ranking Top 3 users with the most completed tasks.

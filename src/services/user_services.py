@@ -1,9 +1,9 @@
 from src.core.exceptions import (
     DatabaseLockedError,
     DatabaseSystemError,
+    DataEmptyError,
     ModelsError,
     NotFoundUserError,
-    DataEmptyError,
 )
 from src.core.logging import get_logger
 from src.models.sessions import Session
@@ -194,9 +194,7 @@ class UserServices:
         params = (normalized, id)
         try:
             self.model.update_username(params)
-            self.log_audit.info(
-                f"{Session.get_role()} user {Session.get_id()} update user {id}'s username"
-            )
+            self.log_audit.info(f"{Session.get_role()} user {Session.get_id()} update user {id}'s username")
         except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
@@ -212,9 +210,7 @@ class UserServices:
         normalized = TextHelper.normalize(email)
         try:
             self.model.update_email((normalized, id))
-            self.log_audit.info(
-                f"{Session.get_role()} user {Session.get_id()} updated user {id}'s email address"
-            )
+            self.log_audit.info(f"{Session.get_role()} user {Session.get_id()} updated user {id}'s email address")
         except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
@@ -230,9 +226,7 @@ class UserServices:
         normalized = Hasher.hash_password(password)
         try:
             self.model.update_password((normalized, id))
-            self.log_audit.info(
-                f"{Session.get_role()} user {Session.get_id()} updated user {id}'s password"
-            )
+            self.log_audit.info(f"{Session.get_role()} user {Session.get_id()} updated user {id}'s password")
         except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
@@ -250,9 +244,7 @@ class UserServices:
             raise DataEmptyError("Invalid role")
         try:
             self.model.update_role((normalized, id))
-            self.log_audit.info(
-                f"{Session.get_role()} user {Session.get_id()} updated user {id}'s role"
-            )
+            self.log_audit.info(f"{Session.get_role()} user {Session.get_id()} updated user {id}'s role")
         except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")
@@ -274,9 +266,7 @@ class UserServices:
 
         try:
             self.model.delete(id_user)
-            self.log_audit.info(
-                f"{Session.get_role()} user {Session.get_id()} deleted user {id_user}"
-            )
+            self.log_audit.info(f"{Session.get_role()} user {Session.get_id()} deleted user {id_user}")
         except (DatabaseLockedError, DatabaseSystemError) as e:
             self.log_error.critical(f"Error: {e}")
             raise ModelsError("Technical error in the data server. Contact support.")

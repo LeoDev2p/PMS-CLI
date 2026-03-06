@@ -8,6 +8,7 @@ from src.controllers.project_controller import (
 from src.controllers.task_controller import TaskController, TaskStatusController
 from src.controllers.user_controller import UserController
 from src.core.exceptions import ProjectsError
+from src.core.setting import ConfigAdmin
 from src.models.project_models import (
     ProjectModels,
     ProjectStatusModels,
@@ -54,6 +55,20 @@ if __name__ == "__main__":
         task_status=TaskStatusServices(task_status_model),
         user_project=UserProjectServices(user_project_model),
     )
+
+    # Inicializacion el superuser
+    try:
+        service.auth.create_user(
+            ConfigAdmin.ADMIN_EMAIL,
+            ConfigAdmin.ADMIN_PASSWORD,
+            ConfigAdmin.ADMIN_USERNAME
+        )
+
+    except Exception as e:
+        if "Email already exists" in str(e).lower():
+            pass
+        else:
+            print(f"Critical error creating admin: {e}")
 
     # controllers
     controller = ControllerBundle(
